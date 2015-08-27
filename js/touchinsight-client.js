@@ -10,7 +10,7 @@ var date = "Date";
 var sourcePopulation = "SPopulation";
 var destPopulation = "DPopulation";
 
-var dataFile = "/data/flights.csv";
+var dataFile = "data/flights.csv";
 
 var GRID = [3, 3];
 
@@ -22,12 +22,42 @@ var PADDING = 0;
 
 var colorscale = d3.scale.category10();
 
+var parseDate = d3.time.format("%Y%m").parse;
+
+var flights;
+
 $(document).ready(function () {
 
+    flights = TAFFY();
+    
     width = $("body").width();
     height = $("body").height();
 
     createLayout();
+    
+    d3.csv(dataFile, function (error, data) {
+        
+        data.forEach(function (d) {
+            
+            var temp = {}; 
+            
+            temp[source] = d[source]; 
+            temp[destination] = d[destination]; 
+            temp[passengers] = +d[passengers];
+            temp[seats] = +d[seats]; 
+            temp[numFlights] = +d[numFlights]; 
+            temp[distance] = +d[distance]; 
+            temp[date] = parseDate(d[date]);
+            temp[sourcePopulation] = +d[sourcePopulation]; 
+            temp[destPopulation] = +d[destPopulation]; 
+            
+            flights.insert(temp); 
+            
+        }); 
+        
+        data = null;
+    }); 
+    
 
 });
 
@@ -43,6 +73,7 @@ function createLayout() {
         for (var j = 0; j < GRID[1]; j++) {
 
             d3.select("#content").append("div")
+                .attr("id", "div"+i+j)
                 .attr("class", "panel")
                 .style("width", xWeights[j]*width - PADDING / 2)
                 .style("height", yWeights[i]*height - PADDING / 2)
