@@ -17,7 +17,7 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 
-var FIRST_TIME_EXECUTED = false;
+var FIRST_TIME_EXECUTED = true;
 
 // connect to the flights database in mongodb
 var mongourl = 'mongodb://localhost:27017/flights';
@@ -67,6 +67,8 @@ var destPopulation = "DPopulation";
 
 var parseDate = d3.time.format("%Y-%m-%d").parse;
 
+var locationCache = {};
+
 // lets not do the training for now
 function initialize(db, callback) {
     if (FIRST_TIME_EXECUTED) {
@@ -91,18 +93,134 @@ function initialize(db, callback) {
                 temp[sourcePopulation] = +d[sourcePopulation];
                 temp[destPopulation] = +d[destPopulation];
 
+                db.collection('flights')
+                    .insertOne(temp,
+                        function (err, result) {
+                            assert.equal(err, null);
+                            console.log("Inserted a document");
+                        })
 
-                db.collection('flights').insertOne(temp,
-                    function (err, result) {
-                        assert.equal(err, null);
-                        console.log("Inserted a document into the restaurants collection.");
-                    });
+
+                //                if (!locationCache[temp[source]]) {
+                //
+                //                    var geocodeParams = {
+                //                        "address": temp[source],
+                //                        "language": "en",
+                //                        "region": "usa"
+                //                    };
+                //
+                //                    gmAPI.geocode(geocodeParams,
+                //                        function (err, result) {
+                //
+                //                            locationCache[temp[source]] = result.results[0].geometry.location;
+                //                            temp["sourceLocation"] = locationCache[temp[source]];
+                //
+                //                            console.log(temp["sourceLocation"])
+                //
+                //                            if (!locationCache[temp[destination]]) {
+                //
+                //                                var geocodeParams = {
+                //                                    "address": temp[destination],
+                //                                    "language": "en",
+                //                                    "region": "usa"
+                //                                };
+                //
+                //                                gmAPI.geocode(geocodeParams,
+                //                                    function (err, result) {
+                //
+                //                                        locationCache[temp[destination]] =
+                //                                            result.results[0].geometry.location;
+                //
+                //                                        temp["destLocation"] =
+                //                                            locationCache[temp[destination]];
+                //
+                //                                        console.log(temp["destLocation"]);
+                //
+                //
+                //                                    });
+                //
+                //                            } else {
+                //
+                //                                temp["destLocation"] =
+                //                                    locationCache[temp[destination]];
+                //
+                //                                db.collection('flights')
+                //                                    .insertOne(temp,
+                //                                        function (err, result) {
+                //                                            assert.equal(err, null);
+                //                                            console.log("Inserted a document");
+                //                                        })
+                //                                    .on("end", function () {
+                //
+                //                                        console.log("CREATED THE DATABASE");
+                //                                        callback();
+                //                                    });
+                //
+                //                            }
+                //                        });
+                //
+                //                } else {
+                //
+                //                    temp["sourceLocation"] = locationCache[temp[source]];
+                //
+                //                    if (!locationCache[temp[destination]]) {
+                //
+                //                        var geocodeParams = {
+                //                            "address": temp[destination],
+                //                            "language": "en",
+                //                            "region": "usa"
+                //                        };
+                //
+                //                        gmAPI.geocode(geocodeParams,
+                //                            function (err, result) {
+                //
+                //                                locationCache[temp[destination]] =
+                //                                    result.results[0].geometry.location;
+                //
+                //                                temp["destLocation"] =
+                //                                    locationCache[temp[destination]];
+                //
+                //                                console.log(temp["destLocation"]);
+                //
+                //                                db.collection('flights')
+                //                                    .insertOne(temp,
+                //                                        function (err, result) {
+                //                                            assert.equal(err, null);
+                //                                            console.log("Inserted a document");
+                //                                        })
+                //                                    .on("end", function () {
+                //
+                //                                        console.log("CREATED THE DATABASE");
+                //                                        callback();
+                //                                    });
+                //                            });
+                //
+                //                    } else {
+                //
+                //                        temp["destLocation"] =
+                //                            locationCache[temp[destination]];
+                //
+                //                        db.collection('flights')
+                //                            .insertOne(temp,
+                //                                function (err, result) {
+                //                                    assert.equal(err, null);
+                //                                    console.log("Inserted a document");
+                //                                })
+                //                            .on("end", function () {
+                //
+                //                                console.log("CREATED THE DATABASE");
+                //                                callback();
+                //                            });
+                //
+                //                    }
+                //
+                //
+                //                }
             })
             .on("end", function () {
-
                 console.log("CREATED THE DATABASE");
                 callback();
-            });
+            });;
 
     }
 }
@@ -116,22 +234,35 @@ MongoClient.connect(mongourl, function (err, db) {
 
 
 function queryFlightConnections(db, callback) {
-    
+
     var data = db.collection("flights").aggregate([
-                     { $group: { "_id": {
-                                  "Source": "$Source",
-                                  "Destination": "$Destination"
-                               }, Flights: { $sum: "$Flights" }}},
-                     { $sort: { Flights: -1 } }
+        {
+            $group: {
+                "_id": {
+                    "Source": "$Source",
+                    "Destination": "$Destination",
+                    "sourceLocation": "$sourceLocation",
+                    "destLocation": "$destLocation"
+                },
+                Flights: {
+                    $sum: "$Flights"
+                }
+            }
+        },
+        {
+            $sort: {
+                Flights: -1
+            }
+        }
                    ]);
-    
+
     data.toArray(function (err, docs) {
         assert.equal(null, err);
-        console.log(docs.length); 
+        console.log(docs.length);
         callback(docs);
-    }); 
-    
-    
+    });
+
+
 }
 
 app.get('/getFlightCounts', function (req, res, next) {

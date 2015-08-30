@@ -78,17 +78,31 @@ Map.prototype.refreshMap = function () {
                         }))
                 .attr("class", "state-boundary")
                 .attr("d", _self.path);
-            
-            
+
+
 
             _self.svg.append("g")
-                .selectAll("line")
+                .selectAll("circle")
                 .data(_self.edges)
-                .enter().append("line")
-                .attr("class", "curve")
-                .attr("transform", function (d) {
-                    return "translate(" + path.centroid(d) + ")";
+                .enter().append("circle")
+                .attr("class", "city")
+                .attr("transform", function (d, i) {
+                
+                    var s = d["_id"][source];
+                    var loc = usStates[s];
+                    
+                    console.log(s + i); 
+                
+                    return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
                 })
+                .attr("fill", function (d) {
+                    var de = d["_id"][dest];
+                    
+                    return colorscale(de); 
+                })  
+                .attr("fill-opacity", 0.2)
+                .attr("stroke", "white")
+                .attr("stroke-width", "1px")
                 .attr("r", 1.5);
 
         });

@@ -30,6 +30,8 @@ var parseDate = d3.time.format("%Y%m").parse;
 
 var geomap;
 
+var usStates = {}; 
+
 $(document).ready(function () {
 
 //    flights = new PouchDB('flights', {
@@ -44,35 +46,18 @@ $(document).ready(function () {
     createLayout();
     
     onDataLoaded();
-
-//    d3.csv(dataFile, function (error, data) {
-//
-//        data.forEach(function (d) {
-//
-//            var temp = {};
-//            
-//            temp["_id"] = d[sourceID]+"-"+d[destID]; 
-//            temp[source] = d[source];
-//            temp[destination] = d[destination];
-//            temp[passengers] = +d[passengers];
-//            temp[seats] = +d[seats];
-//            temp[numFlights] = +d[numFlights];
-//            temp[distance] = +d[distance];
-//            temp[date] = parseDate(d[date]);
-//            temp[sourcePopulation] = +d[sourcePopulation];
-//            temp[destPopulation] = +d[destPopulation];
-//
-//            
-//            flights.put(temp);
-//            
-//            flights2.insert(temp);
-//
-//        });
-//
-//        data = null;
-//
-//        onDataLoaded();
-//    });
+    
+    for (var i = 0; i < cities1000Map.length; i++) {
+        
+        var city = cities1000Map[i].city; 
+        city = city.replace(", USA",""); 
+        var loc = cities1000Map[i].ll.split(",");
+        
+        usStates[city] = {
+            lat: parseFloat(loc[0]),
+            lon: parseFloat(loc[1])
+        }
+    }
 
 });
 
