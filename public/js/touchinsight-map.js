@@ -25,34 +25,49 @@ function Map(options) {
 
     _self.edges = 0;
 
-        //    _self.sourceAirports = flights2().distinct(source);
-        //    _self.destAirports = flights2().distinct(destination);
-        //
-        //    var edges = _self.edges = {};
-        //
-        //    for (var i = 0; i < _self.sourceAirports.length; i++) {
-        //
-        //        for (var j = 0; j < _self.destAirports.length; j++) {
-        //
-        //            if (!edges[_self.sourceAirports[i]]) {
-        //
-        //                edges[_self.sourceAirports[i]] = {};
-        //
-        //            }
-        //
-        //            if (!edges[_self.sourceAirports[i]][_self.destAirports[j]]) {
-        //
-        //                edges[_self.sourceAirports[i]][_self.destAirports[j]] = 0;
-        //            }
-        //
-        //            edges[_self.sourceAirports[i]][_self.destAirports[j]] =
-        //                flights2({
-        //                    "Source": _self.sourceAirports[i],
-        //                    "Destination": _self.destAirports[j]
-        //                }).sum(numFlights);
-        //
-        //        }
-        //
-        //    }
+    $.ajax({
+        type: "GET",
+        url: "/getFlightCounts",
+        data: {
+            query: "getAllEdges",
+            cols: {}
+        }
+    }).done(function (data) {
+        
+        data = JSON.parse(data); 
+        console.log(data)
+        
+    });
+
+
+    //    _self.sourceAirports = flights2().distinct(source);
+    //    _self.destAirports = flights2().distinct(destination);
+    //
+    //    var edges = _self.edges = {};
+    //
+    //    for (var i = 0; i < _self.sourceAirports.length; i++) {
+    //
+    //        for (var j = 0; j < _self.destAirports.length; j++) {
+    //
+    //            if (!edges[_self.sourceAirports[i]]) {
+    //
+    //                edges[_self.sourceAirports[i]] = {};
+    //
+    //            }
+    //
+    //            if (!edges[_self.sourceAirports[i]][_self.destAirports[j]]) {
+    //
+    //                edges[_self.sourceAirports[i]][_self.destAirports[j]] = 0;
+    //            }
+    //
+    //            edges[_self.sourceAirports[i]][_self.destAirports[j]] =
+    //                flights2({
+    //                    "Source": _self.sourceAirports[i],
+    //                    "Destination": _self.destAirports[j]
+    //                }).sum(numFlights);
+    //
+    //        }
+    //
+    //    }
 
 }

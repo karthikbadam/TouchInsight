@@ -42,6 +42,8 @@ $(document).ready(function () {
     height = $("body").height();
 
     createLayout();
+    
+    onDataLoaded();
 
 //    d3.csv(dataFile, function (error, data) {
 //
