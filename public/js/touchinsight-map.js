@@ -80,7 +80,17 @@ Map.prototype.refreshMap = function () {
                 .attr("d", _self.path);
             
             
-            
+
+            _self.svg.append("g")
+                .selectAll("line")
+                .data(_self.edges)
+                .enter().append("line")
+                .attr("class", "curve")
+                .attr("transform", function (d) {
+                    return "translate(" + path.centroid(d) + ")";
+                })
+                .attr("r", 1.5);
+
         });
 
     }
