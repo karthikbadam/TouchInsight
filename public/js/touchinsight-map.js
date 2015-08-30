@@ -26,48 +26,64 @@ function Map(options) {
     _self.edges = 0;
 
     $.ajax({
+
         type: "GET",
         url: "/getFlightCounts",
         data: {
             query: "getAllEdges",
             cols: {}
         }
+
     }).done(function (data) {
-        
-        data = JSON.parse(data); 
+
+        data = JSON.parse(data);
         console.log(data)
-        
+
+        _self.edges = data;
+
+        _self.refreshMap();
+
     });
 
+}
 
-    //    _self.sourceAirports = flights2().distinct(source);
-    //    _self.destAirports = flights2().distinct(destination);
-    //
-    //    var edges = _self.edges = {};
-    //
-    //    for (var i = 0; i < _self.sourceAirports.length; i++) {
-    //
-    //        for (var j = 0; j < _self.destAirports.length; j++) {
-    //
-    //            if (!edges[_self.sourceAirports[i]]) {
-    //
-    //                edges[_self.sourceAirports[i]] = {};
-    //
-    //            }
-    //
-    //            if (!edges[_self.sourceAirports[i]][_self.destAirports[j]]) {
-    //
-    //                edges[_self.sourceAirports[i]][_self.destAirports[j]] = 0;
-    //            }
-    //
-    //            edges[_self.sourceAirports[i]][_self.destAirports[j]] =
-    //                flights2({
-    //                    "Source": _self.sourceAirports[i],
-    //                    "Destination": _self.destAirports[j]
-    //                }).sum(numFlights);
-    //
-    //        }
-    //
-    //    }
+Map.prototype.refreshMap = function () {
+
+    var _self = this;
+
+    if (d3.select("#map").empty()) {
+
+        _self.projection = d3.geo.albersUsa()
+            .scale(700)
+            .translate([(_self.width + _self.margin.left + _self.margin.right) / 2, (_self.height + _self.margin.top + _self.margin.bottom) / 2]);
+
+        _self.path = d3.geo.path()
+            .projection(_self.projection);
+
+        // draw map
+        d3.json("data/us.json", function (error, us) {
+
+            _self.svg.append("path")
+                .attr("id", "map")
+                .datum(topojson.feature(us, us.objects.land))
+                .attr("class", "land")
+                .attr("d", _self.path);
+
+            _self.svg.append("path")
+                .datum(
+                    topojson.mesh(us,
+                        us.objects.states,
+                        function (a, b) {
+                            return a !== b;
+                        }))
+                .attr("class", "state-boundary")
+                .attr("d", _self.path);
+            
+            
+            
+        });
+
+    }
+
 
 }

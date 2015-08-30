@@ -104,8 +104,9 @@ function createLayout() {
                 .attr("class", "panel")
                 .style("width", xWeights[j] * width - PADDING / 2)
                 .style("height", yWeights[i] * height - PADDING / 2)
-                .style("background-color", colorscale(i * GRID[0] + j))
-                .style("opacity", 0.1)
+                .style("background-color", 
+                       "#666")
+                .style("opacity", 1)
                 .style("margin", 0)
                 .style("overflow", "hidden");
         }
@@ -123,7 +124,7 @@ function getWeights(size) {
 
     for (var i = 0; i < size; i++) {
 
-        var weight = mid - Math.abs(mid - i - 1);
+        var weight = Math.pow(mid - Math.abs(mid - i - 1), 0.8);
 
         sum = sum + weight;
 
