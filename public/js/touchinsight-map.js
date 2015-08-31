@@ -41,7 +41,7 @@ function Map(options) {
 
         _self.edges = data;
 
-        _self.refreshMap();
+        _self.refreshChart();
 
     });
 
@@ -49,7 +49,7 @@ function Map(options) {
 
 }
 
-Map.prototype.refreshMap = function () {
+Map.prototype.refreshChart = function () {
 
     var _self = this;
 
@@ -118,7 +118,7 @@ Map.prototype.refreshMap = function () {
 
                     return (1 + Math.log(d["Flights"])) + "px";
                 })
-                .attr("stroke-opacity", 0.15)
+                .attr("stroke-opacity", 0.3)
                 .attr("x1", function (d, i) {
 
                     var s = d["_id"][source];

@@ -66,8 +66,6 @@ var date = "Date";
 var sourcePopulation = "SPopulation";
 var destPopulation = "DPopulation";
 
-var parseDate = d3.time.format("%Y-%m-%d").parse;
-
 var locationCache = {};
 
 // lets not do the training for now
@@ -90,7 +88,7 @@ function initialize(db, callback) {
                 temp[seats] = +d[seats];
                 temp[numFlights] = +d[numFlights];
                 temp[distance] = +d[distance];
-                temp[date] = parseDate(d[date]);
+                temp[date] = d[date];
                 temp[sourcePopulation] = +d[sourcePopulation];
                 temp[destPopulation] = +d[destPopulation];
 
@@ -123,9 +121,7 @@ function queryFlightConnections(db, callback) {
             $group: {
                 "_id": {
                     "Source": "$Source",
-                    "Destination": "$Destination",
-                    "sourceLocation": "$sourceLocation",
-                    "destLocation": "$destLocation"
+                    "Destination": "$Destination"
                 },
                 Flights: {
                     $sum: "$Flights"
@@ -159,6 +155,58 @@ app.get('/getFlightCounts', function (req, res, next) {
         assert.equal(null, err);
 
         queryFlightConnections(db, function (data) {
+            db.close();
+            res.write(JSON.stringify(data));
+            res.end();
+        });
+    });
+
+});
+
+
+function queryFlightsByTime(db, callback) {
+
+    var data = db.collection("flights").aggregate([
+        {
+            $group: {
+                "_id": {
+                    "Destination": "$Destination",
+                    "Date": "$Date"
+                },
+                Flights: {
+                    $sum: "$Flights"
+                }
+            }
+        },
+        {
+            $sort: {
+                Date: 1,
+                Flights: -1,
+                
+            }
+        }
+                   ]);
+
+    data.toArray(function (err, docs) {
+        assert.equal(null, err);
+        console.log(docs.length);
+        callback(docs);
+    });
+
+
+}
+
+app.get('/getFlightsByTime', function (req, res, next) {
+
+    var p = url.parse(req.url, true);
+    var params = p.query;
+
+    var query = params.query;
+
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+
+        queryFlightsByTime(db, function (data) {
             db.close();
             res.write(JSON.stringify(data));
             res.end();

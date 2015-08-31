@@ -28,7 +28,7 @@ var parseDate = d3.time.format("%Y%m").parse;
 //
 //var flights2;
 
-var geomap;
+var geomap, timechart;
 
 var usStates = {};
 
@@ -79,6 +79,13 @@ function onDataLoaded() {
         cols: [source, destination],
         width: $("#div11").width(),
         height: $("#div11").height(),
+    });
+    
+    timechart = new LineChart({
+        parentId: "div01",
+        cols: [source, destination],
+        width: $("#div01").width(),
+        height: $("#div01").height(),
     });
 }
 
