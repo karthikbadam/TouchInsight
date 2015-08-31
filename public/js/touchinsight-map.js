@@ -96,7 +96,7 @@ Map.prototype.refreshMap = function () {
                     return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
                 })
                 .attr("fill", function (d) {
-                    var de = d["_id"][dest];
+                    var de = d["_id"][destination];
                     
                     return colorscale(de); 
                 })  

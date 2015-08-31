@@ -30,34 +30,43 @@ var parseDate = d3.time.format("%Y%m").parse;
 
 var geomap;
 
-var usStates = {}; 
+var usStates = {};
 
 $(document).ready(function () {
 
-//    flights = new PouchDB('flights', {
-//        adapter: 'websql'
-//    });
-//
-//    flights2 = TAFFY();
-    
+    //    flights = new PouchDB('flights', {
+    //        adapter: 'websql'
+    //    });
+    //
+    //    flights2 = TAFFY();
+
     width = $("body").width();
     height = $("body").height();
 
-    createLayout();
-    
-    onDataLoaded();
-    
-    for (var i = 0; i < cities1000Map.length; i++) {
-        
-        var city = cities1000Map[i].city; 
-        city = city.replace(", USA",""); 
-        var loc = cities1000Map[i].ll.split(",");
-        
-        usStates[city] = {
-            lat: parseFloat(loc[0]),
-            lon: parseFloat(loc[1])
+
+
+    d3.text('data/locations.json', function (txt) {
+
+        var lines = txt.split("\n");
+
+        for (var i = 0; i < lines.length; i++) {
+
+            var d = JSON.parse(lines[i]);
+
+            var city = d.city;
+            var loc = d.ll;
+
+            usStates[city] = {
+                lat: parseFloat(loc[0]),
+                lon: parseFloat(loc[1])
+            }
         }
-    }
+
+        createLayout();
+
+        onDataLoaded();
+
+    });
 
 });
 
@@ -89,8 +98,8 @@ function createLayout() {
                 .attr("class", "panel")
                 .style("width", xWeights[j] * width - PADDING / 2)
                 .style("height", yWeights[i] * height - PADDING / 2)
-                .style("background-color", 
-                       "#666")
+                .style("background-color",
+                    "#666")
                 .style("opacity", 1)
                 .style("margin", 0)
                 .style("overflow", "hidden");
