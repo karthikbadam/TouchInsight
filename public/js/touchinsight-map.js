@@ -80,30 +80,78 @@ Map.prototype.refreshMap = function () {
                 .attr("d", _self.path);
 
 
-
             _self.svg.append("g")
                 .selectAll("circle")
                 .data(_self.edges)
                 .enter().append("circle")
                 .attr("class", "city")
                 .attr("transform", function (d, i) {
-                
+
                     var s = d["_id"][source];
                     var loc = usStates[s];
-                    
-                    console.log(s + i); 
-                
+
                     return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
                 })
                 .attr("fill", function (d) {
-                    var de = d["_id"][destination];
-                    
-                    return colorscale(de); 
-                })  
-                .attr("fill-opacity", 0.2)
+                    return "#222";
+                })
+                .attr("fill-opacity", 1)
                 .attr("stroke", "white")
                 .attr("stroke-width", "1px")
-                .attr("r", 1.5);
+                .attr("r", function (d, i) {
+                    
+                    return (1 + Math.log(d["Flights"])) + "px";
+                });
+
+
+            _self.svg.append("g")
+                .selectAll("line")
+                .data(_self.edges)
+                .enter().append("line")
+                .attr("class", "link")
+                .attr("stroke", "red")
+                .attr("stroke-width",  function (d, i) {
+                    
+                    return (1 + Math.log(d["Flights"])) + "px";
+                })
+                .attr("stroke-opacity", 0.1)
+                .attr("x1", function (d, i) {
+
+                    var s = d["_id"][source];
+                    var loc = usStates[s];
+                    var c = _self.projection([loc.lon, loc.lat])
+
+                    return c[0];
+                })
+                .attr("y1", function (d, i) {
+
+                    var s = d["_id"][source];
+                    var loc = usStates[s];
+                    var c = _self.projection([loc.lon, loc.lat])
+
+                    return c[1];
+
+                })
+                .attr("x2", function (d, i) {
+
+                    var s = d["_id"][destination];
+                    var loc = usStates[s];
+                    var c = _self.projection([loc.lon, loc.lat])
+
+                    return c[0];
+
+                })
+                .attr("y2", function (d, i) {
+
+                    var s = d["_id"][destination];
+                    var loc = usStates[s];
+                    var c = _self.projection([loc.lon, loc.lat])
+
+                    return c[1];
+
+                });
+
+
 
         });
 

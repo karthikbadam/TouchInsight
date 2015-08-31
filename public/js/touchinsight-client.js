@@ -99,7 +99,7 @@ function createLayout() {
                 .style("width", xWeights[j] * width - PADDING / 2)
                 .style("height", yWeights[i] * height - PADDING / 2)
                 .style("background-color",
-                    "#666")
+                    "transparent")
                 .style("opacity", 1)
                 .style("margin", 0)
                 .style("overflow", "hidden");
