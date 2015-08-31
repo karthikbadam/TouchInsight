@@ -45,6 +45,8 @@ function Map(options) {
 
     });
 
+    _self.colors = d3.scale.category10();
+
 }
 
 Map.prototype.refreshMap = function () {
@@ -93,13 +95,13 @@ Map.prototype.refreshMap = function () {
                     return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
                 })
                 .attr("fill", function (d) {
-                    return "#222";
+                    return _self.colors(d["_id"][destination]);
                 })
-                .attr("fill-opacity", 1)
+                .attr("fill-opacity", 0.7)
                 .attr("stroke", "white")
                 .attr("stroke-width", "1px")
                 .attr("r", function (d, i) {
-                    
+
                     return (1 + Math.log(d["Flights"])) + "px";
                 });
 
@@ -109,12 +111,14 @@ Map.prototype.refreshMap = function () {
                 .data(_self.edges)
                 .enter().append("line")
                 .attr("class", "link")
-                .attr("stroke", "red")
-                .attr("stroke-width",  function (d, i) {
-                    
+                .attr("stroke", function (d) {
+                    return _self.colors(d["_id"][destination]);
+                })
+                .attr("stroke-width", function (d, i) {
+
                     return (1 + Math.log(d["Flights"])) + "px";
                 })
-                .attr("stroke-opacity", 0.1)
+                .attr("stroke-opacity", 0.15)
                 .attr("x1", function (d, i) {
 
                     var s = d["_id"][source];
