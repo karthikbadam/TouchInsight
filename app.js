@@ -182,7 +182,7 @@ function queryFlightsByTime(db, callback) {
             $sort: {
                 Date: 1,
                 Flights: -1,
-                
+
             }
         }
                    ]);
@@ -207,6 +207,109 @@ app.get('/getFlightsByTime', function (req, res, next) {
         assert.equal(null, err);
 
         queryFlightsByTime(db, function (data) {
+            db.close();
+            res.write(JSON.stringify(data));
+            res.end();
+        });
+    });
+
+});
+
+
+function queryPassengersByTime(db, callback) {
+
+    var data = db.collection("flights").aggregate([
+        {
+            $group: {
+                "_id": {
+                    "Destination": "$Destination",
+                    "Date": "$Date",
+                },
+                Passengers: {
+                    $sum: "$Passengers"
+                }
+            }
+        },
+        {
+            $sort: {
+                Date: 1,
+                Passengers: -1,
+
+            }
+        }
+                   ]);
+
+    data.toArray(function (err, docs) {
+        assert.equal(null, err);
+        console.log(docs.length);
+        callback(docs);
+    });
+
+
+}
+
+app.get('/getPassengersByTime', function (req, res, next) {
+
+    var p = url.parse(req.url, true);
+    var params = p.query;
+
+    var query = params.query;
+
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+
+        queryPassengersByTime(db, function (data) {
+            db.close();
+            res.write(JSON.stringify(data));
+            res.end();
+        });
+    });
+
+});
+
+
+function queryFlightsBySource(db, callback) {
+
+    var data = db.collection("flights").aggregate([
+        {
+            $group: {
+                "_id": {
+                    "Source": "$Source"
+                },
+                Flights: {
+                    $sum: "$Flights"
+                }
+            }
+        },
+        {
+            $sort: {
+                Date: 1,
+                Flights: -1,
+
+            }
+        }
+                   ]);
+
+    data.toArray(function (err, docs) {
+        assert.equal(null, err);
+        console.log(docs.length);
+        callback(docs);
+    });
+
+
+}
+
+app.get('/getFlightsBySource', function (req, res, next) {
+
+    var p = url.parse(req.url, true);
+    var params = p.query;
+
+    var query = params.query;
+
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+
+        queryFlightsBySource(db, function (data) {
             db.close();
             res.write(JSON.stringify(data));
             res.end();

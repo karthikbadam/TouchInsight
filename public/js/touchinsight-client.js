@@ -18,7 +18,7 @@ var width = 0;
 
 var height = 0;
 
-var PADDING = 0;
+var PADDING = 10;
 
 var colorscale = d3.scale.category10();
 
@@ -81,11 +81,25 @@ function onDataLoaded() {
         height: $("#div11").height(),
     });
     
-    timechart = new LineChart({
+    timechart = new TimeChart({
+        parentId: "div21",
+        cols: [source, destination],
+        width: $("#div21").width(),
+        height: $("#div21").height(),
+    });
+    
+    passengerchart = new PassengerChart({
         parentId: "div01",
         cols: [source, destination],
         width: $("#div01").width(),
         height: $("#div01").height(),
+    });
+    
+    flightsbar = new FlightsBar({
+        parentId: "div10",
+        cols: [source, destination],
+        width: $("#div10").width(),
+        height: $("#div10").height(),
     });
 }
 
@@ -107,6 +121,7 @@ function createLayout() {
                 .style("height", yWeights[i] * height - PADDING / 2)
                 .style("background-color",
                     "transparent")
+                .style("border", "1px dashed #EEE")
                 .style("opacity", 1)
                 .style("margin", 0)
                 .style("overflow", "hidden");
@@ -125,7 +140,7 @@ function getWeights(size) {
 
     for (var i = 0; i < size; i++) {
 
-        var weight = Math.pow(mid - Math.abs(mid - i - 1), 0.8);
+        var weight = Math.pow(mid - Math.abs(mid - i - 1), 1);
 
         sum = sum + weight;
 

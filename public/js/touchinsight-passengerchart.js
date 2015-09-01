@@ -1,4 +1,4 @@
-function TimeChart(options) {
+function PassengerChart(options) {
 
     var _self = this;
 
@@ -10,7 +10,7 @@ function TimeChart(options) {
         top: 20,
         right: 10,
         bottom: 30,
-        left: 40
+        left: 50
     };
 
     var parseDate = d3.time.format("%Y%m").parse;
@@ -21,7 +21,7 @@ function TimeChart(options) {
 
     _self.svg = d3.select("#" + _self.parentId)
         .append("svg")
-        .attr("id", "timechart")
+        .attr("id", "passengerchart")
         .attr("width", _self.width + _self.margin.left + _self.margin.right)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
         .append("g")
@@ -30,7 +30,7 @@ function TimeChart(options) {
     $.ajax({
 
         type: "GET",
-        url: "/getFlightsByTime",
+        url: "/getPassengersByTime",
         data: {
             query: "getAllEdges",
             cols: {}
@@ -55,7 +55,7 @@ function TimeChart(options) {
             _self.flightNum[data[i]["_id"]["Destination"]].push({
 
                 date: parseDate(data[i]["_id"]["Date"]),
-                value: +data[i]["Flights"]
+                value: +data[i]["Passengers"]
 
             });
 
@@ -68,7 +68,7 @@ function TimeChart(options) {
     _self.colors = d3.scale.category10();
 }
 
-TimeChart.prototype.refreshChart = function () {
+PassengerChart.prototype.refreshChart = function () {
 
     var _self = this;
 
@@ -136,7 +136,7 @@ TimeChart.prototype.refreshChart = function () {
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("Flight Count");
+        .text("Passengers");
 
     for (var i = 0; i < dests.length; i++) {
 

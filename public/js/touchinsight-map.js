@@ -56,7 +56,7 @@ Map.prototype.refreshChart = function () {
     if (d3.select("#map").empty()) {
 
         _self.projection = d3.geo.albersUsa()
-            .scale(700)
+            .scale(800)
             .translate([(_self.width + _self.margin.left + _self.margin.right) / 2, (_self.height + _self.margin.top + _self.margin.bottom) / 2]);
 
         _self.path = d3.geo.path()
