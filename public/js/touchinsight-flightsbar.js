@@ -10,7 +10,7 @@ function FlightsBar(options) {
         top: 5,
         right: 20,
         bottom: 30,
-        left: 60
+        left: 55
     };
 
     _self.width = options.width - _self.margin.left - _self.margin.right;
