@@ -107,7 +107,7 @@ Map.prototype.refreshChart = function () {
                     return "#9ecae1";
                 })
                 .attr("fill-opacity", 0.7)
-                .attr("stroke", "#3182bd")
+                .attr("stroke", "transparent")
                 .attr("stroke-width", "1px")
                 .attr("r", function (d, i) {
 
@@ -132,7 +132,7 @@ Map.prototype.refreshChart = function () {
                     return "#fdbb84";
                 })
                 .attr("fill-opacity", 0.7)
-                .attr("stroke", "#fc9272")
+                .attr("stroke", "transparent")
                 .attr("stroke-width", "1px")
                 .attr("r", function (d, i) {
 
@@ -190,7 +190,10 @@ Map.prototype.refreshChart = function () {
 
                 });
 
-
+            _self.svg.append("text")
+                .attr("transform", "translate(" + (_self.width - 100) + "," + (_self.height + _self.margin.top) + ")")
+                .text("Flights across US")
+                .style("font-size", "14px");
 
         });
 
