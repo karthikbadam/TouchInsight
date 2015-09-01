@@ -10,8 +10,8 @@ var d3 = require('d3');
 var url = require('url');
 //var citiesToLoc = require('./maps.js').citiesToLoc;
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
+//var routes = require('./routes/index');
+//var users = require('./routes/users');
 
 // connecting to Mongodb database running instance
 var MongoClient = require('mongodb').MongoClient;
@@ -52,7 +52,7 @@ app.get('/', function (req, res, next) {
 // and load it
 
 //start with stock list
-var stream = fs.createReadStream("public/data/flights.csv");
+var stream = fs.createReadStream("public/data/flights2.csv");
 
 var sourceID = "SID";
 var destID = "DID";
@@ -170,7 +170,6 @@ function queryFlightsByTime(db, callback) {
         {
             $group: {
                 "_id": {
-                    "Destination": "$Destination",
                     "Date": "$Date"
                 },
                 Flights: {
@@ -222,7 +221,6 @@ function queryPassengersByTime(db, callback) {
         {
             $group: {
                 "_id": {
-                    "Destination": "$Destination",
                     "Date": "$Date",
                 },
                 Passengers: {
@@ -317,6 +315,266 @@ app.get('/getFlightsBySource', function (req, res, next) {
     });
 
 });
+
+
+function queryPassengersBySource(db, callback) {
+
+    var data = db.collection("flights").aggregate([
+        {
+            $group: {
+                "_id": {
+                    "Source": "$Source"
+                },
+                Passengers: {
+                    $sum: "$Passengers"
+                }
+            }
+        },
+        {
+            $sort: {
+                Passengers: -1,
+
+            }
+        }
+                   ]);
+
+    data.toArray(function (err, docs) {
+        assert.equal(null, err);
+        console.log(docs.length);
+        callback(docs);
+    });
+
+
+}
+
+app.get('/getPassengersBySource', function (req, res, next) {
+
+    var p = url.parse(req.url, true);
+    var params = p.query;
+
+    var query = params.query;
+
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+
+        queryPassengersBySource(db, function (data) {
+            db.close();
+            res.write(JSON.stringify(data));
+            res.end();
+        });
+    });
+
+});
+
+
+
+function queryFlightDistances(db, callback) {
+
+    var data = db.collection("flights").aggregate([
+        {
+            $group: {
+                "_id": {
+                    "Distance": "$Distance",
+                    "Flights": "$Flights"
+                },
+                Passengers: {
+                    $sum: "$Passengers"
+                }
+            }
+        },
+        {
+            $sort: {
+                Passengers: -1,
+
+            }
+        },
+        {
+            $limit: 10000
+        }
+                   ]);
+
+    data.toArray(function (err, docs) {
+        assert.equal(null, err);
+        console.log(docs.length);
+        callback(docs);
+    });
+
+
+}
+
+app.get('/getFlightDistances', function (req, res, next) {
+
+    var p = url.parse(req.url, true);
+    var params = p.query;
+
+    var query = params.query;
+
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+
+        queryFlightDistances(db, function (data) {
+            db.close();
+            res.write(JSON.stringify(data));
+            res.end();
+        });
+    });
+
+});
+
+
+function queryPassengerSeats(db, callback) {
+
+    var data = db.collection("flights").aggregate([
+        {
+            $group: {
+                "_id": {
+                    "Seats": "$Seats",
+                    "Passengers": "$Passengers",
+                    "SPopulation": "$SPopulation"
+                },
+                Distance: {
+                    $sum: "$Distance"
+                }
+            }
+        },
+        {
+            $sort: {
+                Distance: -1,
+            }
+        },
+        {
+            $limit: 10000
+        }
+
+                   ]);
+
+    data.toArray(function (err, docs) {
+        assert.equal(null, err);
+        console.log(docs.length);
+        callback(docs);
+    });
+
+
+}
+
+app.get('/getPassengerSeats', function (req, res, next) {
+
+    var p = url.parse(req.url, true);
+    var params = p.query;
+
+    var query = params.query;
+
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+
+        queryPassengerSeats(db, function (data) {
+            db.close();
+            res.write(JSON.stringify(data));
+            res.end();
+        });
+    });
+
+});
+
+
+function queryDistanceBySource(db, callback) {
+
+    var data = db.collection("flights").aggregate([
+        {
+            $group: {
+                "_id": {
+                    "Source": "$Source"
+                },
+                Distance: {
+                    $avg: "$Distance"
+                }
+            }
+        },
+        {
+            $sort: {
+                Distance: -1,
+
+            }
+        }
+                   ]);
+
+    data.toArray(function (err, docs) {
+        assert.equal(null, err);
+        console.log(docs.length);
+        callback(docs);
+    });
+
+
+}
+
+app.get('/getDistanceBySource', function (req, res, next) {
+
+    var p = url.parse(req.url, true);
+    var params = p.query;
+
+    var query = params.query;
+
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+
+        queryDistanceBySource(db, function (data) {
+            db.close();
+            res.write(JSON.stringify(data));
+            res.end();
+        });
+    });
+
+});
+
+function queryPopulationBySource(db, callback) {
+
+    var data = db.collection("flights").aggregate([
+        {
+            $group: {
+                "_id": {
+                    "Source": "$Source"
+                },
+                SPopulation: {
+                    $max: "$SPopulation"
+                }
+            }
+        },
+        {
+            $sort: {
+                SPopulation: -1,
+
+            }
+        }
+                   ]);
+
+    data.toArray(function (err, docs) {
+        assert.equal(null, err);
+        console.log(docs.length);
+        callback(docs);
+    });
+
+
+}
+
+app.get('/getPopulationBySource', function (req, res, next) {
+
+    var p = url.parse(req.url, true);
+    var params = p.query;
+
+    var query = params.query;
+
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+
+        queryPopulationBySource(db, function (data) {
+            db.close();
+            res.write(JSON.stringify(data));
+            res.end();
+        });
+    });
+
+});
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

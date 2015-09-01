@@ -1,4 +1,4 @@
-function FlightsBar(options) {
+function PassengersBar(options) {
 
     var _self = this;
 
@@ -24,7 +24,7 @@ function FlightsBar(options) {
 
     _self.svg = d3.select("#" + _self.parentId)
         .append("svg")
-        .attr("id", "flightsbar")
+        .attr("id", "passengersbar")
         .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
         .append("g")
@@ -33,7 +33,7 @@ function FlightsBar(options) {
     $.ajax({
 
         type: "GET",
-        url: "/getFlightsBySource",
+        url: "/getPassengersBySource",
         data: {
             query: "getAllEdges",
             cols: {}
@@ -55,13 +55,13 @@ function FlightsBar(options) {
 
 }
 
-FlightsBar.prototype.refreshChart = function () {
+PassengersBar.prototype.refreshChart = function () {
 
     var _self = this;
 
     _self.x = d3.scale.linear()
         .domain([0, d3.max(_self.flightNum, function (d) {
-            return Math.pow(d[numFlights], 1);
+            return Math.pow(d[passengers], 1);
         })])
         .range([0, _self.width]);
 
@@ -82,7 +82,7 @@ FlightsBar.prototype.refreshChart = function () {
 
     _self.bars.append("rect")
         .attr("width", function (d) {
-            return _self.x(Math.pow(d[numFlights], 1));
+            return _self.x(Math.pow(d[passengers], 1));
         })
         .attr("height", _self.barH - 5)
         .attr("fill", "#9ecae1");
@@ -96,7 +96,7 @@ FlightsBar.prototype.refreshChart = function () {
         .attr("text-anchor", "start")
         .attr("dy", ".35em")
         .text(function (d) {
-            return d[numFlights];
+            return d[passengers];
         });
 
     _self.svg.selectAll("text.name")
@@ -114,9 +114,9 @@ FlightsBar.prototype.refreshChart = function () {
         });
 
 
+    
     _self.svg.append("text")
         .attr("transform", "translate(" + (_self.width - 100) + ", 180)")
-        .text("Number of Flights")
+        .text("Passengers From")
         .style("font-size", "14px");
-
 }

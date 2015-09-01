@@ -40,26 +40,26 @@ function TimeChart(options) {
 
         data = JSON.parse(data);
 
-        _self.flightNum = {};
-
         console.log(data);
 
-        for (var i = 0; i < data.length; i++) {
+        //        for (var i = 0; i < data.length; i++) {
+        //
+        //            if (!_self.flightNum[data[i]["_id"]["Destination"]]) {
+        //
+        //                _self.flightNum[data[i]["_id"]["Destination"]] = [];
+        //
+        //            }
+        //
+        //            _self.flightNum[data[i]["_id"]["Destination"]].push({
+        //
+        //                date: parseDate(data[i]["_id"]["Date"]),
+        //                value: +data[i]["Flights"]
+        //
+        //            });
+        //
+        //        }
 
-            if (!_self.flightNum[data[i]["_id"]["Destination"]]) {
-
-                _self.flightNum[data[i]["_id"]["Destination"]] = [];
-
-            }
-
-            _self.flightNum[data[i]["_id"]["Destination"]].push({
-
-                date: parseDate(data[i]["_id"]["Date"]),
-                value: +data[i]["Flights"]
-
-            });
-
-        }
+        _self.flightNum = data;
 
         _self.refreshChart();
 
@@ -88,7 +88,7 @@ TimeChart.prototype.refreshChart = function () {
         .outerTickSize(0)
         .tickPadding(10);
 
-    _self.xAxis.ticks(d3.time.months, 6);
+    _self.xAxis.ticks(d3.time.years, 1);
 
     var yAxis = _self.yAxis = d3.svg.axis()
         .scale(y)
@@ -99,29 +99,19 @@ TimeChart.prototype.refreshChart = function () {
 
     var line = _self.line = d3.svg.line()
         .x(function (d) {
-            return x(d["date"]);
+            return x(parseDate(d["_id"][date]));
         })
         .y(function (d) {
-            return y(d["value"]);
+            return y(d[numFlights]);
         });
 
-    var dests = Object.keys(_self.flightNum);
-
-    x.domain(d3.extent(_self.flightNum[dests[1]], function (d) {
-        return d.date;
+    x.domain(d3.extent(_self.flightNum, function (d) {
+        return parseDate(d["_id"][date]);
     }));
 
-    var range1 = d3.extent(_self.flightNum[dests[0]], function (d) {
-        return d.value;
-    });
-
-    var range2 = d3.extent(_self.flightNum[dests[1]], function (d) {
-        return d.value;
-    })
-
-    var r = [range1[0] > range2[0] ? range2[0] : range1[0], range1[1] < range2[1] ? range2[1] : range1[1]]
-
-    y.domain(r);
+    y.domain(d3.extent(_self.flightNum, function (d) {
+        return d[numFlights];
+    }));
 
     _self.svg.append("g")
         .attr("class", "x axis")
@@ -136,23 +126,21 @@ TimeChart.prototype.refreshChart = function () {
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("Flight Count");
+        .text("Flights");
 
-    for (var i = 0; i < dests.length; i++) {
+    _self.flightNum.sort(function (a, b) {
+        if (parseDate(b["_id"][date]).getTime() <
+            parseDate(a["_id"][date]).getTime()) return 1;
+        return -1;
+    });
 
-        _self.flightNum[dests[i]].sort(function (a, b) {
-            if (b["date"].getTime() < a["date"].getTime()) return 1;
-            return -1;
-        });
-
-        _self.svg.append("path")
-            .datum(_self.flightNum[dests[i]])
-            .attr("id", "time" + dests[i])
-            .attr("class", "flightsTime")
-            .attr("d", line)
-            .attr("fill", "transparent")
-            .attr("stroke", _self.colors(dests[i]))
-            .attr("stroke-width", "2px");
-    }
+    _self.svg.append("path")
+        .datum(_self.flightNum)
+        .attr("id", "time")
+        .attr("class", "flightsTime")
+        .attr("d", line)
+        .attr("fill", "transparent")
+        .attr("stroke", "#9ecae1")
+        .attr("stroke-width", "2px");
 
 }

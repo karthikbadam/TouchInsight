@@ -55,8 +55,17 @@ Map.prototype.refreshChart = function () {
 
     if (d3.select("#map").empty()) {
 
+        var top = 49.3457868;
+        var left = -124.7844079;
+        var right = -66.9513812;
+        var bottom = 24.7433195;
+
+        var scale = 57 * _self.height / Math.abs(bottom - top);
+
+        console.log(scale);
+
         _self.projection = d3.geo.albersUsa()
-            .scale(800)
+            .scale(scale)
             .translate([(_self.width + _self.margin.left + _self.margin.right) / 2, (_self.height + _self.margin.top + _self.margin.bottom) / 2]);
 
         _self.path = d3.geo.path()
@@ -81,7 +90,6 @@ Map.prototype.refreshChart = function () {
                 .attr("class", "state-boundary")
                 .attr("d", _self.path);
 
-
             _self.svg.append("g")
                 .selectAll("circle")
                 .data(_self.edges)
@@ -95,10 +103,36 @@ Map.prototype.refreshChart = function () {
                     return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
                 })
                 .attr("fill", function (d) {
-                    return _self.colors(d["_id"][destination]);
+                    //return _self.colors(d["_id"][destination]);
+                    return "#9ecae1";
                 })
                 .attr("fill-opacity", 0.7)
-                .attr("stroke", "white")
+                .attr("stroke", "#3182bd")
+                .attr("stroke-width", "1px")
+                .attr("r", function (d, i) {
+
+                    return (1 + Math.log(d["Flights"])) + "px";
+                });
+
+
+            _self.svg.append("g")
+                .selectAll("circle")
+                .data(_self.edges)
+                .enter().append("circle")
+                .attr("class", "city")
+                .attr("transform", function (d, i) {
+
+                    var s = d["_id"][destination];
+                    var loc = usStates[s];
+
+                    return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
+                })
+                .attr("fill", function (d) {
+                    //return _self.colors(d["_id"][destination]);
+                    return "#fdbb84";
+                })
+                .attr("fill-opacity", 0.7)
+                .attr("stroke", "#fc9272")
                 .attr("stroke-width", "1px")
                 .attr("r", function (d, i) {
 
@@ -112,13 +146,14 @@ Map.prototype.refreshChart = function () {
                 .enter().append("line")
                 .attr("class", "link")
                 .attr("stroke", function (d) {
-                    return _self.colors(d["_id"][destination]);
+                    return "#9ecae1";
+                    //return _self.colors(d["_id"][destination]);
                 })
                 .attr("stroke-width", function (d, i) {
-
+                    return 0.5;
                     return (1 + Math.log(d["Flights"])) + "px";
                 })
-                .attr("stroke-opacity", 0.3)
+                .attr("stroke-opacity", 0.05)
                 .attr("x1", function (d, i) {
 
                     var s = d["_id"][source];

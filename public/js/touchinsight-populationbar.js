@@ -1,4 +1,4 @@
-function FlightsBar(options) {
+function PopulationBar(options) {
 
     var _self = this;
 
@@ -24,7 +24,7 @@ function FlightsBar(options) {
 
     _self.svg = d3.select("#" + _self.parentId)
         .append("svg")
-        .attr("id", "flightsbar")
+        .attr("id", "populationbar")
         .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
         .append("g")
@@ -33,7 +33,7 @@ function FlightsBar(options) {
     $.ajax({
 
         type: "GET",
-        url: "/getFlightsBySource",
+        url: "/getPopulationBySource",
         data: {
             query: "getAllEdges",
             cols: {}
@@ -43,7 +43,7 @@ function FlightsBar(options) {
 
         data = JSON.parse(data);
 
-        _self.flightNum = data;
+        _self.sourcePopulation = data;
 
         console.log(data);
 
@@ -55,26 +55,26 @@ function FlightsBar(options) {
 
 }
 
-FlightsBar.prototype.refreshChart = function () {
+PopulationBar.prototype.refreshChart = function () {
 
     var _self = this;
 
     _self.x = d3.scale.linear()
-        .domain([0, d3.max(_self.flightNum, function (d) {
-            return Math.pow(d[numFlights], 1);
+        .domain([0, d3.max(_self.sourcePopulation, function (d) {
+            return Math.pow(d[sourcePopulation], 1);
         })])
         .range([0, _self.width]);
 
     _self.y = d3.scale.ordinal()
-        .domain(_self.flightNum.map(function (d) {
+        .domain(_self.sourcePopulation.map(function (d) {
             return d["_id"][source];
         }))
         .rangeBands([0, _self.height]);
 
-    _self.barH = _self.height / _self.flightNum.length;
+    _self.barH = _self.height / _self.sourcePopulation.length;
 
     _self.bars = _self.svg.selectAll("g")
-        .data(_self.flightNum)
+        .data(_self.sourcePopulation)
         .enter().append("g")
         .attr("transform", function (d, i) {
             return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
@@ -82,7 +82,7 @@ FlightsBar.prototype.refreshChart = function () {
 
     _self.bars.append("rect")
         .attr("width", function (d) {
-            return _self.x(Math.pow(d[numFlights], 1));
+            return _self.x(Math.pow(d[sourcePopulation], 1));
         })
         .attr("height", _self.barH - 5)
         .attr("fill", "#9ecae1");
@@ -96,11 +96,11 @@ FlightsBar.prototype.refreshChart = function () {
         .attr("text-anchor", "start")
         .attr("dy", ".35em")
         .text(function (d) {
-            return d[numFlights];
+            return d[sourcePopulation];
         });
 
     _self.svg.selectAll("text.name")
-        .data(_self.flightNum)
+        .data(_self.sourcePopulation)
         .enter().append("text")
         .attr("x", _self.margin.left - 5)
         .attr("y", function (d) {
@@ -112,11 +112,12 @@ FlightsBar.prototype.refreshChart = function () {
         .text(function (d) {
             return d["_id"][source];
         });
-
-
+    
+    
     _self.svg.append("text")
         .attr("transform", "translate(" + (_self.width - 100) + ", 180)")
-        .text("Number of Flights")
+        .text("Population")
         .style("font-size", "14px");
+
 
 }

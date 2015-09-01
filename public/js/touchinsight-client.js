@@ -96,10 +96,45 @@ function onDataLoaded() {
     });
     
     flightsbar = new FlightsBar({
+        parentId: "div20",
+        cols: [source, destination],
+        width: $("#div20").width(),
+        height: $("#div20").height(),
+    });
+    
+    passengersbar = new PassengersBar({
+        parentId: "div02",
+        cols: [source, destination],
+        width: $("#div02").width(),
+        height: $("#div02").height(),
+    });
+    
+    flightdistance = new FlightDistance({
         parentId: "div10",
         cols: [source, destination],
         width: $("#div10").width(),
         height: $("#div10").height(),
+    });
+    
+     passengerseats = new PassengerSeats({
+        parentId: "div12",
+        cols: [source, destination],
+        width: $("#div12").width(),
+        height: $("#div12").height(),
+    });
+    
+    distancebar = new DistanceBar({
+        parentId: "div00",
+        cols: [source, destination],
+        width: $("#div00").width(),
+        height: $("#div00").height(),
+    });
+    
+    populationbar = new PopulationBar({
+        parentId: "div22",
+        cols: [source, destination],
+        width: $("#div22").width(),
+        height: $("#div22").height(),
     });
 }
 
@@ -121,9 +156,9 @@ function createLayout() {
                 .style("height", yWeights[i] * height - PADDING / 2)
                 .style("background-color",
                     "transparent")
-                .style("border", "1px dashed #EEE")
+                .style("border", "1px solid #EEE")
                 .style("opacity", 1)
-                .style("margin", 0)
+                .style("margin", PADDING/2 - 4)
                 .style("overflow", "hidden");
         }
     }
@@ -140,7 +175,7 @@ function getWeights(size) {
 
     for (var i = 0; i < size; i++) {
 
-        var weight = Math.pow(mid - Math.abs(mid - i - 1), 1);
+        var weight = Math.pow(mid - Math.abs(mid - i - 1), 1.5);
 
         sum = sum + weight;
 

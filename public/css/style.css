@@ -4,6 +4,7 @@ body {
     overflow: hidden;
     margin: 0px;
     font-family: Helvetica-Light;
+    font-size: 11px;
 }
 
 .panel {
@@ -11,7 +12,7 @@ body {
 }
 
 .land {
-    fill: #CCC;
+    fill: #EEE;
 }
 
 .state-boundary {
@@ -39,7 +40,19 @@ svg {
     opacity: 0.3;
 }
 
-#flightsbar text {
-    font-size: 11px;
+.background path {
+    fill: none;
+    stroke: #EEE;
+    shape-rendering: crispEdges;
 }
 
+.foreground path {
+    fill: none;
+    stroke-opacity: 1;
+}
+
+.brush .extent {
+    fill-opacity: .3;
+    stroke: #fff;
+    shape-rendering: crispEdges;
+}
