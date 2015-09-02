@@ -4,7 +4,7 @@ body {
     overflow: hidden;
     margin: 0px;
     font-family: Helvetica-Light;
-    font-size: 11px;
+    font-size: 9px;
 }
 
 .panel {
@@ -21,7 +21,7 @@ body {
 }
 
 svg {
-    background-color: rgba(255, 255, 255, 1);
+    background-color: transparent;
 }
 
 .axis path,
@@ -32,7 +32,6 @@ svg {
 }
 
 .tick text {
-    font-size: 12px;
     fill: #666;
 }
 

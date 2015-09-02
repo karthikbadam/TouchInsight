@@ -389,7 +389,7 @@ function queryFlightDistances(db, callback) {
             }
         },
         {
-            $limit: 10000
+            $limit: 20000
         }
                    ]);
 
@@ -432,18 +432,18 @@ function queryPassengerSeats(db, callback) {
                     "Passengers": "$Passengers",
                     "SPopulation": "$SPopulation"
                 },
-                Distance: {
-                    $sum: "$Distance"
+                Flights: {
+                    $sum: "$Flights"
                 }
             }
         },
         {
             $sort: {
-                Distance: -1,
+                Flights: -1,
             }
         },
         {
-            $limit: 10000
+            $limit: 20000
         }
 
                    ]);

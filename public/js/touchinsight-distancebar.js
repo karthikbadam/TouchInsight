@@ -12,6 +12,10 @@ function DistanceBar(options) {
         bottom: 30,
         left: 55
     };
+    
+     d3.select("#" + _self.parentId).append("text")
+        .text("Average distance travelled from")
+        .style("font-size", "12px");
 
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
@@ -19,10 +23,10 @@ function DistanceBar(options) {
 
     _self.height = 10000;
 
-    d3.select("#" + _self.parentId)
-        .style("overflow", "scroll");
-
-    _self.svg = d3.select("#" + _self.parentId)
+    _self.svg = d3.select("#" + _self.parentId).append("div")
+        .style("overflow", "scroll")
+        .style("width", options.width)
+        .style("height", options.height - 15)
         .append("svg")
         .attr("id", "distancebar")
         .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
@@ -112,11 +116,5 @@ DistanceBar.prototype.refreshChart = function () {
         .text(function (d) {
             return d["_id"][source];
         });
-
-    
-    _self.svg.append("text")
-        .attr("transform", "translate(" + (_self.width - 100) + ", 180)")
-        .text("Average Distance Travelled")
-        .style("font-size", "14px");
 
 }

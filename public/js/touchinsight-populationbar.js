@@ -13,16 +13,20 @@ function PopulationBar(options) {
         left: 55
     };
 
+    d3.select("#" + _self.parentId).append("text")
+        .text("Population in")
+        .style("font-size", "12px");
+
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     //_self.height = options.height - _self.margin.top - _self.margin.bottom;
 
     _self.height = 10000;
 
-    d3.select("#" + _self.parentId)
-        .style("overflow", "scroll");
-
-    _self.svg = d3.select("#" + _self.parentId)
+    _self.svg = d3.select("#" + _self.parentId).append("div")
+        .style("overflow", "scroll")
+        .style("width", options.width)
+        .style("height", options.height - 15)
         .append("svg")
         .attr("id", "populationbar")
         .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
@@ -112,12 +116,6 @@ PopulationBar.prototype.refreshChart = function () {
         .text(function (d) {
             return d["_id"][source];
         });
-    
-    
-    _self.svg.append("text")
-        .attr("transform", "translate(" + (_self.width - 100) + ", 180)")
-        .text("Population")
-        .style("font-size", "14px");
 
 
 }
