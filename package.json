@@ -19,6 +19,8 @@
         "fast-csv": "*",
         "fs": "*",
         "d3": "*",
-        "googlemaps": "*"
+        "googlemaps": "*",
+        "graceful-fs": "*",
+        "ejs": "*"
     }
 }
