@@ -114,9 +114,18 @@ MongoClient.connect(mongourl, function (err, db) {
 });
 
 
-function queryFlightConnections(db, callback) {
+function queryFlightConnections(db, queries, index, callback) {
+
+    var match = {};
+    match[index] = {};
+    match[index]["$gte"] = queries[0];
+    match[index]["$lte"] = queries[1];
+
 
     var data = db.collection("flights").aggregate([
+        {
+            $match: match
+        },
         {
             $group: {
                 "_id": {
@@ -146,27 +155,38 @@ function queryFlightConnections(db, callback) {
 
 app.get('/getFlightCounts', function (req, res, next) {
 
-    var p = url.parse(req.url, true);
-    var params = p.query;
+    var params = url.parse(req.url, true).query;
 
-    var query = params.query;
+    var index = params.index;
+    var cols = params["cols[" + index + "]" + "[]"];
+
+    console.log(cols);
 
     MongoClient.connect(mongourl, function (err, db) {
         assert.equal(null, err);
 
-        queryFlightConnections(db, function (data) {
-            db.close();
-            res.write(JSON.stringify(data));
-            res.end();
-        });
+        queryFlightConnections(db, cols, index,
+            function (data) {
+                db.close();
+                res.write(JSON.stringify(data));
+                res.end();
+            });
     });
 
 });
 
 
-function queryFlightsByTime(db, callback) {
+function queryFlightsByTime(db, queries, index, callback) {
+
+    var match = {};
+    match[index] = {};
+    match[index]["$gte"] = queries[0];
+    match[index]["$lte"] = queries[1];
 
     var data = db.collection("flights").aggregate([
+        {
+            $match: match
+        },
         {
             $group: {
                 "_id": {
@@ -197,15 +217,15 @@ function queryFlightsByTime(db, callback) {
 
 app.get('/getFlightsByTime', function (req, res, next) {
 
-    var p = url.parse(req.url, true);
-    var params = p.query;
+    var params = url.parse(req.url, true).query;
 
-    var query = params.query;
+    var index = params.index;
+    var cols = params["cols[" + index + "]" + "[]"];
 
     MongoClient.connect(mongourl, function (err, db) {
         assert.equal(null, err);
 
-        queryFlightsByTime(db, function (data) {
+        queryFlightsByTime(db, cols, index, function (data) {
             db.close();
             res.write(JSON.stringify(data));
             res.end();
@@ -215,9 +235,17 @@ app.get('/getFlightsByTime', function (req, res, next) {
 });
 
 
-function queryPassengersByTime(db, callback) {
+function queryPassengersByTime(db, queries, index, callback) {
+
+    var match = {};
+    match[index] = {};
+    match[index]["$gte"] = queries[0];
+    match[index]["$lte"] = queries[1];
 
     var data = db.collection("flights").aggregate([
+        {
+            $match: match
+        },
         {
             $group: {
                 "_id": {
@@ -234,8 +262,7 @@ function queryPassengersByTime(db, callback) {
                 Passengers: -1,
 
             }
-        }
-                   ]);
+    }]);
 
     data.toArray(function (err, docs) {
         assert.equal(null, err);
@@ -248,15 +275,15 @@ function queryPassengersByTime(db, callback) {
 
 app.get('/getPassengersByTime', function (req, res, next) {
 
-    var p = url.parse(req.url, true);
-    var params = p.query;
+    var params = url.parse(req.url, true).query;
 
-    var query = params.query;
+    var index = params.index;
+    var cols = params["cols[" + index + "]" + "[]"];
 
     MongoClient.connect(mongourl, function (err, db) {
         assert.equal(null, err);
 
-        queryPassengersByTime(db, function (data) {
+        queryPassengersByTime(db, cols, index, function (data) {
             db.close();
             res.write(JSON.stringify(data));
             res.end();
