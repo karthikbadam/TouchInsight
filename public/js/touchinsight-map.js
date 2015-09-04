@@ -25,25 +25,14 @@ function Map(options) {
 
     _self.edges = 0;
 
-    $.ajax({
-
-        type: "GET",
-        url: "/getFlightCounts",
-        data: {
-            query: "getAllEdges",
-            cols: {}
+    _self.query = {
+        index: "Date",
+        cols: {
+            Date: ["199101", "200912"]
         }
+    }
 
-    }).done(function (data) {
-
-        data = JSON.parse(data);
-        console.log(data)
-
-        _self.edges = data;
-
-        _self.refreshChart();
-
-    });
+    _self.postUpdate(_self.query);
 
     _self.colors = d3.scale.category10();
 
@@ -91,6 +80,7 @@ Map.prototype.refreshChart = function () {
                 .attr("d", _self.path);
 
             _self.svg.append("g")
+                .attr("class", "source")
                 .selectAll("circle")
                 .data(_self.edges)
                 .enter().append("circle")
@@ -107,15 +97,16 @@ Map.prototype.refreshChart = function () {
                     return "#9ecae1";
                 })
                 .attr("fill-opacity", 0.7)
-                .attr("stroke", "transparent")
-                .attr("stroke-width", "1px")
+                .attr("stroke", "white")
+                .attr("stroke-width", "0.5px")
                 .attr("r", function (d, i) {
 
-                    return (1 + Math.log(d["Flights"])) + "px";
+                    return (Math.log(d["Flights"] + 1)) + "px";
                 });
 
 
             _self.svg.append("g")
+                .attr("class", "destination")
                 .selectAll("circle")
                 .data(_self.edges)
                 .enter().append("circle")
@@ -132,15 +123,16 @@ Map.prototype.refreshChart = function () {
                     return "#fdbb84";
                 })
                 .attr("fill-opacity", 0.7)
-                .attr("stroke", "transparent")
-                .attr("stroke-width", "1px")
+                .attr("stroke", "white")
+                .attr("stroke-width", "0.5px")
                 .attr("r", function (d, i) {
 
-                    return (1 + Math.log(d["Flights"])) + "px";
+                    return (Math.log(d["Flights"] + 1)) + "px";
                 });
 
 
             _self.svg.append("g")
+                .attr("class", "links")
                 .selectAll("line")
                 .data(_self.edges)
                 .enter().append("line")
@@ -151,7 +143,7 @@ Map.prototype.refreshChart = function () {
                 })
                 .attr("stroke-width", function (d, i) {
                     return 0.5;
-                    return (1 + Math.log(d["Flights"])) + "px";
+                    return (Math.log(d["Flights"] + 1)) + "px";
                 })
                 .attr("stroke-opacity", 0.05)
                 .attr("x1", function (d, i) {
@@ -197,7 +189,149 @@ Map.prototype.refreshChart = function () {
 
         });
 
+    } else {
+
+        var sourceCircles = _self.svg.selectAll(".source circle").data(_self.edges);
+
+        sourceCircles.exit().remove()
+            .transition().duration(1000);
+
+        sourceCircles.enter()
+            .append("circle")
+            .transition().duration(1000)
+            .ease("bounce")
+            .attr("transform", function (d, i) {
+
+                var s = d["_id"][source];
+                var loc = usStates[s];
+
+                return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
+            })
+            .attr("fill", function (d) {
+                //return _self.colors(d["_id"][destination]);
+                return "#9ecae1";
+            })
+            .attr("fill-opacity", 0.7)
+            .attr("stroke", "white")
+            .attr("stroke-opacity", 1)
+            .attr("stroke-width", "0.5px")
+            .attr("r", function (d, i) {
+
+                return (Math.log(d["Flights"] + 1)) + "px";
+            });
+
+        var destCircles = _self.svg.selectAll(".destination circle").data(_self.edges);
+
+        //        destCircles.select("circle")
+        //            .attr("fill-opacity", 0.7)
+        //            .attr("stroke-opacity", 1)
+
+        destCircles.exit().remove()
+            .transition().duration(1000);
+
+        destCircles.enter()
+            .append("circle")
+            .transition().duration(1000)
+            .ease("bounce")
+            .attr("transform", function (d, i) {
+
+                var s = d["_id"][destination];
+                var loc = usStates[s];
+
+                return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
+            })
+            .attr("fill", function (d) {
+                //return _self.colors(d["_id"][destination]);
+                return "#fdbb84";
+            })
+            .attr("fill-opacity", 0.7)
+            .attr("stroke-opacity", 1)
+            .attr("stroke", "white")
+            .attr("stroke-width", "0.5px")
+            .attr("r", function (d, i) {
+
+                return (Math.log(d["Flights"] + 1)) + "px";
+            });
+
+
+        var cityLinks = _self.svg.selectAll(".links line").data(_self.edges);
+
+        cityLinks.exit().remove().transition().duration(1000);
+
+        cityLinks.enter()
+            .append("line")
+            .transition().duration(1000)
+            .ease("linear")
+            .attr("class", "link")
+            .attr("stroke", function (d) {
+                return "#9ecae1";
+                //return _self.colors(d["_id"][destination]);
+            })
+            .attr("stroke-width", function (d, i) {
+                return 0.5;
+                return (1 + Math.log(d["Flights"] + 1)) + "px";
+            })
+            .attr("stroke-opacity", 0.05)
+            .attr("x1", function (d, i) {
+
+                var s = d["_id"][source];
+                var loc = usStates[s];
+                var c = _self.projection([loc.lon, loc.lat])
+
+                return c[0];
+            })
+            .attr("y1", function (d, i) {
+
+                var s = d["_id"][source];
+                var loc = usStates[s];
+                var c = _self.projection([loc.lon, loc.lat])
+
+                return c[1];
+
+            })
+            .attr("x2", function (d, i) {
+
+                var s = d["_id"][destination];
+                var loc = usStates[s];
+                var c = _self.projection([loc.lon, loc.lat])
+
+                return c[0];
+
+            })
+            .attr("y2", function (d, i) {
+
+                var s = d["_id"][destination];
+                var loc = usStates[s];
+                var c = _self.projection([loc.lon, loc.lat])
+
+                return c[1];
+
+            });
+
+
     }
 
+}
 
+Map.prototype.postUpdate = function (query) {
+
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getFlightCounts",
+        data: query
+
+    }).done(function (data) {
+
+        data = JSON.parse(data);
+
+        console.log(data)
+
+        _self.edges = data;
+
+        _self.refreshChart();
+
+    });
 }

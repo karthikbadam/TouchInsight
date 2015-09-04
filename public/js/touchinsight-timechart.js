@@ -32,8 +32,10 @@ function TimeChart(options) {
         type: "GET",
         url: "/getFlightsByTime",
         data: {
-            query: "getAllEdges",
-            cols: {}
+            index: "Date",
+            cols: {
+                Date: ["199101", "200912"]
+            }
         }
 
     }).done(function (data) {
@@ -41,23 +43,6 @@ function TimeChart(options) {
         data = JSON.parse(data);
 
         console.log(data);
-
-        //        for (var i = 0; i < data.length; i++) {
-        //
-        //            if (!_self.flightNum[data[i]["_id"]["Destination"]]) {
-        //
-        //                _self.flightNum[data[i]["_id"]["Destination"]] = [];
-        //
-        //            }
-        //
-        //            _self.flightNum[data[i]["_id"]["Destination"]].push({
-        //
-        //                date: parseDate(data[i]["_id"]["Date"]),
-        //                value: +data[i]["Flights"]
-        //
-        //            });
-        //
-        //        }
 
         _self.flightNum = data;
 
@@ -74,6 +59,10 @@ TimeChart.prototype.refreshChart = function () {
 
     var x = _self.x = d3.time.scale()
         .range([0, _self.width]);
+
+    _self.brush = d3.svg.brush()
+        .x(x)
+        .on("brushend", brushed);
 
     var y = _self.y = d3.scale.linear()
         .range([_self.height, 0]);
@@ -143,4 +132,62 @@ TimeChart.prototype.refreshChart = function () {
         .attr("stroke", "#9ecae1")
         .attr("stroke-width", "2px");
 
+    _self.svg.append("g")
+        .attr("class", "brush")
+        .call(_self.brush)
+        .selectAll("rect")
+        .attr("y", -6)
+        .attr("height", _self.height + 7);
+
+
+    function brushed() {
+
+        var left = _self.brush.extent()[0];
+        var right = _self.brush.extent()[1];
+
+        var leftYear = left.getFullYear().toString();
+        var leftMonth = left.getMonth() < 10 ? "0" + left.getMonth().toString() : left.getMonth().toString();
+
+        left = leftYear + leftMonth;
+
+        var rightYear = right.getFullYear().toString();
+        var rightMonth = right.getMonth() < 10 ? "0" + right.getMonth().toString() : right.getMonth().toString();
+
+        right = rightYear + rightMonth;
+
+        console.log(left + ", " + right);
+
+        var query = {
+            index: "Date",
+            cols: {
+                Date: [left, right]
+            }
+        };
+        
+        
+        $.ajax({
+
+            type: "GET",
+            url: "/getFlightsByTime",
+            data: query
+
+        }).done(function (data) {
+
+            data = JSON.parse(data);
+
+            console.log(data);
+
+            _self.flightNum = data;
+            
+            setGlobalQuery(query);
+
+            //_self.refreshChart();
+
+        });
+
+
+        //x.domain(brush.empty() ? x.domain() : brush.extent());
+        //focus.select(".area").attr("d", area);
+        //focus.select(".x.axis").call(xAxis);
+    }
 }

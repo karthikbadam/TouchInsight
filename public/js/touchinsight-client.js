@@ -20,17 +20,33 @@ var height = 0;
 
 var PADDING = 10;
 
+var queryList = []; 
+
 var colorscale = d3.scale.category10();
 
 var parseDate = d3.time.format("%Y%m").parse;
 
-//var flights;
-//
-//var flights2;
-
-var geomap, timechart;
+var geomap, timechart, passengerchart, flightsbar, passengersbar, flightdistance, 
+    passengerseats, distancebar, populationbar;
 
 var usStates = {};
+
+function setGlobalQuery (query) {
+    
+    var currQuery = query; 
+    
+    //update all other visualizations
+    geomap.postUpdate(query); 
+//    timechart.postUpdate();
+//    passengerchart.postUpdate();
+//    flightsbar.postUpdate();
+//    passengersbar.postUpdate();
+//    flightdistance.postUpdate(); 
+//    passengerseats.postUpdate();
+//    distancebar.postUpdate();
+//    populationbar.postUpdate();
+       
+}
 
 $(document).ready(function () {
 
@@ -116,7 +132,7 @@ function onDataLoaded() {
         height: $("#div10").height(),
     });
     
-     passengerseats = new PassengerSeats({
+    passengerseats = new PassengerSeats({
         parentId: "div12",
         cols: [source, destination],
         width: $("#div12").width(),
