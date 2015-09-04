@@ -20,32 +20,34 @@ var height = 0;
 
 var PADDING = 10;
 
-var queryList = []; 
+var queryList = [];
 
 var colorscale = d3.scale.category10();
 
 var parseDate = d3.time.format("%Y%m").parse;
 
-var geomap, timechart, passengerchart, flightsbar, passengersbar, flightdistance, 
+var geomap, timechart, passengerchart, flightsbar, passengersbar, flightdistance,
     passengerseats, distancebar, populationbar;
 
 var usStates = {};
 
-function setGlobalQuery (query) {
-    
-    var currQuery = query; 
-    
+var buttons = ["OR", "AND", "NOT", "CLEAN"];
+
+function setGlobalQuery(query) {
+
+    var currQuery = query;
+
     //update all other visualizations
-    geomap.postUpdate(query); 
-//    timechart.postUpdate();
-//    passengerchart.postUpdate();
-//    flightsbar.postUpdate();
-//    passengersbar.postUpdate();
-//    flightdistance.postUpdate(); 
-//    passengerseats.postUpdate();
-//    distancebar.postUpdate();
-//    populationbar.postUpdate();
-       
+    geomap.postUpdate(query);
+    //    timechart.postUpdate();
+    //    passengerchart.postUpdate();
+    //    flightsbar.postUpdate();
+    //    passengersbar.postUpdate();
+    //    flightdistance.postUpdate(); 
+    //    passengerseats.postUpdate();
+    //    distancebar.postUpdate();
+    //    populationbar.postUpdate();
+
 }
 
 $(document).ready(function () {
@@ -56,9 +58,27 @@ $(document).ready(function () {
     //
     //    flights2 = TAFFY();
 
-    width = $("body").width();
-    height = $("body").height();
+    // creating the four buttons
+    for (var i = 0; i < buttons.length; i++) {
+        d3.select("#button-panel").append("div")
+            .attr("class", "operator")
+            .style("width", (100 / buttons.length) + "%")
+            .style("height", "100%")
+            .style("color", "white")
+            .style("font-size", "20px")
+            .style("text-align", "center")
+            .style("vertical-align", "middle")
+            .style("cursor", "pointer")
+            .style("display", "inline-block")
+            .text(buttons[i])
+            .on("mousedown", function () {
+                console.log(this.textContent + " is clicked");
+            });
+    }
 
+
+    width = $("#content").width();
+    height = $("#content").height();
 
 
     d3.text('data/locations.json', function (txt) {
@@ -96,56 +116,56 @@ function onDataLoaded() {
         width: $("#div11").width(),
         height: $("#div11").height(),
     });
-    
+
     timechart = new TimeChart({
         parentId: "div21",
         cols: [source, destination],
         width: $("#div21").width(),
         height: $("#div21").height(),
     });
-    
+
     passengerchart = new PassengerChart({
         parentId: "div01",
         cols: [source, destination],
         width: $("#div01").width(),
         height: $("#div01").height(),
     });
-    
+
     flightsbar = new FlightsBar({
         parentId: "div20",
         cols: [source, destination],
         width: $("#div20").width(),
         height: $("#div20").height(),
     });
-    
+
     passengersbar = new PassengersBar({
         parentId: "div02",
         cols: [source, destination],
         width: $("#div02").width(),
         height: $("#div02").height(),
     });
-    
+
     flightdistance = new FlightDistance({
         parentId: "div10",
         cols: [source, destination],
         width: $("#div10").width(),
         height: $("#div10").height(),
     });
-    
+
     passengerseats = new PassengerSeats({
         parentId: "div12",
         cols: [source, destination],
         width: $("#div12").width(),
         height: $("#div12").height(),
     });
-    
+
     distancebar = new DistanceBar({
         parentId: "div00",
         cols: [source, destination],
         width: $("#div00").width(),
         height: $("#div00").height(),
     });
-    
+
     populationbar = new PopulationBar({
         parentId: "div22",
         cols: [source, destination],
@@ -174,7 +194,7 @@ function createLayout() {
                     "transparent")
                 .style("border", "1px solid #EEE")
                 .style("opacity", 1)
-                .style("margin", PADDING/2 - 4)
+                .style("margin", PADDING / 2 - 4)
                 .style("overflow", "hidden");
         }
     }
