@@ -33,30 +33,17 @@ function PopulationBar(options) {
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
         .append("g")
         .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
-
-    $.ajax({
-
-        type: "GET",
-        url: "/getPopulationBySource",
-        data: {
-            query: "getAllEdges",
-            cols: {}
-        }
-
-    }).done(function (data) {
-
-        data = JSON.parse(data);
-
-        _self.sourcePopulation = data;
-
-        console.log(data);
-
-        _self.refreshChart();
-
+ 
+    var query = new Query({
+        index: "Date",
+        value: ["199101", "200912"],
+        operator: "range",
+        logic: "CLEAN"
     });
 
-    _self.colors = d3.scale.category10();
+    setGlobalQuery(query);
 
+    _self.postUpdate();
 }
 
 PopulationBar.prototype.refreshChart = function () {
@@ -117,5 +104,26 @@ PopulationBar.prototype.refreshChart = function () {
             return d["_id"][source];
         });
 
+}
+
+PopulationBar.prototype.postUpdate = function () {
+
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getPopulationBySource",
+        data: {
+            data: queryStack
+        }
+
+    }).done(function (data) {
+
+        _self.sourcePopulation = JSON.parse(data);
+
+        _self.refreshChart();
+
+    });
 
 }

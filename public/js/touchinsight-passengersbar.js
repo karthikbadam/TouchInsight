@@ -13,16 +13,15 @@ function PassengersBar(options) {
         left: 55
     };
 
-     d3.select("#" + _self.parentId).append("text")
+    d3.select("#" + _self.parentId).append("text")
         .text("Passengers from")
         .style("font-size", "12px");
-    
+
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     //_self.height = options.height - _self.margin.top - _self.margin.bottom;
 
     _self.height = 10000;
-
 
     _self.svg = d3.select("#" + _self.parentId).append("div")
         .style("overflow", "scroll")
@@ -35,29 +34,16 @@ function PassengersBar(options) {
         .append("g")
         .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
-    $.ajax({
-
-        type: "GET",
-        url: "/getPassengersBySource",
-        data: {
-            query: "getAllEdges",
-            cols: {}
-        }
-
-    }).done(function (data) {
-
-        data = JSON.parse(data);
-
-        _self.flightNum = data;
-
-        console.log(data);
-
-        _self.refreshChart();
-
+    var query = new Query({
+        index: "Date",
+        value: ["199101", "200912"],
+        operator: "range",
+        logic: "CLEAN"
     });
 
-    _self.colors = d3.scale.category10();
+    setGlobalQuery(query);
 
+    _self.postUpdate();
 }
 
 PassengersBar.prototype.refreshChart = function () {
@@ -117,5 +103,27 @@ PassengersBar.prototype.refreshChart = function () {
         .text(function (d) {
             return d["_id"][source];
         });
+
+}
+
+PassengersBar.prototype.postUpdate = function () {
+
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getPassengersBySource",
+        data: {
+            data: queryStack
+        }
+
+    }).done(function (data) {
+
+        _self.flightNum = JSON.parse(data);
+
+        _self.refreshChart();
+
+    });
 
 }

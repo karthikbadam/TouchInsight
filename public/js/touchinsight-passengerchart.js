@@ -27,29 +27,16 @@ function PassengerChart(options) {
         .append("g")
         .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
-    $.ajax({
-
-        type: "GET",
-        url: "/getPassengersByTime",
-        data: {
-            index: "Date",
-            cols: {
-                Date: ["199101", "200912"]
-            }
-        }
-
-    }).done(function (data) {
-
-        data = JSON.parse(data);
-
-        console.log(data);
-
-        _self.flightNum = data;
-
-        _self.refreshChart();
-
+    var query = new Query({
+        index: "Date",
+        value: ["199101", "200912"],
+        operator: "range",
+        logic: "CLEAN"
     });
 
+    setGlobalQuery(query);
+
+    _self.postUpdate();
     _self.colors = d3.scale.category10();
 }
 
@@ -156,31 +143,38 @@ PassengerChart.prototype.refreshChart = function () {
 
         console.log(left + ", " + right);
 
-        var query = {
+        var query = new Query({
             index: "Date",
-            cols: {
-                Date: [left, right]
-            }
-        };
-
-
-        $.ajax({
-
-            type: "GET",
-            url: "/getPassengersByTime",
-            data: query
-
-        }).done(function (data) {
-
-            data = JSON.parse(data);
-
-            console.log(data);
-
-            _self.flightNum = data;
-
-            setGlobalQuery(query);
-
+            value: [left, right],
+            operator: "range",
+            logic: currentLogic
         });
 
+        setGlobalQuery(query);
+
+        _self.postUpdate();
+
     }
+}
+
+PassengerChart.prototype.postUpdate = function () {
+
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getPassengersByTime",
+        data: {
+            data: queryStack
+        }
+
+    }).done(function (data) {
+
+        _self.flightNum = JSON.parse(data);
+
+        _self.refreshChart();
+
+    });
+
 }

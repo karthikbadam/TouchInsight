@@ -33,28 +33,16 @@ function FlightDistance(options) {
         .append("g")
         .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
 
-    _self.edges = 0;
-
-    $.ajax({
-
-        type: "GET",
-        url: "/getFlightDistances",
-        data: {
-            query: "getAllEdges",
-            cols: {}
-        }
-
-    }).done(function (data) {
-
-        data = JSON.parse(data);
-
-        console.log(data)
-
-        _self.flightDistances = data;
-
-        _self.refreshChart();
-
+    var query = new Query({
+        index: "Date",
+        value: ["199101", "200912"],
+        operator: "range",
+        logic: "CLEAN"
     });
+
+    setGlobalQuery(query);
+
+    _self.postUpdate();
 
 }
 
@@ -182,10 +170,27 @@ FlightDistance.prototype.refreshChart = function () {
 
     // Handles a brush event, toggling the display of foreground lines.
     function brush() {
+        
+        var queries = [];
+        
         var actives = _self.dimensions.filter(function (p) {
                 return !_self.y[p].brush.empty();
             }),
-            extents = actives.map(function (p) {
+            extents = actives.map(function (p, i) {
+                var query = {};
+                query.index = p; 
+                query.value = _self.y[p].brush.extent();
+                query.operator = "range";
+                query.logic = "AND";
+                
+                if (i == 0) {
+                    query.logic = currentOperation;    
+                }
+                
+                queries.append(query); 
+                
+                setGlobalQuery(query);
+                    
                 return _self.y[p].brush.extent();
             });
         _self.foreground.style("display", function (d) {
@@ -193,7 +198,31 @@ FlightDistance.prototype.refreshChart = function () {
                 return extents[i][0] <= d["_id"][p] && d["_id"][p] <= extents[i][1];
             }) ? null : "none";
         });
+
+        _self.postUpdate();
+
     }
 
+}
+
+FlightDistance.prototype.postUpdate = function () {
+
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getFlightDistances",
+        data: {
+            data: queryStack
+        }
+
+    }).done(function (data) {
+
+        _self.flightDistances = JSON.parse(data);
+
+        _self.refreshChart();
+
+    });
 
 }

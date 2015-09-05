@@ -20,8 +20,6 @@ var height = 0;
 
 var PADDING = 10;
 
-var queryList = [];
-
 var colorscale = d3.scale.category10();
 
 var parseDate = d3.time.format("%Y%m").parse;
@@ -33,12 +31,23 @@ var usStates = {};
 
 var buttons = ["OR", "AND", "NOT", "CLEAN"];
 
+var currentOperation = "OR";
+
+var queryStack = [];
+
+var historyQueryStack = []; 
+
 function setGlobalQuery(query) {
 
     var currQuery = query;
 
+    queryStack.push(query.getQueryString());
+    
+    historyQueryStack.push(query);
+    
     //update all other visualizations
-    geomap.postUpdate(query);
+    geomap.postUpdate();
+    
     //    timechart.postUpdate();
     //    passengerchart.postUpdate();
     //    flightsbar.postUpdate();
@@ -52,30 +61,37 @@ function setGlobalQuery(query) {
 
 $(document).ready(function () {
 
-    //    flights = new PouchDB('flights', {
-    //        adapter: 'websql'
-    //    });
-    //
-    //    flights2 = TAFFY();
-
     // creating the four buttons
     for (var i = 0; i < buttons.length; i++) {
         d3.select("#button-panel").append("div")
+            .attr("id", buttons[i])
             .attr("class", "operator")
             .style("width", (100 / buttons.length) + "%")
             .style("height", "100%")
             .style("color", "white")
-            .style("font-size", "20px")
+            .style("font-size", "2em")
             .style("text-align", "center")
             .style("vertical-align", "middle")
             .style("cursor", "pointer")
             .style("display", "inline-block")
             .text(buttons[i])
             .on("mousedown", function () {
+
                 console.log(this.textContent + " is clicked");
+
+                $(this).toggleClass('active').siblings().removeClass('active');
+
+                currentOperation = this.textContent;
+            
+                if (currentOperation == "CLEAN") {
+                    
+                    queryStack.length = 0; 
+                    
+                }
             });
     }
 
+    $("#" + buttons[0]).toggleClass('active');
 
     width = $("#content").width();
     height = $("#content").height();

@@ -34,29 +34,16 @@ function FlightsBar(options) {
         .append("g")
         .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
-    $.ajax({
-
-        type: "GET",
-        url: "/getFlightsBySource",
-        data: {
-            query: "getAllEdges",
-            cols: {}
-        }
-
-    }).done(function (data) {
-
-        data = JSON.parse(data);
-
-        _self.flightNum = data;
-
-        console.log(data);
-
-        _self.refreshChart();
-
+    var query = new Query({
+        index: "Date",
+        value: ["199101", "200912"],
+        operator: "range",
+        logic: "CLEAN"
     });
 
-    _self.colors = d3.scale.category10();
+    setGlobalQuery(query);
 
+    _self.postUpdate();
 }
 
 FlightsBar.prototype.refreshChart = function () {
@@ -116,5 +103,27 @@ FlightsBar.prototype.refreshChart = function () {
         .text(function (d) {
             return d["_id"][source];
         });
+
+}
+
+FlightsBar.prototype.postUpdate = function () {
+
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getFlightsBySource",
+        data: {
+            data: queryStack
+        }
+
+    }).done(function (data) {
+
+        _self.sourcePopulation = JSON.parse(data);
+
+        _self.refreshChart();
+
+    });
 
 }

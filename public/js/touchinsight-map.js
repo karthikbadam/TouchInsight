@@ -31,7 +31,7 @@ function Map(options) {
             Date: ["199101", "200912"]
         }
     }
-
+    
     _self.postUpdate(_self.query);
 
     _self.colors = d3.scale.category10();
@@ -222,10 +222,6 @@ Map.prototype.refreshChart = function () {
 
         var destCircles = _self.svg.selectAll(".destination circle").data(_self.edges);
 
-        //        destCircles.select("circle")
-        //            .attr("fill-opacity", 0.7)
-        //            .attr("stroke-opacity", 1)
-
         destCircles.exit().remove()
             .transition().duration(1000);
 
@@ -256,7 +252,8 @@ Map.prototype.refreshChart = function () {
 
         var cityLinks = _self.svg.selectAll(".links line").data(_self.edges);
 
-        cityLinks.exit().remove().transition().duration(1000);
+        cityLinks.exit().remove()
+            .transition().duration(1000);
 
         cityLinks.enter()
             .append("line")

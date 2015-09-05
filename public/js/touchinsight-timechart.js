@@ -27,29 +27,17 @@ function TimeChart(options) {
         .append("g")
         .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
-    $.ajax({
-
-        type: "GET",
-        url: "/getFlightsByTime",
-        data: {
-            index: "Date",
-            cols: {
-                Date: ["199101", "200912"]
-            }
-        }
-
-    }).done(function (data) {
-
-        data = JSON.parse(data);
-
-        console.log(data);
-
-        _self.flightNum = data;
-
-        _self.refreshChart();
-
+    var query = new Query({
+        index: "Date",
+        value: ["199101", "200912"],
+        operator: "range",
+        logic: "CLEAN"
     });
 
+    setGlobalQuery(query);
+
+    _self.postUpdate();
+    
     _self.colors = d3.scale.category10();
 }
 
@@ -157,37 +145,36 @@ TimeChart.prototype.refreshChart = function () {
 
         console.log(left + ", " + right);
 
-        var query = {
+        var query = new Query({
             index: "Date",
-            cols: {
-                Date: [left, right]
-            }
-        };
-        
-        
-        $.ajax({
-
-            type: "GET",
-            url: "/getFlightsByTime",
-            data: query
-
-        }).done(function (data) {
-
-            data = JSON.parse(data);
-
-            console.log(data);
-
-            _self.flightNum = data;
-            
-            setGlobalQuery(query);
-
-            //_self.refreshChart();
-
+            value: [left, right],
+            operator: "range",
+            logic: currentLogic
         });
 
+        setGlobalQuery(query);
+        
+        _self.postUpdate();
 
-        //x.domain(brush.empty() ? x.domain() : brush.extent());
-        //focus.select(".area").attr("d", area);
-        //focus.select(".x.axis").call(xAxis);
     }
+}
+
+TimeChart.prototype.postUpdate = function () {
+
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getFlightsByTime",
+        data: {data: queryStack}
+
+    }).done(function (data) {
+
+        _self.flightNum = JSON.parse(data);
+        
+        _self.refreshChart();
+
+    });
+
 }

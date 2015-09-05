@@ -26,35 +26,22 @@ function PassengerSeats(options) {
     _self.background;
     _self.foreground;
 
-
     _self.svg = d3.select("#" + _self.parentId).append("svg")
         .attr("width", _self.width + _self.margin.left + _self.margin.right)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
         .append("g")
         .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
 
-    _self.edges = 0;
-
-    $.ajax({
-
-        type: "GET",
-        url: "/getPassengerSeats",
-        data: {
-            query: "getAllEdges",
-            cols: {}
-        }
-
-    }).done(function (data) {
-
-        data = JSON.parse(data);
-
-        console.log(data)
-
-        _self.passengerSeats = data;
-
-        _self.refreshChart();
-
+    var query = new Query({
+        index: "Date",
+        value: ["199101", "200912"],
+        operator: "range",
+        logic: "CLEAN"
     });
+
+    setGlobalQuery(query);
+
+    _self.postUpdate();
 
 }
 
@@ -63,13 +50,13 @@ PassengerSeats.prototype.refreshChart = function () {
     var _self = this;
 
     _self.x.domain(_self.dimensions = d3.keys(_self.passengerSeats[0]["_id"])
-                   .filter(function (d) {
-        return (_self.y[d] = d3.scale.linear()
-            .domain(d3.extent(_self.passengerSeats, function (p) {
-                return +p["_id"][d];
-            }))
-            .range([_self.height, 0]));
-    }));
+        .filter(function (d) {
+            return (_self.y[d] = d3.scale.linear()
+                .domain(d3.extent(_self.passengerSeats, function (p) {
+                    return +p["_id"][d];
+                }))
+                .range([_self.height, 0]));
+        }));
 
     // Add grey background lines for context.
     _self.background = _self.svg.append("g")
@@ -150,8 +137,8 @@ PassengerSeats.prototype.refreshChart = function () {
         .attr("class", "brush")
         .each(function (d) {
             d3.select(this).call(_self.y[d].brush = d3.svg.brush().y(_self.y[d])
-                                 .on("brushstart", brushstart)
-                                 .on("brush", brush));
+                .on("brushstart", brushstart)
+                .on("brush", brush));
         })
         .selectAll("rect")
         .attr("x", -8)
@@ -180,10 +167,26 @@ PassengerSeats.prototype.refreshChart = function () {
 
     // Handles a brush event, toggling the display of foreground lines.
     function brush() {
+        var queries = [];
+
         var actives = _self.dimensions.filter(function (p) {
                 return !_self.y[p].brush.empty();
             }),
-            extents = actives.map(function (p) {
+            extents = actives.map(function (p, i) {
+                var query = {};
+                query.index = p;
+                query.value = _self.y[p].brush.extent();
+                query.operator = "range";
+                query.logic = "AND";
+
+                if (i == 0) {
+                    query.logic = currentOperation;
+                }
+
+                queries.append(query);
+
+                setGlobalQuery(query);
+
                 return _self.y[p].brush.extent();
             });
         _self.foreground.style("display", function (d) {
@@ -191,7 +194,30 @@ PassengerSeats.prototype.refreshChart = function () {
                 return extents[i][0] <= d["_id"][p] && d["_id"][p] <= extents[i][1];
             }) ? null : "none";
         });
-    }
 
+        _self.postUpdate();
+
+    }
+}
+
+PassengerSeats.prototype.postUpdate = function () {
+
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getPassengerSeats",
+        data: {
+            data: queryStack
+        }
+
+    }).done(function (data) {
+
+        _self.passengerSeats = JSON.parse(data);
+
+        _self.refreshChart();
+
+    });
 
 }

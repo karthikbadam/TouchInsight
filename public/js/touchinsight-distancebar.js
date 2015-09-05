@@ -12,8 +12,8 @@ function DistanceBar(options) {
         bottom: 30,
         left: 55
     };
-    
-     d3.select("#" + _self.parentId).append("text")
+
+    d3.select("#" + _self.parentId).append("text")
         .text("Average distance travelled from")
         .style("font-size", "12px");
 
@@ -34,28 +34,16 @@ function DistanceBar(options) {
         .append("g")
         .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
-    $.ajax({
-
-        type: "GET",
-        url: "/getDistanceBySource",
-        data: {
-            query: "getAllEdges",
-            cols: {}
-        }
-
-    }).done(function (data) {
-
-        data = JSON.parse(data);
-
-        _self.averageDis = data;
-
-        console.log(data);
-
-        _self.refreshChart();
-
+    var query = new Query({
+        index: "Date",
+        value: ["199101", "200912"],
+        operator: "range",
+        logic: "CLEAN"
     });
 
-    _self.colors = d3.scale.category10();
+    setGlobalQuery(query);
+
+    _self.postUpdate();
 
 }
 
@@ -116,5 +104,28 @@ DistanceBar.prototype.refreshChart = function () {
         .text(function (d) {
             return d["_id"][source];
         });
+
+}
+
+
+DistanceBar.prototype.postUpdate = function () {
+
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getDistanceBySource",
+        data: {
+            data: queryStack
+        }
+
+    }).done(function (data) {
+
+        _self.averageDis = JSON.parse(data);
+
+        _self.refreshChart();
+
+    });
 
 }
