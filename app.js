@@ -406,7 +406,7 @@ function queryFlightDistances(db, query, callback) {
             }
         },
         {
-            $limit: 20000
+            $limit: 10000
         }
                    ]);
 
@@ -462,7 +462,7 @@ function queryPassengerSeats(db, query, callback) {
             }
         },
         {
-            $limit: 20000
+            $limit: 10000
         }
 
                    ]);
@@ -597,10 +597,17 @@ function parseQueryString(params) {
         switch (d.operator) {
 
         case "range":
-            q[d.index] = {
-                "$gte": d.value[0],
-                "$lte": d.value[1]
-            };
+            if (d.index == "Date") {
+                q[d.index] = {
+                    "$gte": d.value[0],
+                    "$lte": d.value[1]
+                };
+            } else {
+                q[d.index] = {
+                    "$gte": parseFloat(d.value[0]),
+                    "$lte": parseFloat(d.value[1])
+                };
+            }
             break;
 
         case "equal":

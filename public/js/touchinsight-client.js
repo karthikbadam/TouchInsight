@@ -31,7 +31,7 @@ var usStates = {};
 
 var buttons = ["OR", "AND", "NOT", "CLEAN"];
 
-var currentLogic = "OR";
+var currentLogic = "CLEAN";
 
 var queryStack = [];
 
@@ -50,7 +50,7 @@ function setGlobalQuery(query, propagate) {
         if (query.logic == "CLEAN") {
 
             queryStack = queryStack.slice(i);
-
+            break;
         }
     }
 
@@ -59,15 +59,15 @@ function setGlobalQuery(query, propagate) {
     // update all other visualizations
     if (propagate) {
         geomap.postUpdate();
+        timechart.postUpdate();
+        passengerchart.postUpdate();
+        flightsbar.postUpdate();
+        passengersbar.postUpdate();
+        flightdistance.postUpdate();
+        passengerseats.postUpdate();
+        distancebar.postUpdate();
+        populationbar.postUpdate();
     }
-    //    timechart.postUpdate();
-    //    passengerchart.postUpdate();
-    //    flightsbar.postUpdate();
-    //    passengersbar.postUpdate();
-    //    flightdistance.postUpdate(); 
-    //    passengerseats.postUpdate();
-    //    distancebar.postUpdate();
-    //    populationbar.postUpdate();
 
 }
 
@@ -103,7 +103,7 @@ $(document).ready(function () {
             });
     }
 
-    $("#" + buttons[0]).toggleClass('active');
+    $("#" + buttons[3]).toggleClass('active');
 
     width = $("#content").width();
     height = $("#content").height();
@@ -239,7 +239,7 @@ function getWeights(size) {
 
     for (var i = 0; i < size; i++) {
 
-        var weight = Math.pow(mid - Math.abs(mid - i - 1), 1.5);
+        var weight = Math.pow(mid - Math.abs(mid - i - 1), 1.2);
 
         sum = sum + weight;
 

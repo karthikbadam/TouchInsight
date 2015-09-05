@@ -64,13 +64,7 @@ svg {
     opacity: 0.3;
 }
 
-.background path {
-    fill: none;
-    stroke: #EEE;
-    shape-rendering: crispEdges;
-}
-
-.foreground path {
+.parallel path {
     fill: none;
     stroke-opacity: 1;
 }

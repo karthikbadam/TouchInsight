@@ -33,9 +33,8 @@ function Map(options) {
     });
 
     setGlobalQuery(query);
-    
-    _self.postUpdate();
 
+    _self.postUpdate();
 }
 
 Map.prototype.refreshChart = function () {
@@ -49,7 +48,7 @@ Map.prototype.refreshChart = function () {
         var right = -66.9513812;
         var bottom = 24.7433195;
 
-        var scale = 57 * _self.height / Math.abs(bottom - top);
+        var scale = 59 * _self.height / Math.abs(bottom - top);
 
         console.log(scale);
 
@@ -191,7 +190,8 @@ Map.prototype.refreshChart = function () {
 
     } else {
 
-        var sourceCircles = _self.svg.selectAll(".source circle").data(_self.edges);
+        var sourceCircles = _self.svg.selectAll(".source")
+            .selectAll("circle").data(_self.edges);
 
         sourceCircles.exit().remove()
             .transition().duration(1000);
@@ -220,7 +220,28 @@ Map.prototype.refreshChart = function () {
                 return (Math.log(d["Flights"] + 1)) + "px";
             });
 
-        var destCircles = _self.svg.selectAll(".destination circle").data(_self.edges);
+        sourceCircles.attr("transform", function (d, i) {
+
+                var s = d["_id"][source];
+                var loc = usStates[s];
+
+                return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
+            })
+            .attr("fill", function (d) {
+                //return _self.colors(d["_id"][destination]);
+                return "#9ecae1";
+            })
+            .attr("fill-opacity", 0.7)
+            .attr("stroke", "white")
+            .attr("stroke-opacity", 1)
+            .attr("stroke-width", "0.5px")
+            .attr("r", function (d, i) {
+
+                return (Math.log(d["Flights"] + 1)) + "px";
+            });
+
+        var destCircles = _self.svg.selectAll(".destination")
+            .selectAll("circle").data(_self.edges);
 
         destCircles.exit().remove()
             .transition().duration(1000);
@@ -249,16 +270,34 @@ Map.prototype.refreshChart = function () {
                 return (Math.log(d["Flights"] + 1)) + "px";
             });
 
+        destCircles.attr("transform", function (d, i) {
 
-        var cityLinks = _self.svg.selectAll(".links line").data(_self.edges);
+                var s = d["_id"][destination];
+                var loc = usStates[s];
 
-        cityLinks.exit().remove()
-            .transition().duration(1000);
+                return "translate(" + _self.projection([loc.lon, loc.lat]) + ")";
+            })
+            .attr("fill", function (d) {
+                //return _self.colors(d["_id"][destination]);
+                return "#fdbb84";
+            })
+            .attr("fill-opacity", 0.7)
+            .attr("stroke-opacity", 1)
+            .attr("stroke", "white")
+            .attr("stroke-width", "0.5px")
+            .attr("r", function (d, i) {
+
+                return (Math.log(d["Flights"] + 1)) + "px";
+            });
+
+
+
+        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.edges);
+
+        cityLinks.exit().remove();
 
         cityLinks.enter()
             .append("line")
-            .transition().duration(1000)
-            .ease("linear")
             .attr("class", "link")
             .attr("stroke", function (d) {
                 return "#9ecae1";
@@ -270,6 +309,42 @@ Map.prototype.refreshChart = function () {
             })
             .attr("stroke-opacity", 0.05)
             .attr("x1", function (d, i) {
+
+                var s = d["_id"][source];
+                var loc = usStates[s];
+                var c = _self.projection([loc.lon, loc.lat])
+
+                return c[0];
+            })
+            .attr("y1", function (d, i) {
+
+                var s = d["_id"][source];
+                var loc = usStates[s];
+                var c = _self.projection([loc.lon, loc.lat])
+
+                return c[1];
+
+            })
+            .attr("x2", function (d, i) {
+
+                var s = d["_id"][destination];
+                var loc = usStates[s];
+                var c = _self.projection([loc.lon, loc.lat])
+
+                return c[0];
+
+            })
+            .attr("y2", function (d, i) {
+
+                var s = d["_id"][destination];
+                var loc = usStates[s];
+                var c = _self.projection([loc.lon, loc.lat])
+
+                return c[1];
+
+            });
+
+        cityLinks.attr("x1", function (d, i) {
 
                 var s = d["_id"][source];
                 var loc = usStates[s];
@@ -323,7 +398,7 @@ Map.prototype.postUpdate = function () {
         }
     }).done(function (data) {
 
-        _self.edges =  JSON.parse(data);
+        _self.edges = JSON.parse(data);
 
         _self.refreshChart();
 

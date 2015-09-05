@@ -24,7 +24,7 @@ function FlightDistance(options) {
     _self.line = d3.svg.line();
     _self.axis = d3.svg.axis().orient("left");
     _self.background;
-    _self.foreground;
+    _self.parallel;
 
 
     _self.svg = d3.select("#" + _self.parentId).append("svg")
@@ -50,157 +50,143 @@ FlightDistance.prototype.refreshChart = function () {
 
     var _self = this;
 
-    _self.x.domain(_self.dimensions = d3.keys(_self.flightDistances[0]["_id"])
-        .filter(function (d) {
-            return (_self.y[d] = d3.scale.linear()
-                .domain(d3.extent(_self.flightDistances, function (p) {
-                    return +p["_id"][d];
-                }))
-                .range([_self.height, 0]));
-        }));
+    if (_self.svg.select("path").empty()) {
 
-    // Add grey background lines for context.
-    _self.background = _self.svg.append("g")
-        .attr("class", "background")
-        .selectAll("path")
-        .data(_self.flightDistances)
-        .enter().append("path")
-        .attr("d", path)
-        .attr("stroke", "#9ecae1")
-        .attr("stroke-opacity", 0.1)
-        .attr("stroke-width", "0.5px");
-
-    // Add blue foreground lines for focus.
-    _self.foreground = _self.svg.append("g")
-        .attr("class", "foreground")
-        .selectAll("path")
-        .data(_self.flightDistances)
-        .enter().append("path")
-        .attr("d", path)
-        .attr("stroke", "#9ecae1")
-        .attr("stroke-opacity", 0.1)
-        .attr("stroke-width", "0.5px");
-
-    // Add a group element for each dimension.
-    var g = _self.g = _self.svg.selectAll(".dimension")
-        .data(_self.dimensions)
-        .enter().append("g")
-        .attr("class", "dimension")
-        .attr("transform", function (d) {
-            return "translate(" + _self.x(d) + ")";
-        })
-        .call(d3.behavior.drag()
-            .origin(function (d) {
-                return {
-                    x: _self.x(d)
-                };
-            })
-            .on("dragstart", function (d) {
-                _self.dragging[d] = _self.x(d);
-                _self.background.attr("visibility", "hidden");
-            })
-            .on("drag", function (d) {
-                _self.dragging[d] = Math.min(_self.width, Math.max(0, d3.event.x));
-                _self.foreground.attr("d", path);
-                _self.dimensions.sort(function (a, b) {
-                    return position(a) - position(b);
-                });
-                _self.x.domain(dimensions);
-                g.attr("transform", function (d) {
-                    return "translate(" + position(d) + ")";
-                })
-            })
-            .on("dragend", function (d) {
-                delete _self.dragging[d];
-                transition(d3.select(this)).attr("transform", "translate(" + _self.x(d) + ")");
-                transition(_self.foreground).attr("d", path);
-                _self.background
-                    .attr("d", path)
-                    .transition()
-                    .delay(500)
-                    .duration(0)
-                    .attr("visibility", null);
+        _self.x.domain(_self.dimensions = d3.keys(_self.flightDistances[0]["_id"])
+            .filter(function (d) {
+                return (_self.y[d] = d3.scale.linear()
+                    .domain(d3.extent(_self.flightDistances, function (p) {
+                        return +p["_id"][d];
+                    }))
+                    .range([_self.height, 0]));
             }));
 
-    // Add an axis and title.
-    g.append("g")
-        .attr("class", "axis")
-        .each(function (d) {
-            d3.select(this).call(_self.axis.scale(_self.y[d]));
-        })
-        .append("text")
-        .style("text-anchor", "middle")
-        .attr("y", -9)
-        .text(function (d) {
-            return d;
-        });
+        // Add blue parallel lines for focus.
+        _self.parallel = _self.svg.append("g")
+            .attr("class", "parallel")
+            .selectAll("path")
+            .data(_self.flightDistances)
+            .enter().append("path")
+            .attr("d", path)
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-opacity", 0.1)
+            .attr("stroke-width", "0.5px");
 
-    // Add and store a brush for each axis.
-    g.append("g")
-        .attr("class", "brush")
-        .each(function (d) {
-            d3.select(this).call(_self.y[d].brush = d3.svg.brush().y(_self.y[d])
-                .on("brushstart", brushstart)
-                .on("brush", brush));
-        })
-        .selectAll("rect")
-        .attr("x", -8)
-        .attr("width", 16);
-
-
-    function position(d) {
-        var v = _self.dragging[d];
-        return v == null ? _self.x(d) : v;
-    }
-
-    function transition(g) {
-        return g.transition().duration(500);
-    }
-
-    // Returns the path for a given data point.
-    function path(d) {
-        return _self.line(_self.dimensions.map(function (p) {
-            return [position(p), _self.y[p](d["_id"][p])];
-        }));
-    }
-
-    function brushstart() {
-        d3.event.sourceEvent.stopPropagation();
-    }
-
-    // Handles a brush event, toggling the display of foreground lines.
-    function brush() {
-        
-        var queries = [];
-        
-        var actives = _self.dimensions.filter(function (p) {
-                return !_self.y[p].brush.empty();
-            }),
-            extents = actives.map(function (p, i) {
-                var query = {};
-                query.index = p; 
-                query.value = _self.y[p].brush.extent();
-                query.operator = "range";
-                query.logic = "AND";
-                
-                if (i == 0) {
-                    query.logic = currentOperation;    
-                }
-                
-                queries.append(query); 
-                
-                setGlobalQuery(query);
-                    
-                return _self.y[p].brush.extent();
+        // Add a group element for each dimension.
+        var g = _self.g = _self.svg.selectAll(".dimension")
+            .data(_self.dimensions)
+            .enter().append("g")
+            .attr("class", "dimension")
+            .attr("transform", function (d) {
+                return "translate(" + _self.x(d) + ")";
             });
-        _self.foreground.style("display", function (d) {
-            return actives.every(function (p, i) {
-                return extents[i][0] <= d["_id"][p] && d["_id"][p] <= extents[i][1];
-            }) ? null : "none";
-        });
 
-        _self.postUpdate();
+        // Add an axis and title.
+        g.append("g")
+            .attr("class", "axis")
+            .each(function (d) {
+                d3.select(this).call(_self.axis.scale(_self.y[d]));
+            })
+            .append("text")
+            .style("text-anchor", "middle")
+            .attr("y", -9)
+            .text(function (d) {
+                return d;
+            });
 
+        // Add and store a brush for each axis.
+        g.append("g")
+            .attr("class", "brush")
+            .each(function (d) {
+                d3.select(this).call(_self.y[d].brush = d3.svg.brush().y(_self.y[d])
+                    .on("brushstart", brushstart)
+                    .on("brushend", brush));
+            })
+            .selectAll("rect")
+            .attr("x", -8)
+            .attr("width", 16);
+
+
+        function transition(g) {
+            return g.transition().duration(500);
+        }
+
+        // Returns the path for a given data point.
+        function path(d) {
+            return _self.line(_self.dimensions.map(function (p) {
+                return [_self.x(p), _self.y[p](d["_id"][p])];
+            }));
+        }
+
+        function brushstart() {
+            d3.event.sourceEvent.stopPropagation();
+        }
+
+        // Handles a brush event, toggling the display of parallel lines.
+        function brush() {
+
+            var queries = [];
+
+            var actives = _self.dimensions.filter(function (p) {
+                    return !_self.y[p].brush.empty();
+                }),
+                extents = actives.map(function (p, i) {
+
+                    var ex = _self.y[p].brush.extent();
+
+                    var query = new Query({
+                        index: p,
+                        value: [Math.round(ex[0]), Math.round(ex[1])],
+                        operator: "range",
+                        logic: "AND",
+                    });
+
+                    if (i == 0) {
+                        query.logic = currentLogic;
+                    }
+
+                    queries.push(query);
+
+
+                    if (i == actives.length - 1) {
+
+                        setGlobalQuery(query, 1);
+
+                    } else {
+
+                        setGlobalQuery(query);
+
+                    }
+
+                    return _self.y[p].brush.extent();
+                });
+            
+//            _self.parallel.style("display", function (d) {
+//                return actives.every(function (p, i) {
+//                    return extents[i][0] <= d["_id"][p] && d["_id"][p] <= extents[i][1];
+//                }) ? null : "none";
+//            });
+
+            //_self.postUpdate();
+
+        }
+
+    } else {
+
+        var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
+            .data(_self.flightDistances);
+
+        parallelLines.exit().remove();
+
+        parallelLines.enter()
+            .append("path")
+            .transition().duration(1000)
+            .ease("linear")
+            .attr("d", path)
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-width", "0.5px");
+
+        parallelLines.attr("d", path);
     }
 
 }
