@@ -150,7 +150,7 @@ PassengerChart.prototype.refreshChart = function () {
             logic: currentLogic
         });
 
-        setGlobalQuery(query);
+        setGlobalQuery(query, 1);
 
         _self.postUpdate();
 

@@ -37,7 +37,7 @@ function TimeChart(options) {
     setGlobalQuery(query);
 
     _self.postUpdate();
-    
+
     _self.colors = d3.scale.category10();
 }
 
@@ -152,8 +152,8 @@ TimeChart.prototype.refreshChart = function () {
             logic: currentLogic
         });
 
-        setGlobalQuery(query);
-        
+        setGlobalQuery(query, 1);
+
         _self.postUpdate();
 
     }
@@ -167,12 +167,14 @@ TimeChart.prototype.postUpdate = function () {
 
         type: "GET",
         url: "/getFlightsByTime",
-        data: {data: queryStack}
+        data: {
+            data: queryStack
+        }
 
     }).done(function (data) {
 
         _self.flightNum = JSON.parse(data);
-        
+
         _self.refreshChart();
 
     });

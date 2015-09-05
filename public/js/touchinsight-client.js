@@ -31,23 +31,35 @@ var usStates = {};
 
 var buttons = ["OR", "AND", "NOT", "CLEAN"];
 
-var currentOperation = "OR";
+var currentLogic = "OR";
 
 var queryStack = [];
 
-var historyQueryStack = []; 
+var historyQueryStack = [];
 
-function setGlobalQuery(query) {
+function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
 
     queryStack.push(query.getQueryString());
-    
+
+    for (var i = queryStack.length - 1; i >= 0; i--) {
+
+        var query = queryStack[i]
+
+        if (query.logic == "CLEAN") {
+
+            queryStack = queryStack.slice(i);
+
+        }
+    }
+
     historyQueryStack.push(query);
-    
-    //update all other visualizations
-    geomap.postUpdate();
-    
+
+    // update all other visualizations
+    if (propagate) {
+        geomap.postUpdate();
+    }
     //    timechart.postUpdate();
     //    passengerchart.postUpdate();
     //    flightsbar.postUpdate();
@@ -81,12 +93,12 @@ $(document).ready(function () {
 
                 $(this).toggleClass('active').siblings().removeClass('active');
 
-                currentOperation = this.textContent;
-            
-                if (currentOperation == "CLEAN") {
-                    
-                    queryStack.length = 0; 
-                    
+                currentLogic = this.textContent;
+
+                if (currentLogic == "CLEAN") {
+
+                    queryStack.length = 0;
+
                 }
             });
     }

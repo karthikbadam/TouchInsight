@@ -14,12 +14,17 @@ body {
 
 .operator {
     width: 25%;  
-    background-color: #969696;
+    background-color: #6baed6;
 }
 
 .operator:hover{
     width: 25%;
-    background-color: #636363;
+    background-color: #3182bd;
+}
+
+.operator.active{
+    width: 25%;
+    background-color: #3182bd;
 }
 
 #content {

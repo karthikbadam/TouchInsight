@@ -120,7 +120,7 @@ FlightsBar.prototype.postUpdate = function () {
 
     }).done(function (data) {
 
-        _self.sourcePopulation = JSON.parse(data);
+        _self.flightNum = JSON.parse(data);
 
         _self.refreshChart();
 

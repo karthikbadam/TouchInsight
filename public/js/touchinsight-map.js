@@ -25,16 +25,16 @@ function Map(options) {
 
     _self.edges = 0;
 
-    _self.query = {
+    var query = new Query({
         index: "Date",
-        cols: {
-            Date: ["199101", "200912"]
-        }
-    }
-    
-    _self.postUpdate(_self.query);
+        value: ["199101", "200912"],
+        operator: "range",
+        logic: "CLEAN"
+    });
 
-    _self.colors = d3.scale.category10();
+    setGlobalQuery(query);
+    
+    _self.postUpdate();
 
 }
 
@@ -310,7 +310,7 @@ Map.prototype.refreshChart = function () {
 
 }
 
-Map.prototype.postUpdate = function (query) {
+Map.prototype.postUpdate = function () {
 
     var _self = this;
 
@@ -318,15 +318,12 @@ Map.prototype.postUpdate = function (query) {
 
         type: "GET",
         url: "/getFlightCounts",
-        data: query
-
+        data: {
+            data: queryStack
+        }
     }).done(function (data) {
 
-        data = JSON.parse(data);
-
-        console.log(data)
-
-        _self.edges = data;
+        _self.edges =  JSON.parse(data);
 
         _self.refreshChart();
 
