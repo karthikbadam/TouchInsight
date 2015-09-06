@@ -63,7 +63,7 @@ PassengersBar.prototype.refreshChart = function () {
                 return d["_id"][source];
             }))
             .rangeBands([0, _self.height]);
-        
+
         _self.barH = 20;
 
         //_self.barH = _self.height / _self.flightNum.length;
@@ -114,6 +114,13 @@ PassengersBar.prototype.refreshChart = function () {
 
         allBars.exit().remove();
 
+        _self.x = d3.scale.linear()
+            .domain([0, d3.max(_self.flightNum, function (d) {
+                return Math.pow(d[passengers], 1);
+            })])
+            .range([0, _self.width]);
+
+
         var rects = allBars.enter().append("g")
             .attr("transform", function (d, i) {
                 return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
@@ -138,13 +145,13 @@ PassengersBar.prototype.refreshChart = function () {
                 return d[passengers];
             });
 
-        allBars.selectAll("rect").attr("width", function (d) {
+        allBars.select("rect").attr("width", function (d) {
                 return _self.x(Math.pow(d[passengers], 1));
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1");
 
-        allBars.selectAll("text").attr("x", function (d) {
+        allBars.select("text").attr("x", function (d) {
                 return 5;
             })
             .attr("y", _self.barH / 3)
@@ -154,7 +161,7 @@ PassengersBar.prototype.refreshChart = function () {
             .text(function (d) {
                 return d[passengers];
             });
-        
+
         _self.y = d3.scale.ordinal()
             .domain(_self.flightNum.map(function (d) {
                 return d["_id"][source];

@@ -29,7 +29,7 @@ function TimeChart(options) {
 
     var query = new Query({
         index: "Date",
-        value: ["199101", "200912"],
+        value: ["199001", "200912"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -157,6 +157,32 @@ TimeChart.prototype.refreshChart = function () {
             setGlobalQuery(query, 1);
 
         }
+
+    } else {
+
+        _self.flightNum.sort(function (a, b) {
+            if (parseDate(a["_id"]["Date"]).getTime() < 
+                parseDate(b["_id"]["Date"]).getTime()) {
+                return 1;
+            }
+            return -1;
+        });
+
+        _self.y.domain(d3.extent(_self.flightNum, function (d) {
+            return d[numFlights];
+        }));
+
+        _self.yAxis.scale(_self.y);
+        
+        _self.svg.select(".y.axis")
+            .call(_self.yAxis);
+
+        _self.svg.select("#time")
+            .datum(_self.flightNum)
+            .attr("d", _self.line)
+            .attr("fill", "transparent")
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-width", "2px");
 
     }
 

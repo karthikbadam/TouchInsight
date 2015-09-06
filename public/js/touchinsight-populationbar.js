@@ -110,9 +110,37 @@ PopulationBar.prototype.refreshChart = function () {
     } else {
         
         var allBars = _self.svg.selectAll("g").data(_self.sourcePopulation);
+        
+        _self.x = d3.scale.linear()
+            .domain([0, d3.max(_self.sourcePopulation, function (d) {
+                return Math.pow(d[sourcePopulation], 1);
+            })])
+            .range([0, _self.width]);
 
         allBars.exit().remove();
+        
+        allBars.attr("transform", function (d, i) {
+                return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
+            })
+            .select("rect")
+            .attr("width", function (d) {
+                return _self.x(Math.pow(d[sourcePopulation], 1));
+            })
+            .attr("height", _self.barH - 5)
+            .attr("fill", "#9ecae1");
 
+        allBars.select("text")
+            .attr("x", function (d) {
+                return 5;
+            })
+            .attr("y", _self.barH / 3)
+            .attr("fill", "#222")
+            .attr("text-anchor", "start")
+            .attr("dy", ".35em")
+            .text(function (d) {
+                return d[sourcePopulation];
+            });
+        
         var rects = allBars.enter().append("g")
             .attr("transform", function (d, i) {
                 return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
@@ -137,22 +165,6 @@ PopulationBar.prototype.refreshChart = function () {
                 return d[sourcePopulation];
             });
 
-        allBars.selectAll("rect").attr("width", function (d) {
-                return _self.x(Math.pow(d[sourcePopulation], 1));
-            })
-            .attr("height", _self.barH - 5)
-            .attr("fill", "#9ecae1");
-
-        allBars.selectAll("text").attr("x", function (d) {
-                return 5;
-            })
-            .attr("y", _self.barH / 3)
-            .attr("fill", "#222")
-            .attr("text-anchor", "start")
-            .attr("dy", ".35em")
-            .text(function (d) {
-                return d[sourcePopulation];
-            });
         
         _self.y = d3.scale.ordinal()
             .domain(_self.sourcePopulation.map(function (d) {

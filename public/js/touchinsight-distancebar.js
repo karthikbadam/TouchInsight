@@ -67,7 +67,7 @@ DistanceBar.prototype.refreshChart = function () {
 
         //_self.barH = _self.height / _self.averageDis.length;
         _self.barH = 20;
-        
+
         _self.bars = _self.svg.selectAll("g")
             .data(_self.averageDis)
             .enter().append("g")
@@ -112,6 +112,12 @@ DistanceBar.prototype.refreshChart = function () {
 
         var allBars = _self.svg.selectAll("g").data(_self.averageDis);
 
+        _self.x = d3.scale.linear()
+            .domain([0, d3.max(_self.averageDis, function (d) {
+                return Math.pow(d[distance], 1);
+            })])
+            .range([0, _self.width]);
+
         allBars.exit().remove();
 
         var rects = allBars.enter().append("g")
@@ -138,13 +144,13 @@ DistanceBar.prototype.refreshChart = function () {
                 return d[distance].toFixed(2);
             });
 
-        allBars.selectAll("rect").attr("width", function (d) {
+        allBars.select("rect").attr("width", function (d) {
                 return _self.x(Math.pow(d[distance], 1));
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1");
 
-        allBars.selectAll("text").attr("x", function (d) {
+        allBars.select("text").attr("x", function (d) {
                 return 5;
             })
             .attr("y", _self.barH / 3)

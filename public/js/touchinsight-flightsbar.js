@@ -106,12 +106,18 @@ FlightsBar.prototype.refreshChart = function () {
             .text(function (d) {
                 return d["_id"][source];
             });
-        
+
     } else {
 
         var allBars = _self.svg.selectAll("g").data(_self.flightNum);
 
         allBars.exit().remove();
+
+        _self.x = d3.scale.linear()
+            .domain([0, d3.max(_self.flightNum, function (d) {
+                return Math.pow(d[numFlights], 1);
+            })])
+            .range([0, _self.width]);
 
         var rects = allBars.enter().append("g")
             .attr("transform", function (d, i) {
@@ -137,13 +143,14 @@ FlightsBar.prototype.refreshChart = function () {
                 return d[numFlights];
             });
 
-        allBars.selectAll("rect").attr("width", function (d) {
+        allBars.select("rect").attr("width", function (d) {
                 return _self.x(Math.pow(d[numFlights], 1));
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1");
 
-        allBars.selectAll("text").attr("x", function (d) {
+        allBars.select("text")
+            .attr("x", function (d) {
                 return 5;
             })
             .attr("y", _self.barH / 3)

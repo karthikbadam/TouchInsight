@@ -29,7 +29,7 @@ function PassengerChart(options) {
 
     var query = new Query({
         index: "Date",
-        value: ["199101", "200912"],
+        value: ["199001", "200912"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -83,11 +83,11 @@ PassengerChart.prototype.refreshChart = function () {
                 return y(d[passengers]);
             });
 
-        x.domain(d3.extent(_self.flightNum, function (d) {
+        x.domain(d3.extent(_self.passengerNum, function (d) {
             return parseDate(d["_id"][date]);
         }));
 
-        y.domain(d3.extent(_self.flightNum, function (d) {
+        y.domain(d3.extent(_self.passengerNum, function (d) {
             return d[passengers];
         }));
 
@@ -106,14 +106,14 @@ PassengerChart.prototype.refreshChart = function () {
             .style("text-anchor", "end")
             .text("Passengers");
 
-        _self.flightNum.sort(function (a, b) {
+        _self.passengerNum.sort(function (a, b) {
             if (parseDate(b["_id"][date]).getTime() <
                 parseDate(a["_id"][date]).getTime()) return 1;
             return -1;
         });
 
         _self.svg.append("path")
-            .datum(_self.flightNum)
+            .datum(_self.passengerNum)
             .attr("id", "time")
             .attr("class", "flightsTime")
             .attr("d", line)
@@ -157,6 +157,32 @@ PassengerChart.prototype.refreshChart = function () {
             //_self.postUpdate();
 
         }
+    } else {
+
+        _self.passengerNum.sort(function (a, b) {
+            if (parseDate(a["_id"]["Date"]).getTime() <
+                parseDate(b["_id"]["Date"]).getTime()) {
+                return 1;
+            }
+            return -1;
+        });
+
+        _self.y.domain(d3.extent(_self.passengerNum, function (d) {
+            return d[passengers];
+        }));
+
+        _self.yAxis.scale(_self.y);
+
+        _self.svg.select(".y.axis")
+            .call(_self.yAxis);
+
+        _self.svg.select("#time")
+            .datum(_self.passengerNum)
+            .attr("d", _self.line)
+            .attr("fill", "transparent")
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-width", "2px");
+
     }
 }
 
@@ -174,7 +200,7 @@ PassengerChart.prototype.postUpdate = function () {
 
     }).done(function (data) {
 
-        _self.flightNum = JSON.parse(data);
+        _self.passengerNum = JSON.parse(data);
 
         _self.refreshChart();
 

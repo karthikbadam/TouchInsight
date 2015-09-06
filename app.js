@@ -187,8 +187,7 @@ function queryFlightsByTime(db, query, callback) {
         },
         {
             $sort: {
-                Date: 1,
-                Flights: -1,
+                Date: 1
 
             }
         }
@@ -240,8 +239,7 @@ function queryPassengersByTime(db, query, callback) {
         },
         {
             $sort: {
-                Date: 1,
-                Passengers: -1,
+                Date: 1
 
             }
     }]);
@@ -292,7 +290,6 @@ function queryFlightsBySource(db, query, callback) {
         },
         {
             $sort: {
-                Date: 1,
                 Flights: -1,
 
             }
