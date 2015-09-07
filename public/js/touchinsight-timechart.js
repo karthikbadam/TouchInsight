@@ -188,7 +188,7 @@ TimeChart.prototype.refreshChart = function () {
 
 }
 
-TimeChart.prototype.updateMicroViz = function () {
+TimeChart.prototype.refreshMicroViz = function () {
 
     var _self = this;
 
@@ -262,7 +262,7 @@ TimeChart.prototype.postUpdate = function () {
 
         } else {
 
-            _self.updateMicroViz();
+            _self.refreshMicroViz();
         }
 
     });

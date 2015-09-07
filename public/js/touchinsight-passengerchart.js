@@ -187,7 +187,7 @@ PassengerChart.prototype.refreshChart = function () {
     }
 }
 
-PassengerChart.prototype.updateMicroViz = function () {
+PassengerChart.prototype.refreshMicroViz = function () {
 
     var _self = this;
 
@@ -260,7 +260,7 @@ PassengerChart.prototype.postUpdate = function () {
 
         } else {
 
-            _self.updateMicroViz();
+            _self.refreshMicroViz();
         }
 
     });

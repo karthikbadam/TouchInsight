@@ -19,20 +19,9 @@ function PopulationBar(options) {
 
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
-    //_self.height = options.height - _self.margin.top - _self.margin.bottom;
+    _self.actualheight = options.height - _self.margin.top - _self.margin.bottom;
 
     _self.height = 10000;
-
-    _self.svg = d3.select("#" + _self.parentId).append("div")
-        .style("overflow", "scroll")
-        .style("width", options.width)
-        .style("height", options.height - 15)
-        .append("svg")
-        .attr("id", "populationbar")
-        .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
-        .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
     var query = new Query({
         index: "Date",
@@ -52,6 +41,20 @@ PopulationBar.prototype.refreshChart = function () {
 
     if (_self.svg.select("rect").empty()) {
 
+        _self.svg = d3.select("#" + _self.parentId)
+            .append("div")
+            .style("overflow", "scroll")
+            .style("width", options.width)
+            .style("height", options.height - 15)
+            .append("svg")
+            .attr("id", "populationbar")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + (_self.margin.left) + "," +
+                _self.margin.top + ")");
+
+
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.sourcePopulation, function (d) {
                 return Math.pow(d[sourcePopulation], 1);
@@ -65,8 +68,8 @@ PopulationBar.prototype.refreshChart = function () {
             .rangeBands([0, _self.height]);
 
         //_self.barH = _self.height / _self.sourcePopulation.length;
-        _self.barH = 20; 
-        
+        _self.barH = 20;
+
         _self.bars = _self.svg.selectAll("g")
             .data(_self.sourcePopulation)
             .enter().append("g")
@@ -108,9 +111,9 @@ PopulationBar.prototype.refreshChart = function () {
             });
 
     } else {
-        
+
         var allBars = _self.svg.selectAll("g").data(_self.sourcePopulation);
-        
+
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.sourcePopulation, function (d) {
                 return Math.pow(d[sourcePopulation], 1);
@@ -118,7 +121,7 @@ PopulationBar.prototype.refreshChart = function () {
             .range([0, _self.width]);
 
         allBars.exit().remove();
-        
+
         allBars.attr("transform", function (d, i) {
                 return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
             })
@@ -140,7 +143,7 @@ PopulationBar.prototype.refreshChart = function () {
             .text(function (d) {
                 return d[sourcePopulation];
             });
-        
+
         var rects = allBars.enter().append("g")
             .attr("transform", function (d, i) {
                 return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
@@ -165,7 +168,7 @@ PopulationBar.prototype.refreshChart = function () {
                 return d[sourcePopulation];
             });
 
-        
+
         _self.y = d3.scale.ordinal()
             .domain(_self.sourcePopulation.map(function (d) {
                 return d["_id"][source];
@@ -197,11 +200,69 @@ PopulationBar.prototype.refreshChart = function () {
             .text(function (d) {
                 return d["_id"][source];
             });
-        
-    
+
+
     }
-    
+
 }
+
+PopulationBar.prototype.refreshMicroViz = function () {
+
+    var _self = this;
+
+    if (!d3.select("#populationbar").empty()) {
+        _self.svg.remove();
+    }
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.actualheight + _self.margin.top + _self.margin.bottom;
+    
+    console.log("horizon" + _self.horizonHeight);
+
+    var data = _self.sourcePopulation.slice(0, 2000);
+
+    _self.svg = d3.select("#" + _self.parentId).append("svg")
+        .attr("id", "micro-population-bar")
+        .attr("width", _self.horizonWidth)
+        .attr("height", _self.horizonHeight);
+
+    _self.y = d3.scale.linear()
+        .range([_self.horizonHeight, 0]);
+
+    _self.y.domain([0, d3.max(data, function (d) {
+        return Math.log(d[sourcePopulation]);
+    })]);
+    
+    _self.opacityScale = d3.scale.linear()
+        .range([0.1, 1]);
+    
+    _self.opacityScale.domain([0, d3.max(data, function (d) {
+        return d[sourcePopulation];
+    })]);
+
+
+    var barWidth = 10;
+
+    var bar = _self.svg.selectAll("rect")
+        .data(data).enter()
+        .append("rect")
+        .attr("x", function (d, i) {
+            return i * barWidth;
+        })
+        .attr("y", function (d) {
+            return _self.y(Math.log(d[sourcePopulation]));
+        })
+        .attr("height", function (d) {
+            return _self.horizonHeight - _self.y(Math.log(d[sourcePopulation]));
+        })
+        .attr("width", barWidth - 1)
+        .attr("fill", "#9ecae1")
+        .attr("fill-opacity", function (d) {
+                return _self.opacityScale(d[sourcePopulation]);
+        });
+
+}
+
 
 PopulationBar.prototype.postUpdate = function () {
 
@@ -219,7 +280,14 @@ PopulationBar.prototype.postUpdate = function () {
 
         _self.sourcePopulation = JSON.parse(data);
 
-        _self.refreshChart();
+        if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+
+            _self.refreshChart();
+
+        } else {
+
+            _self.refreshMicroViz();
+        }
 
     });
 
