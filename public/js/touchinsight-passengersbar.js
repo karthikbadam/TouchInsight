@@ -13,30 +13,17 @@ function PassengersBar(options) {
         left: 55
     };
 
-    d3.select("#" + _self.parentId).append("text")
-        .text("Passengers from")
-        .style("font-size", "12px");
-
     _self.width = options.width - _self.margin.left - _self.margin.right;
+
+    _self.actualheight = options.height - _self.margin.top - _self.margin.bottom;
 
     //_self.height = options.height - _self.margin.top - _self.margin.bottom;
 
     _self.height = 10000;
 
-    _self.svg = d3.select("#" + _self.parentId).append("div")
-        .style("overflow", "scroll")
-        .style("width", options.width)
-        .style("height", options.height - 15)
-        .append("svg")
-        .attr("id", "passengersbar")
-        .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
-        .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
-
     var query = new Query({
         index: "Date",
-        value: ["199101", "200912"],
+        value: ["199001", "200912"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -50,26 +37,41 @@ PassengersBar.prototype.refreshChart = function () {
 
     var _self = this;
 
-    if (_self.svg.select("rect").empty()) {
+    if (!_self.svg || _self.svg.select("rect").empty()) {
+
+        d3.select("#" + _self.parentId).append("text")
+            .text("Passengers from")
+            .style("font-size", "12px");
+
+        _self.svg = d3.select("#" + _self.parentId).append("div")
+            .style("overflow", "scroll")
+            .style("width", _self.width +  _self.margin.left + _self.margin.right )
+            .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom - 15)
+            .append("svg")
+            .attr("id", "passengersbar")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
         _self.x = d3.scale.linear()
-            .domain([0, d3.max(_self.flightNum, function (d) {
+            .domain([0, d3.max(_self.passengerNum, function (d) {
                 return Math.pow(d[passengers], 1);
             })])
             .range([0, _self.width]);
 
         _self.y = d3.scale.ordinal()
-            .domain(_self.flightNum.map(function (d) {
+            .domain(_self.passengerNum.map(function (d) {
                 return d["_id"][source];
             }))
             .rangeBands([0, _self.height]);
 
         _self.barH = 20;
 
-        //_self.barH = _self.height / _self.flightNum.length;
+        //_self.barH = _self.height / _self.passengerNum.length;
 
         _self.bars = _self.svg.selectAll("g")
-            .data(_self.flightNum)
+            .data(_self.passengerNum)
             .enter().append("g")
             .attr("transform", function (d, i) {
                 return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
@@ -95,7 +97,7 @@ PassengersBar.prototype.refreshChart = function () {
             });
 
         _self.svg.selectAll("text.name")
-            .data(_self.flightNum)
+            .data(_self.passengerNum)
             .enter().append("text")
             .attr("x", _self.margin.left - 5)
             .attr("y", function (d, i) {
@@ -110,12 +112,12 @@ PassengersBar.prototype.refreshChart = function () {
 
     } else {
 
-        var allBars = _self.svg.selectAll("g").data(_self.flightNum);
+        var allBars = _self.svg.selectAll("g").data(_self.passengerNum);
 
         allBars.exit().remove();
 
         _self.x = d3.scale.linear()
-            .domain([0, d3.max(_self.flightNum, function (d) {
+            .domain([0, d3.max(_self.passengerNum, function (d) {
                 return Math.pow(d[passengers], 1);
             })])
             .range([0, _self.width]);
@@ -163,12 +165,12 @@ PassengersBar.prototype.refreshChart = function () {
             });
 
         _self.y = d3.scale.ordinal()
-            .domain(_self.flightNum.map(function (d) {
+            .domain(_self.passengerNum.map(function (d) {
                 return d["_id"][source];
             }))
             .rangeBands([0, _self.height]);
 
-        var allText = _self.svg.selectAll("text.name").data(_self.flightNum);
+        var allText = _self.svg.selectAll("text.name").data(_self.passengerNum);
 
         allText.exit().remove();
 
@@ -197,6 +199,135 @@ PassengersBar.prototype.refreshChart = function () {
     }
 }
 
+
+PassengersBar.prototype.refreshMicroViz = function () {
+
+    var _self = this;
+
+    if (!d3.select("#passengersbar").empty()) {
+        _self.svg.remove();
+    }
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.actualheight + _self.margin.top + _self.margin.bottom;
+
+    console.log("horizon" + _self.horizonHeight);
+
+    var barWidth = 45;
+
+    var size = _self.horizonWidth / barWidth;
+
+    var data = _self.passengerNum.slice(0, Math.ceil(size / 2));
+
+    var data2 = _self.passengerNum.slice(
+        _self.passengerNum.length - 1 - Math.ceil(size / 2),
+        _self.passengerNum.length - 1);
+
+    _self.svg = d3.select("#" + _self.parentId).append("svg")
+        .attr("id", "micro-passenger-bar")
+        .attr("width", _self.horizonWidth)
+        .attr("height", _self.horizonHeight);
+
+    _self.y = d3.scale.linear()
+        .range([_self.horizonHeight, 0]);
+
+    _self.y.domain([0, d3.max(_self.passengerNum, function (d) {
+        return d[passengers];
+    })]);
+
+    _self.opacityScale1 = d3.scale.linear()
+        .range([0.2, 1]);
+
+    _self.opacityScale1.domain([0, d3.max(data, function (d) {
+        return d[passengers];
+    })]);
+
+    _self.opacityScale2 = d3.scale.linear()
+        .range([1, 0.2]);
+
+    _self.opacityScale2.domain([0, d3.max(data2, function (d) {
+        return d[passengers];
+    })]);
+
+    var bar1 = _self.svg.selectAll(".high")
+        .data(data).enter()
+        .append("rect")
+        .attr("class", "high")
+        .attr("x", function (d, i) {
+            return i * barWidth;
+        })
+        .attr("y", function (d) {
+            return 0;
+        })
+        .attr("height", function (d) {
+            return _self.horizonHeight;
+        })
+        .attr("width", barWidth - 2)
+        .attr("fill", "#9ecae1")
+        .attr("fill-opacity", function (d) {
+            return _self.opacityScale1(d[passengers]);
+        });
+
+    var text1 = _self.svg.selectAll(".texthigh")
+        .data(data).enter()
+        .append("text")
+        .attr("class", "texthigh")
+        .attr("x", function (d, i) {
+            return i * barWidth;
+        })
+        .attr("y", function (d) {
+            return _self.horizonHeight - 5;
+        })
+        .style("width", barWidth - 2)
+        .attr("fill", "#222")
+        .attr("font-size", "9px")
+        .text(function (d) {
+            return d["_id"][source].substr(0, 8);
+        });
+
+    var bar2 = _self.svg.selectAll(".low")
+        .data(data2).enter()
+        .append("rect")
+        .attr("class", "low")
+        .attr("x", function (d, i) {
+            return data.length * barWidth + i * barWidth;
+        })
+        .attr("y", function (d) {
+            return 0;
+        })
+        .attr("height", function (d) {
+            return _self.horizonHeight;
+        })
+        .attr("width", barWidth - 2)
+        .attr("fill", "#d62728")
+        .attr("fill-opacity", function (d) {
+            return _self.opacityScale2(d[passengers]);
+        });
+
+    var text2 = _self.svg.selectAll(".textlow")
+        .data(data2).enter()
+        .append("text")
+        .attr("class", "textlow")
+        .attr("x", function (d, i) {
+            return data.length * barWidth + i * barWidth;
+        })
+        .attr("y", function (d) {
+            return _self.horizonHeight - 5;
+        })
+        .style("width", barWidth - 2)
+        .attr("fill", "#222")
+        .attr("font-size", "9px")
+        .text(function (d) {
+            return d["_id"][source].substr(0, 8);
+        });
+
+
+    _self.svg.append("text")
+        .attr("transform", "translate(" + 0 + "," + 10 + ")")
+        .text("Passengers from")
+        .style("font-size", "11px");
+}
+
 PassengersBar.prototype.postUpdate = function () {
 
     var _self = this;
@@ -211,9 +342,22 @@ PassengersBar.prototype.postUpdate = function () {
 
     }).done(function (data) {
 
-        _self.flightNum = JSON.parse(data);
+        _self.passengerNum = JSON.parse(data);
 
-        _self.refreshChart();
+        if (largedisplay) {
+            _self.refreshChart();
+            return;
+        }
+
+        if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+
+            _self.refreshChart();
+
+        } else {
+
+            _self.refreshMicroViz();
+        }
+
 
     });
 

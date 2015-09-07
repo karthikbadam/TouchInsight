@@ -20,6 +20,8 @@ var height = 0;
 
 var PADDING = 10;
 
+var largedisplay = false;
+
 var colorscale = d3.scale.category10();
 
 var parseDate = d3.time.format("%Y%m").parse;
@@ -262,7 +264,7 @@ function getDimensions(mainVIndex, mainHIndex) {
     right = GRID[0] - 1 - mainHIndex;
     rightExists = right > 0 ? 1 : 0;
     
-    var PROPORTIONS = 20;
+    var PROPORTIONS = 10;
 
     //assigning the dimensions to the main view
     layOut[mainVIndex][mainHIndex] = {

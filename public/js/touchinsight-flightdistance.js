@@ -17,25 +17,9 @@ function FlightDistance(options) {
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
 
-    _self.x = d3.scale.ordinal().rangePoints([0, _self.width], 1);
-    _self.y = {};
-    _self.dragging = {};
-
-    _self.line = d3.svg.line();
-    _self.axis = d3.svg.axis().orient("left");
-    _self.background;
-    _self.parallel;
-
-
-    _self.svg = d3.select("#" + _self.parentId).append("svg")
-        .attr("width", _self.width + _self.margin.left + _self.margin.right)
-        .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
-
     var query = new Query({
         index: "Date",
-        value: ["199101", "200912"],
+        value: ["199001", "200912"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -50,7 +34,23 @@ FlightDistance.prototype.refreshChart = function () {
 
     var _self = this;
 
-    if (_self.svg.select("path").empty()) {
+    if (!_self.svg || _self.svg.select("path").empty()) {
+
+        _self.x = d3.scale.ordinal().rangePoints([0, _self.width], 1);
+        _self.y = {};
+        _self.dragging = {};
+
+        _self.line = d3.svg.line();
+        _self.axis = d3.svg.axis().orient("left");
+        _self.background;
+        _self.parallel;
+
+        _self.svg = d3.select("#" + _self.parentId).append("svg")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
+
 
         _self.x.domain(_self.dimensions = d3.keys(_self.flightDistances[0]["_id"])
             .filter(function (d) {
@@ -160,12 +160,12 @@ FlightDistance.prototype.refreshChart = function () {
 
                     return _self.y[p].brush.extent();
                 });
-            
-//            _self.parallel.style("display", function (d) {
-//                return actives.every(function (p, i) {
-//                    return extents[i][0] <= d["_id"][p] && d["_id"][p] <= extents[i][1];
-//                }) ? null : "none";
-//            });
+
+            //            _self.parallel.style("display", function (d) {
+            //                return actives.every(function (p, i) {
+            //                    return extents[i][0] <= d["_id"][p] && d["_id"][p] <= extents[i][1];
+            //                }) ? null : "none";
+            //            });
 
             //_self.postUpdate();
 
@@ -191,6 +191,87 @@ FlightDistance.prototype.refreshChart = function () {
 
 }
 
+FlightDistance.prototype.refreshMicroViz = function () {
+
+    var _self = this;
+
+    _self.y = {};
+    _self.line = d3.svg.line().interpolate(function (points) {
+        return points.join("A 1,2.5 0 0 1 ");
+    });
+
+    _self.axis = d3.svg.axis().orient("right").tickFormat(d3.format("s"));
+    _self.parallel;
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
+
+    _self.svg = d3.select("#" + _self.parentId).append("svg")
+        .attr("id", "micro-flights-distance")
+        .attr("width", _self.horizonWidth)
+        .attr("height", _self.horizonHeight);
+
+
+    _self.dimensions = d3.keys(_self.flightDistances[0]["_id"])
+        .filter(function (d) {
+            return (_self.y[d] = d3.scale.linear()
+                .domain(d3.extent(_self.flightDistances, function (p) {
+                    return +p["_id"][d];
+                }))
+                .range([_self.horizonHeight / d3.keys(_self.flightDistances[0]["_id"]).length - 5, 0]));
+        });
+
+
+
+
+    // Add blue parallel lines for focus.
+    _self.parallel = _self.svg.append("g")
+        .attr("class", "parallel")
+        .selectAll("path")
+        .data(_self.flightDistances)
+        .enter().append("path")
+        .attr("d", path)
+        .attr("stroke", "#9ecae1")
+        .attr("stroke-opacity", 0.1)
+        .attr("stroke-width", "0.5px");
+
+    // Returns the path for a given data point.
+    function path(d) {
+        return _self.line(_self.dimensions.map(function (p, i) {
+            return [0, i * _self.horizonHeight / _self.dimensions.length
+                    + _self.y[p](d["_id"][p])];
+        }));
+    }
+
+    var g = _self.g = _self.svg.selectAll(".dimension")
+        .data(_self.dimensions)
+        .enter().append("g")
+        .attr("class", "dimension")
+        .attr("transform", function (d, i) {
+            return "translate(0," + i * _self.horizonHeight / _self.dimensions.length + ")";
+        });
+
+
+    // Add an axis and title.
+    g.append("g")
+        .attr("class", "axis")
+        .each(function (d) {
+            d3.select(this).call(_self.axis.scale(_self.y[d]));
+        })
+        .append("text")
+        .style("text-anchor", "start")
+        .attr("x", function (d, i) {
+            return 20;
+        })
+        .attr("y", function (d, i) {
+            return 20;
+        })
+        .text(function (d) {
+            return d;
+        });;
+
+}
+
 FlightDistance.prototype.postUpdate = function () {
 
     var _self = this;
@@ -207,7 +288,19 @@ FlightDistance.prototype.postUpdate = function () {
 
         _self.flightDistances = JSON.parse(data);
 
-        _self.refreshChart();
+        if (largedisplay) {
+            _self.refreshChart();
+            return;
+        }
+
+        if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+
+            _self.refreshChart();
+
+        } else {
+
+            _self.refreshMicroViz();
+        }
 
     });
 

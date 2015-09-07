@@ -144,7 +144,7 @@ Map.prototype.refreshChart = function () {
                     return 0.5;
                     return (Math.log(d["Flights"] + 1)) + "px";
                 })
-                .attr("stroke-opacity", 0.05)
+                .attr("stroke-opacity", 0.2)
                 .attr("x1", function (d, i) {
 
                     var s = d["_id"][source];

@@ -10,6 +10,8 @@ var date = "Date";
 var sourcePopulation = "SPopulation";
 var destPopulation = "DPopulation";
 
+var largedisplay = true;
+
 var dataFile = "data/flights.csv";
 
 var GRID = [3, 3];

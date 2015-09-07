@@ -37,7 +37,7 @@ PassengerChart.prototype.refreshChart = function () {
 
     var _self = this;
 
-    if (_self.svg.select("path").empty()) {
+    if (!_self.svg || _self.svg.select("path").empty()) {
 
         _self.svg = d3.select("#" + _self.parentId)
             .append("svg")
@@ -234,6 +234,11 @@ PassengerChart.prototype.refreshMicroViz = function () {
     });
 
     _self.svg.data([data]).call(chart);
+    
+    _self.svg.append("text")
+        .attr("transform", "translate(" + 0 + "," + 10 + ")")
+        .text("Passengers over time")
+        .style("font-size", "11px");
 
 
 }
@@ -253,6 +258,11 @@ PassengerChart.prototype.postUpdate = function () {
     }).done(function (data) {
 
         _self.passengerNum = JSON.parse(data);
+        
+        if (largedisplay) {
+            _self.refreshChart();
+            return;
+        }
 
         if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 

@@ -36,7 +36,7 @@ TimeChart.prototype.refreshChart = function () {
 
     var _self = this;
 
-    if (!_self.svg && _self.svg.select("path").empty()) {
+    if (!_self.svg || _self.svg.select("path").empty()) {
 
         _self.svg = d3.select("#" + _self.parentId)
             .append("svg")
@@ -236,6 +236,11 @@ TimeChart.prototype.refreshMicroViz = function () {
     });
 
     _self.svg.data([data]).call(chart);
+    
+    _self.svg.append("text")
+        .attr("transform", "translate(" + 0 + "," + 10 + ")")
+        .text("Flights over time")
+        .style("font-size", "11px");
 
 
 }
@@ -255,6 +260,11 @@ TimeChart.prototype.postUpdate = function () {
     }).done(function (data) {
 
         _self.flightNum = JSON.parse(data);
+        
+        if (largedisplay) {
+            _self.refreshChart();
+            return;
+        }
 
         if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 

@@ -13,10 +13,6 @@ function PopulationBar(options) {
         left: 55
     };
 
-    d3.select("#" + _self.parentId).append("text")
-        .text("Population in")
-        .style("font-size", "12px");
-
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.actualheight = options.height - _self.margin.top - _self.margin.bottom;
@@ -25,7 +21,7 @@ function PopulationBar(options) {
 
     var query = new Query({
         index: "Date",
-        value: ["199101", "200912"],
+        value: ["199001", "200912"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -39,13 +35,17 @@ PopulationBar.prototype.refreshChart = function () {
 
     var _self = this;
 
-    if (_self.svg.select("rect").empty()) {
+    if (!_self.svg || _self.svg.select("rect").empty()) {
+
+        d3.select("#" + _self.parentId).append("text")
+            .text("Population in")
+            .style("font-size", "12px");
 
         _self.svg = d3.select("#" + _self.parentId)
             .append("div")
             .style("overflow", "scroll")
-            .style("width", options.width)
-            .style("height", options.height - 15)
+            .style("width", _self.width +  _self.margin.left + _self.margin.right )
+            .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom - 15)
             .append("svg")
             .attr("id", "populationbar")
             .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
@@ -53,7 +53,6 @@ PopulationBar.prototype.refreshChart = function () {
             .append("g")
             .attr("transform", "translate(" + (_self.margin.left) + "," +
                 _self.margin.top + ")");
-
 
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.sourcePopulation, function (d) {
@@ -216,10 +215,18 @@ PopulationBar.prototype.refreshMicroViz = function () {
 
     _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
     _self.horizonHeight = _self.actualheight + _self.margin.top + _self.margin.bottom;
-    
-    console.log("horizon" + _self.horizonHeight);
 
-    var data = _self.sourcePopulation.slice(0, 2000);
+    console.log("horizon" + _self.horizonHeight);
+    
+    var barWidth = 45;
+    
+    var size = _self.horizonWidth / barWidth;
+
+    var data = _self.sourcePopulation.slice(0, Math.ceil(size/2));
+    
+    var data2 = _self.sourcePopulation.slice(
+        _self.sourcePopulation.length - 1 - Math.ceil(size/2),
+                                             _self.sourcePopulation.length - 1);
 
     _self.svg = d3.select("#" + _self.parentId).append("svg")
         .attr("id", "micro-population-bar")
@@ -229,38 +236,101 @@ PopulationBar.prototype.refreshMicroViz = function () {
     _self.y = d3.scale.linear()
         .range([_self.horizonHeight, 0]);
 
-    _self.y.domain([0, d3.max(data, function (d) {
-        return Math.log(d[sourcePopulation]);
-    })]);
-    
-    _self.opacityScale = d3.scale.linear()
-        .range([0.1, 1]);
-    
-    _self.opacityScale.domain([0, d3.max(data, function (d) {
+    _self.y.domain([0, d3.max(_self.sourcePopulation, function (d) {
         return d[sourcePopulation];
     })]);
 
+    _self.opacityScale1 = d3.scale.linear()
+        .range([0.2, 1]);
 
-    var barWidth = 10;
+    _self.opacityScale1.domain([0, d3.max(data, function (d) {
+        return d[sourcePopulation];
+    })]);
+    
+    _self.opacityScale2 = d3.scale.linear()
+        .range([1, 0.2]);
 
-    var bar = _self.svg.selectAll("rect")
+    _self.opacityScale2.domain([0, d3.max(data2, function (d) {
+        return d[sourcePopulation];
+    })]);
+
+    var bar1 = _self.svg.selectAll(".high")
         .data(data).enter()
         .append("rect")
+        .attr("class", "high")
         .attr("x", function (d, i) {
             return i * barWidth;
         })
         .attr("y", function (d) {
-            return _self.y(Math.log(d[sourcePopulation]));
+            return 0;
         })
         .attr("height", function (d) {
-            return _self.horizonHeight - _self.y(Math.log(d[sourcePopulation]));
+            return _self.horizonHeight;
         })
-        .attr("width", barWidth - 1)
+        .attr("width", barWidth - 2)
         .attr("fill", "#9ecae1")
         .attr("fill-opacity", function (d) {
-                return _self.opacityScale(d[sourcePopulation]);
+            return _self.opacityScale1(d[sourcePopulation]);
+        });
+    
+     var text1 = _self.svg.selectAll(".texthigh")
+        .data(data).enter()
+        .append("text")
+        .attr("class", "texthigh")
+        .attr("x", function (d, i) {
+            return i * barWidth;
+        })
+        .attr("y", function (d) {
+            return _self.horizonHeight - 5;
+        })
+        .style("width", barWidth - 2)
+        .attr("fill", "#222")
+        .attr("font-size", "9px")
+        .text(function (d) {
+            return d["_id"][source].substr(0, 8);   
+        });
+    
+    var bar2 = _self.svg.selectAll(".low")
+        .data(data2).enter()
+        .append("rect")
+        .attr("class", "low")
+        .attr("x", function (d, i) {
+            return data.length * barWidth + i * barWidth;
+        })
+        .attr("y", function (d) {
+            return 0;
+        })
+        .attr("height", function (d) {
+            return _self.horizonHeight;
+        })
+        .attr("width", barWidth - 2)
+        .attr("fill", "#d62728")
+        .attr("fill-opacity", function (d) {
+            return _self.opacityScale2(d[sourcePopulation]);
+        });
+    
+     var text2 = _self.svg.selectAll(".textlow")
+        .data(data2).enter()
+        .append("text")
+        .attr("class", "textlow")
+        .attr("x", function (d, i) {
+            return data.length * barWidth + i * barWidth;
+        })
+        .attr("y", function (d) {
+            return _self.horizonHeight - 5;
+        })
+        .style("width", barWidth - 2)
+        .attr("fill", "#222")
+        .attr("font-size", "9px")
+        .text(function (d) {
+            return d["_id"][source].substr(0, 8);   
         });
 
+    
+    _self.svg.append("text")
+                .attr("transform", "translate(" + 0 + "," + 10 + ")")
+                .text("Population in")
+                .style("font-size", "11px");
 }
 
 
@@ -280,6 +350,11 @@ PopulationBar.prototype.postUpdate = function () {
 
         _self.sourcePopulation = JSON.parse(data);
 
+        if (largedisplay) {
+            _self.refreshChart();
+            return;
+        }
+        
         if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
             _self.refreshChart();

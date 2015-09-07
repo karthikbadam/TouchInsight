@@ -13,26 +13,14 @@ function DistanceBar(options) {
         left: 55
     };
 
-    d3.select("#" + _self.parentId).append("text")
-        .text("Average distance travelled from")
-        .style("font-size", "12px");
 
     _self.width = options.width - _self.margin.left - _self.margin.right;
+
+    _self.actualheight = options.height - _self.margin.top - _self.margin.bottom;
 
     //_self.height = options.height - _self.margin.top - _self.margin.bottom;
 
     _self.height = 10000;
-
-    _self.svg = d3.select("#" + _self.parentId).append("div")
-        .style("overflow", "scroll")
-        .style("width", options.width)
-        .style("height", options.height - 15)
-        .append("svg")
-        .attr("id", "distancebar")
-        .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
-        .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
     var query = new Query({
         index: "Date",
@@ -51,7 +39,23 @@ DistanceBar.prototype.refreshChart = function () {
 
     var _self = this;
 
-    if (_self.svg.select("rect").empty()) {
+    if (!_self.svg || _self.svg.select("rect").empty()) {
+
+        d3.select("#" + _self.parentId).append("text")
+            .text("Average distance travelled from")
+            .style("font-size", "12px");
+
+        _self.svg = d3.select("#" + _self.parentId).append("div")
+            .style("overflow", "scroll")
+            .style("width", _self.width + _self.margin.left + _self.margin.right)
+            .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom - 15)
+            .append("svg")
+            .attr("id", "distancebar")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right - 5)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + (_self.margin.left) + "," +
+                _self.margin.top + ")");
 
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.averageDis, function (d) {
@@ -196,6 +200,133 @@ DistanceBar.prototype.refreshChart = function () {
     }
 }
 
+DistanceBar.prototype.refreshMicroViz = function () {
+
+    var _self = this;
+
+    if (!d3.select("#distancebar").empty()) {
+        _self.svg.remove();
+    }
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.actualheight + _self.margin.top + _self.margin.bottom;
+
+    console.log("horizon" + _self.horizonHeight);
+
+    var barWidth = 45;
+
+    var size = _self.horizonWidth / barWidth;
+
+    var data = _self.averageDis.slice(0, Math.ceil(size / 2));
+
+    var data2 = _self.averageDis.slice(
+        _self.averageDis.length - 1 - Math.ceil(size / 2),
+        _self.averageDis.length - 1);
+
+    _self.svg = d3.select("#" + _self.parentId).append("svg")
+        .attr("id", "micro-distance-bar")
+        .attr("width", _self.horizonWidth)
+        .attr("height", _self.horizonHeight);
+
+    _self.y = d3.scale.linear()
+        .range([_self.horizonHeight, 0]);
+
+    _self.y.domain([0, d3.max(_self.averageDis, function (d) {
+        return d[distance];
+    })]);
+
+    _self.opacityScale1 = d3.scale.linear()
+        .range([0.2, 1]);
+
+    _self.opacityScale1.domain([0, d3.max(data, function (d) {
+        return d[distance];
+    })]);
+
+    _self.opacityScale2 = d3.scale.linear()
+        .range([1, 0.2]);
+
+    _self.opacityScale2.domain([0, d3.max(data2, function (d) {
+        return d[distance];
+    })]);
+
+    var bar1 = _self.svg.selectAll(".high")
+        .data(data).enter()
+        .append("rect")
+        .attr("class", "high")
+        .attr("x", function (d, i) {
+            return i * barWidth;
+        })
+        .attr("y", function (d) {
+            return 0;
+        })
+        .attr("height", function (d) {
+            return _self.horizonHeight;
+        })
+        .attr("width", barWidth - 2)
+        .attr("fill", "#9ecae1")
+        .attr("fill-opacity", function (d) {
+            return _self.opacityScale1(d[distance]);
+        });
+
+    var text1 = _self.svg.selectAll(".texthigh")
+        .data(data).enter()
+        .append("text")
+        .attr("class", "texthigh")
+        .attr("x", function (d, i) {
+            return i * barWidth;
+        })
+        .attr("y", function (d) {
+            return _self.horizonHeight - 5;
+        })
+        .style("width", barWidth - 2)
+        .attr("fill", "#222")
+        .attr("font-size", "9px")
+        .text(function (d) {
+            return d["_id"][source].substr(0, 8);
+        });
+
+    var bar2 = _self.svg.selectAll(".low")
+        .data(data2).enter()
+        .append("rect")
+        .attr("class", "low")
+        .attr("x", function (d, i) {
+            return data.length * barWidth + i * barWidth;
+        })
+        .attr("y", function (d) {
+            return 0;
+        })
+        .attr("height", function (d) {
+            return _self.horizonHeight;
+        })
+        .attr("width", barWidth - 2)
+        .attr("fill", "#d62728")
+        .attr("fill-opacity", function (d) {
+            return _self.opacityScale2(d[distance]);
+        });
+
+    var text2 = _self.svg.selectAll(".textlow")
+        .data(data2).enter()
+        .append("text")
+        .attr("class", "textlow")
+        .attr("x", function (d, i) {
+            return data.length * barWidth + i * barWidth;
+        })
+        .attr("y", function (d) {
+            return _self.horizonHeight - 5;
+        })
+        .style("width", barWidth - 2)
+        .attr("fill", "#222")
+        .attr("font-size", "9px")
+        .text(function (d) {
+            return d["_id"][source].substr(0, 8);
+        });
+
+
+    _self.svg.append("text")
+        .attr("transform", "translate(" + 0 + "," + 10 + ")")
+        .text("Distance from")
+        .style("font-size", "11px");
+}
 
 DistanceBar.prototype.postUpdate = function () {
 
@@ -213,7 +344,19 @@ DistanceBar.prototype.postUpdate = function () {
 
         _self.averageDis = JSON.parse(data);
 
-        _self.refreshChart();
+        if (largedisplay) {
+            _self.refreshChart();
+            return;
+        }
+
+        if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+
+            _self.refreshChart();
+
+        } else {
+
+            _self.refreshMicroViz();
+        }
 
     });
 
