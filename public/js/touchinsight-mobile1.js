@@ -37,6 +37,9 @@ var queryStack = [];
 
 var historyQueryStack = [];
 
+// represents which visualization is the main one and others are micro visualizations
+var mainView = [1, 1];
+
 function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
@@ -258,11 +261,13 @@ function getDimensions(mainVIndex, mainHIndex) {
 
     right = GRID[0] - 1 - mainHIndex;
     rightExists = right > 0 ? 1 : 0;
+    
+    var PROPORTIONS = 20;
 
     //assigning the dimensions to the main view
     layOut[mainVIndex][mainHIndex] = {
-        width: (10 - left - right) * width / 10,
-        height: (10 - topI - bottom) * height / 10
+        width: (PROPORTIONS - left - right) * width / PROPORTIONS,
+        height: (PROPORTIONS - topI - bottom) * height / PROPORTIONS
     };
 
     //assigning the top or bottom
@@ -270,20 +275,20 @@ function getDimensions(mainVIndex, mainHIndex) {
 
         layOut[mainVIndex - 1][mainHIndex] = {
             width: width / (leftExists + rightExists + 1),
-            height: topI * height / 10
+            height: topI * height / PROPORTIONS
         };
 
         if (leftExists) {
             layOut[mainVIndex - 1][mainHIndex - 1] = {
                 width: width / (leftExists + rightExists + 1),
-                height: topI * height / 10
+                height: topI * height / PROPORTIONS
             };
         }
 
         if (rightExists) {
             layOut[mainVIndex - 1][mainHIndex + 1] = {
                 width: width / (leftExists + rightExists + 1),
-                height: topI * height / 10
+                height: topI * height / PROPORTIONS
             };
         }
 
@@ -293,20 +298,20 @@ function getDimensions(mainVIndex, mainHIndex) {
 
         layOut[mainVIndex + 1][mainHIndex] = {
             width: width / (leftExists + rightExists + 1),
-            height: bottom * height / 10
+            height: bottom * height / PROPORTIONS
         };
 
         if (leftExists) {
             layOut[mainVIndex + 1][mainHIndex - 1] = {
                 width: width / (leftExists + rightExists + 1),
-                height: bottom * height / 10
+                height: bottom * height / PROPORTIONS
             };
         }
 
         if (rightExists) {
             layOut[mainVIndex + 1][mainHIndex + 1] = {
                 width: width / (leftExists + rightExists + 1),
-                height: bottom * height / 10
+                height: bottom * height / PROPORTIONS
             };
         }
     }
@@ -315,8 +320,8 @@ function getDimensions(mainVIndex, mainHIndex) {
     if (left != 0) {
 
         layOut[mainVIndex][mainHIndex - 1] = {
-            width: left * width / 10,
-            height: (10 - topI - bottom) * height / 10
+            width: left * width / PROPORTIONS,
+            height: (PROPORTIONS - topI - bottom) * height / PROPORTIONS
         };
 
     }
@@ -324,8 +329,8 @@ function getDimensions(mainVIndex, mainHIndex) {
     if (right != 0) {
 
         layOut[mainVIndex][mainHIndex + 1] = {
-            width: right * width / 10,
-            height: (10 - topI - bottom) * height / 10
+            width: right * width / PROPORTIONS,
+            height: (PROPORTIONS - topI - bottom) * height / PROPORTIONS
         };
     }
 

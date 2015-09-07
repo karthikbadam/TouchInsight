@@ -13,19 +13,11 @@ function TimeChart(options) {
         left: 40
     };
 
-    var parseDate = d3.time.format("%Y%m").parse;
-
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
 
-    _self.svg = d3.select("#" + _self.parentId)
-        .append("svg")
-        .attr("id", "timechart")
-        .attr("width", _self.width + _self.margin.left + _self.margin.right)
-        .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
+    var parseDate = d3.time.format("%Y%m").parse;
 
     var query = new Query({
         index: "Date",
@@ -38,14 +30,22 @@ function TimeChart(options) {
 
     _self.postUpdate();
 
-    _self.colors = d3.scale.category10();
 }
 
 TimeChart.prototype.refreshChart = function () {
 
     var _self = this;
 
-    if (_self.svg.select("path").empty()) {
+    if (!_self.svg && _self.svg.select("path").empty()) {
+
+        _self.svg = d3.select("#" + _self.parentId)
+            .append("svg")
+            .attr("id", "timechart")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + (_self.margin.left) + "," +
+                _self.margin.top + ")");
 
         var x = _self.x = d3.time.scale()
             .range([0, _self.width]);
@@ -161,7 +161,7 @@ TimeChart.prototype.refreshChart = function () {
     } else {
 
         _self.flightNum.sort(function (a, b) {
-            if (parseDate(a["_id"]["Date"]).getTime() < 
+            if (parseDate(a["_id"]["Date"]).getTime() <
                 parseDate(b["_id"]["Date"]).getTime()) {
                 return 1;
             }
@@ -173,7 +173,7 @@ TimeChart.prototype.refreshChart = function () {
         }));
 
         _self.yAxis.scale(_self.y);
-        
+
         _self.svg.select(".y.axis")
             .call(_self.yAxis);
 
@@ -185,6 +185,58 @@ TimeChart.prototype.refreshChart = function () {
             .attr("stroke-width", "2px");
 
     }
+
+}
+
+TimeChart.prototype.updateMicroViz = function () {
+
+    var _self = this;
+
+    if (!d3.select("#timechart").empty()) {
+        _self.svg.remove();
+    }
+
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
+
+    _self.flightNum.sort(function (a, b) {
+            if (parseDate(b["_id"][date]).getTime() <
+                parseDate(a["_id"][date]).getTime()) return 1;
+            return -1;
+        });
+    
+    var chart = d3.horizon()
+        .width(_self.horizonWidth)
+        .height(_self.horizonHeight)
+        .bands(6)
+        .mode("mirror")
+        .interpolate("basis");
+
+    _self.svg = d3.select("#"+_self.parentId).append("svg")
+        .attr("id", "horizon-flights")
+        .attr("width", _self.horizonWidth)
+        .attr("height", _self.horizonHeight);
+
+    // Offset so that positive is above-average and negative is below-average.
+    var mean = _self.flightNum.reduce(function (sum, v) {
+        
+        if (sum[numFlights])
+            return sum[numFlights] + v[numFlights];
+        else 
+            return sum + v[numFlights];
+        
+    }) / _self.flightNum.length;
+    
+    console.log(mean);
+
+    // Transpose column values to rows.
+    var data = _self.flightNum.map(function (d, i) {
+        return [parseDate(d["_id"][date]), d[numFlights] - mean];
+    });
+
+    _self.svg.data([data]).call(chart);
+
 
 }
 
@@ -204,7 +256,14 @@ TimeChart.prototype.postUpdate = function () {
 
         _self.flightNum = JSON.parse(data);
 
-        _self.refreshChart();
+        if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+
+            _self.refreshChart();
+
+        } else {
+
+            _self.updateMicroViz();
+        }
 
     });
 

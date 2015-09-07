@@ -19,13 +19,6 @@ function PassengerChart(options) {
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
 
-    _self.svg = d3.select("#" + _self.parentId)
-        .append("svg")
-        .attr("id", "passengerchart")
-        .attr("width", _self.width + _self.margin.left + _self.margin.right)
-        .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
     var query = new Query({
         index: "Date",
@@ -45,6 +38,14 @@ PassengerChart.prototype.refreshChart = function () {
     var _self = this;
 
     if (_self.svg.select("path").empty()) {
+
+        _self.svg = d3.select("#" + _self.parentId)
+            .append("svg")
+            .attr("id", "passengerchart")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
 
         var x = _self.x = d3.time.scale()
             .range([0, _self.width]);
@@ -186,6 +187,57 @@ PassengerChart.prototype.refreshChart = function () {
     }
 }
 
+PassengerChart.prototype.updateMicroViz = function () {
+
+    var _self = this;
+
+    if (!d3.select("#passengerchart").empty()) {
+        _self.svg.remove();
+    }
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
+
+    _self.passengerNum.sort(function (a, b) {
+        if (parseDate(b["_id"][date]).getTime() <
+            parseDate(a["_id"][date]).getTime()) return 1;
+        return -1;
+    });
+
+    var chart = d3.horizon()
+        .width(_self.horizonWidth)
+        .height(_self.horizonHeight)
+        .bands(6)
+        .mode("mirror")
+        .interpolate("basis");
+
+    _self.svg = d3.select("#" + _self.parentId).append("svg")
+        .attr("id", "horizon-passenger")
+        .attr("width", _self.horizonWidth)
+        .attr("height", _self.horizonHeight);
+
+    // Offset so that positive is above-average and negative is below-average.
+    var mean = _self.passengerNum.reduce(function (sum, v) {
+
+        if (sum[passengers])
+            return sum[passengers] + v[passengers];
+        else
+            return sum + v[passengers];
+
+    }) / _self.passengerNum.length;
+
+    console.log(mean);
+
+    // Transpose column values to rows.
+    var data = _self.passengerNum.map(function (d, i) {
+        return [parseDate(d["_id"][date]), d[passengers] - mean];
+    });
+
+    _self.svg.data([data]).call(chart);
+
+
+}
+
 PassengerChart.prototype.postUpdate = function () {
 
     var _self = this;
@@ -202,7 +254,14 @@ PassengerChart.prototype.postUpdate = function () {
 
         _self.passengerNum = JSON.parse(data);
 
-        _self.refreshChart();
+        if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+
+            _self.refreshChart();
+
+        } else {
+
+            _self.updateMicroViz();
+        }
 
     });
 
