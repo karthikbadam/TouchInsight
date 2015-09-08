@@ -4,7 +4,7 @@ body {
     overflow: hidden;
     margin: 0px;
     font-family: Helvetica-Light;
-    font-size: 9px;
+    font-size: 0.6em;
 }
 
 #button-panel {
@@ -13,16 +13,16 @@ body {
 }
 
 .operator {
-    width: 25%;  
+    width: 25%;
     background-color: #6baed6;
 }
 
-.operator:hover{
+.operator:hover {
     width: 25%;
     background-color: #3182bd;
 }
 
-.operator.active{
+.operator.active {
     width: 25%;
     background-color: #3182bd;
 }
@@ -79,4 +79,14 @@ svg {
     stroke: #fff;
     fill-opacity: .125;
     shape-rendering: crispEdges;
+}
+
+.mainpanel {
+    z-index: 1;
+    position: absolute;
+}
+
+.secondarypanel {
+    z-index: 5;
+    position: absolute;
 }

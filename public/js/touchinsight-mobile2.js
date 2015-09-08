@@ -20,7 +20,9 @@ var height = 0;
 
 var PADDING = 10;
 
-var largedisplay = false;
+var PADDING_Y = 30;
+
+var largedisplay = true;
 
 var colorscale = d3.scale.category10();
 
@@ -211,7 +213,7 @@ function createLayout() {
 
     //GRID[1] = GRID[0];
 
-    var l = getDimensions(1, 1);
+    var l = getDimensions(mainView[0], mainView[1]);
 
     for (var i = 0; i < GRID[0]; i++) {
 
@@ -219,13 +221,21 @@ function createLayout() {
 
             if (l[i][j] != 0) {
 
+                var classname = "secondarypanel";
+
+                if (mainView[0] == i && mainView[1] == j) {
+                    classname = "mainpanel";
+                }
+
                 d3.select("#content").append("div")
                     .attr("id", "div" + i + j)
-                    .attr("class", "panel")
-                    .style("width", l[i][j]["width"] - PADDING / 2)
-                    .style("height", l[i][j]["height"] - PADDING / 2)
+                    .attr("class", classname)
+                    .style("width", l[i][j]["width"])
+                    .style("height", l[i][j]["height"])
+                    .style("left", l[i][j]["left"])
+                    .style("top", PADDING_Y + l[i][j]["top"])
                     .style("background-color",
-                        "transparent")
+                        "white")
                     .style("border", "1px solid #EEE")
                     .style("opacity", 1)
                     .style("margin", PADDING / 2 - 4)
@@ -263,34 +273,47 @@ function getDimensions(mainVIndex, mainHIndex) {
 
     right = GRID[0] - 1 - mainHIndex;
     rightExists = right > 0 ? 1 : 0;
-    
-    var PROPORTIONS = 15;
+
+    var PROPORTIONSX = 7;
+    var PROPORTIONSY = 5;
+
+    var secondaryWidth = width / PROPORTIONSX;
+    var secondaryHeight = height / PROPORTIONSY;
+
 
     //assigning the dimensions to the main view
     layOut[mainVIndex][mainHIndex] = {
-        width: (PROPORTIONS - left - right) * width / PROPORTIONS,
-        height: (PROPORTIONS - topI - bottom) * height / PROPORTIONS
+        width: width - 4 * PADDING,
+        height: height - 4 * PADDING - PADDING_Y / 2,
+        left: 2 * PADDING,
+        top: 2 * PADDING
     };
 
     //assigning the top or bottom
     if (topI != 0) {
 
         layOut[mainVIndex - 1][mainHIndex] = {
-            width: width / (leftExists + rightExists + 1),
-            height: topI * height / PROPORTIONS
+            width: secondaryWidth,
+            height: secondaryHeight,
+            left: width / 2 - secondaryWidth / 2,
+            top: 0
         };
 
         if (leftExists) {
             layOut[mainVIndex - 1][mainHIndex - 1] = {
-                width: width / (leftExists + rightExists + 1),
-                height: topI * height / PROPORTIONS
+                width: secondaryWidth,
+                height: secondaryHeight,
+                left: PADDING / 2,
+                top: 0
             };
         }
 
         if (rightExists) {
             layOut[mainVIndex - 1][mainHIndex + 1] = {
-                width: width / (leftExists + rightExists + 1),
-                height: topI * height / PROPORTIONS
+                width: secondaryWidth,
+                height: secondaryHeight,
+                left: width - secondaryWidth - PADDING / 2,
+                top: 0
             };
         }
 
@@ -299,21 +322,27 @@ function getDimensions(mainVIndex, mainHIndex) {
     if (bottom != 0) {
 
         layOut[mainVIndex + 1][mainHIndex] = {
-            width: width / (leftExists + rightExists + 1),
-            height: bottom * height / PROPORTIONS
+            width: secondaryWidth,
+            height: secondaryHeight,
+            left: width / 2 - secondaryWidth / 2,
+            top: height - secondaryHeight - PADDING / 2
         };
 
         if (leftExists) {
             layOut[mainVIndex + 1][mainHIndex - 1] = {
-                width: width / (leftExists + rightExists + 1),
-                height: bottom * height / PROPORTIONS
+                width: secondaryWidth,
+                height: secondaryHeight,
+                left: PADDING / 2,
+                top: height - secondaryHeight - PADDING / 2
             };
         }
 
         if (rightExists) {
             layOut[mainVIndex + 1][mainHIndex + 1] = {
-                width: width / (leftExists + rightExists + 1),
-                height: bottom * height / PROPORTIONS
+                width: secondaryWidth,
+                height: secondaryHeight,
+                left: width - secondaryWidth - PADDING / 2,
+                top: height - secondaryHeight - PADDING / 2
             };
         }
     }
@@ -322,8 +351,10 @@ function getDimensions(mainVIndex, mainHIndex) {
     if (left != 0) {
 
         layOut[mainVIndex][mainHIndex - 1] = {
-            width: left * width / PROPORTIONS,
-            height: (PROPORTIONS - topI - bottom) * height / PROPORTIONS
+            width: secondaryWidth,
+            height: secondaryHeight,
+            left: PADDING / 2,
+            top: height / 2 - secondaryHeight / 2
         };
 
     }
@@ -331,8 +362,10 @@ function getDimensions(mainVIndex, mainHIndex) {
     if (right != 0) {
 
         layOut[mainVIndex][mainHIndex + 1] = {
-            width: right * width / PROPORTIONS,
-            height: (PROPORTIONS - topI - bottom) * height / PROPORTIONS
+            width: secondaryWidth,
+            height: secondaryHeight,
+            left: width - secondaryWidth - PADDING / 2,
+            top: height / 2 - secondaryHeight / 2
         };
     }
 

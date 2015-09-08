@@ -10,7 +10,7 @@ function DistanceBar(options) {
         top: 5,
         right: 20,
         bottom: 30,
-        left: 55
+        left: 35
     };
 
 

@@ -7,10 +7,10 @@ function PassengerChart(options) {
     _self.cols = options.cols;
 
     _self.margin = {
-        top: 20,
+        top: 2,
         right: 10,
-        bottom: 30,
-        left: 50
+        bottom: 20,
+        left: 30
     };
 
     var parseDate = d3.time.format("%Y%m").parse;
@@ -120,7 +120,7 @@ PassengerChart.prototype.refreshChart = function () {
             .attr("d", line)
             .attr("fill", "transparent")
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "2px");
+            .attr("stroke-width", "1.5px");
 
         _self.svg.append("g")
             .attr("class", "brush")
@@ -182,7 +182,7 @@ PassengerChart.prototype.refreshChart = function () {
             .attr("d", _self.line)
             .attr("fill", "transparent")
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "2px");
+            .attr("stroke-width", "1.5px");
 
     }
 }

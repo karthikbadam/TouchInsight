@@ -10,7 +10,7 @@ function PassengersBar(options) {
         top: 5,
         right: 20,
         bottom: 30,
-        left: 55
+        left: 35
     };
 
     _self.width = options.width - _self.margin.left - _self.margin.right;

@@ -7,10 +7,10 @@ function TimeChart(options) {
     _self.cols = options.cols;
 
     _self.margin = {
-        top: 20,
+        top: 2,
         right: 10,
-        bottom: 30,
-        left: 40
+        bottom: 20,
+        left: 30
     };
 
     _self.width = options.width - _self.margin.left - _self.margin.right;
@@ -66,7 +66,7 @@ TimeChart.prototype.refreshChart = function () {
             .innerTickSize(-_self.height)
             .outerTickSize(0)
             .tickPadding(10);
-
+        
         _self.xAxis.ticks(d3.time.years, 1);
 
         var yAxis = _self.yAxis = d3.svg.axis()
@@ -120,7 +120,7 @@ TimeChart.prototype.refreshChart = function () {
             .attr("d", line)
             .attr("fill", "transparent")
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "2px");
+            .attr("stroke-width", "1.5px");
 
         _self.svg.append("g")
             .attr("class", "brush")
@@ -182,7 +182,7 @@ TimeChart.prototype.refreshChart = function () {
             .attr("d", _self.line)
             .attr("fill", "transparent")
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "2px");
+            .attr("stroke-width", "1.5px");
 
     }
 
