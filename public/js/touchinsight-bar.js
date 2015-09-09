@@ -5,11 +5,11 @@ function Bar(options) {
     _self.parentId = options.parentId;
 
     _self.cols = options.cols;
-    
+
     _self.target = options.target;
-    
+
     _self.link = options.link;
-    
+
     _self.text = options.text;
 
     _self.margin = {
@@ -159,7 +159,7 @@ Bar.prototype.refreshChart = function () {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return  Math.round(d[_self.target]);
+                return Math.round(d[_self.target]);
             });
 
         allBars.select("rect").attr("width", function (d) {
@@ -177,7 +177,7 @@ Bar.prototype.refreshChart = function () {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return  Math.round(d[_self.target]);
+                return Math.round(d[_self.target]);
             });
 
         _self.y = d3.scale.ordinal()
@@ -344,6 +344,177 @@ Bar.prototype.refreshMicroViz = function () {
         .style("font-size", "11px");
 }
 
+Bar.prototype.refreshThumbnail = function () {
+
+    var _self = this;
+
+    if (!_self.svg || _self.svg.select("rect").empty()) {
+
+        d3.select("#" + _self.parentId).append("text")
+            .text(_self.text)
+            .style("font-size", "9px");
+
+
+        _self.svg = d3.select("#" + _self.parentId).append("div")
+            .style("overflow", "scroll")
+            .style("width", _self.width + _self.margin.left + _self.margin.right)
+            .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom - 10)
+            .append("svg")
+            .attr("id", _self.target + "bar")
+            .attr("class", "thumbnail")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + (_self.margin.left) + "," +
+                _self.margin.top + ")");
+
+
+        _self.x = d3.scale.linear()
+            .domain([0, d3.max(_self.targetData, function (d) {
+                return Math.pow(d[_self.target], 1);
+            })])
+            .range([0, _self.width]);
+
+        _self.y = d3.scale.ordinal()
+            .domain(_self.targetData.map(function (d) {
+                return d["_id"][source];
+            }))
+            .rangeBands([0, _self.height]);
+
+        //_self.barH = _self.height / _self.targetData.length;
+        _self.barH = 15;
+
+        _self.bars = _self.svg.selectAll("g")
+            .data(_self.targetData)
+            .enter().append("g")
+            .attr("transform", function (d, i) {
+                return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
+            });
+
+        _self.bars.append("rect")
+            .attr("width", function (d) {
+                return _self.x(Math.pow(d[_self.target], 1));
+            })
+            .attr("height", _self.barH - 5)
+            .attr("fill", "#9ecae1");
+
+        _self.bars.append("text")
+            .attr("x", function (d) {
+                return 5;
+            })
+            .attr("y", _self.barH / 3)
+            .attr("fill", "#222")
+            .attr("text-anchor", "start")
+            .attr("dy", ".35em")
+            .text(function (d) {
+                return Math.round(d[_self.target]);
+            });
+
+        _self.svg.selectAll("text.name")
+            .data(_self.targetData)
+            .enter().append("text")
+            .attr("x", _self.margin.left - 5)
+            .attr("y", function (d, i) {
+                return i * _self.barH + _self.barH / 2;
+            })
+            .attr("fill", "#222")
+            .attr("text-anchor", "end")
+            .attr('class', 'name')
+            .text(function (d) {
+                return d["_id"][source];
+            });
+
+
+    } else {
+
+        var allBars = _self.svg.selectAll("g").data(_self.targetData);
+
+        allBars.exit().remove();
+
+        _self.x = d3.scale.linear()
+            .domain([0, d3.max(_self.targetData, function (d) {
+                return Math.pow(d[_self.target], 1);
+            })])
+            .range([0, _self.width]);
+
+        var rects = allBars.enter().append("g")
+            .attr("transform", function (d, i) {
+                return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
+            });
+
+        rects.append("rect")
+            .attr("width", function (d) {
+                return _self.x(Math.pow(d[_self.target], 1));
+            })
+            .attr("height", _self.barH - 5)
+            .attr("fill", "#9ecae1");
+
+        rects.append("text")
+            .attr("x", function (d) {
+                return 5;
+            })
+            .attr("y", _self.barH / 3)
+            .attr("fill", "#222")
+            .attr("text-anchor", "start")
+            .attr("dy", ".35em")
+            .text(function (d) {
+                return Math.round(d[_self.target]);
+            });
+
+        allBars.select("rect").attr("width", function (d) {
+                return _self.x(Math.pow(d[_self.target], 1));
+            })
+            .attr("height", _self.barH - 5)
+            .attr("fill", "#9ecae1");
+
+        allBars.select("text")
+            .attr("x", function (d) {
+                return 5;
+            })
+            .attr("y", _self.barH / 3)
+            .attr("fill", "#222")
+            .attr("text-anchor", "start")
+            .attr("dy", ".35em")
+            .text(function (d) {
+                return Math.round(d[_self.target]);
+            });
+
+        _self.y = d3.scale.ordinal()
+            .domain(_self.targetData.map(function (d) {
+                return d["_id"][source];
+            }))
+            .rangeBands([0, _self.height]);
+
+        var allText = _self.svg.selectAll("text.name").data(_self.targetData);
+
+        allText.exit().remove();
+
+        allText.enter().append("text")
+            .attr("x", _self.margin.left - 5)
+            .attr("y", function (d, i) {
+                return i * _self.barH + _self.barH / 2;
+            })
+            .attr("fill", "#222")
+            .attr("text-anchor", "end")
+            .text(function (d) {
+                return d["_id"][source];
+            });
+
+        allText.attr("x", _self.margin.left - 5)
+            .attr("y", function (d, i) {
+                return i * _self.barH + _self.barH / 2;
+            })
+            .attr("fill", "#222")
+            .attr("text-anchor", "end")
+            .attr('class', 'name')
+            .text(function (d) {
+                return d["_id"][source];
+            });
+
+    }
+
+}
+
 
 Bar.prototype.postUpdate = function () {
 
@@ -352,7 +523,7 @@ Bar.prototype.postUpdate = function () {
     $.ajax({
 
         type: "GET",
-        url: "/"+_self.link,
+        url: "/" + _self.link,
         data: {
             data: queryStack
         }
@@ -361,19 +532,33 @@ Bar.prototype.postUpdate = function () {
 
         _self.targetData = JSON.parse(data);
 
-        if (device == 0 || device == 2) {
+        if (device == 0) {
             _self.refreshChart();
             return;
         }
 
-        if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+        if (device == 1) {
+            if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
-            _self.refreshChart();
+                _self.refreshChart();
 
-        } else {
+            } else {
 
-            _self.refreshMicroViz();
+                _self.refreshMicroViz();
+            }
         }
+
+        if (device == 2) {
+            if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+
+                _self.refreshChart();
+
+            } else {
+
+                _self.refreshThumbnail();
+            }
+        }
+
 
     });
 
