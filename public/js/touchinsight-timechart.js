@@ -68,13 +68,21 @@ TimeChart.prototype.refreshChart = function () {
             .tickPadding(10);
         
         _self.xAxis.ticks(d3.time.years, 1);
+        
+        if (_self.width < 400) {
+        
+            _self.xAxis.ticks(d3.time.years, 6);
 
+        }
+        
+        
         var yAxis = _self.yAxis = d3.svg.axis()
             .scale(y)
             .orient("left").tickFormat(d3.format("s"))
             .innerTickSize(-_self.width)
             .outerTickSize(0)
-            .tickPadding(10);;
+            .tickPadding(10)
+            .ticks(_self.height/20);
 
         var line = _self.line = d3.svg.line()
             .x(function (d) {

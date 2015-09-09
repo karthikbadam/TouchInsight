@@ -275,7 +275,7 @@ function getDimensions(mainVIndex, mainHIndex) {
     rightExists = right > 0 ? 1 : 0;
 
     var PROPORTIONSX = 7;
-    var PROPORTIONSY = 5;
+    var PROPORTIONSY = 8;
 
     var secondaryWidth = width / PROPORTIONSX;
     var secondaryHeight = height / PROPORTIONSY;
@@ -283,10 +283,10 @@ function getDimensions(mainVIndex, mainHIndex) {
 
     //assigning the dimensions to the main view
     layOut[mainVIndex][mainHIndex] = {
-        width: width - 4 * PADDING,
-        height: height - 4 * PADDING - PADDING_Y / 2,
-        left: 2 * PADDING,
-        top: 2 * PADDING
+        width: width - 10 * PADDING,
+        height: height - 10 * PADDING - PADDING_Y / 2,
+        left: 5 * PADDING,
+        top: 5 * PADDING
     };
 
     //assigning the top or bottom

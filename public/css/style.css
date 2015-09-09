@@ -90,3 +90,28 @@ svg {
     z-index: 5;
     position: absolute;
 }
+
+.lasso path {
+    stroke: rgb(80, 80, 80);
+    stroke-width: 2px;
+}
+
+.lasso .drawn {
+    fill-opacity: .05;
+}
+
+.lasso .loop_close {
+    fill: none;
+    stroke-dasharray: 4, 4;
+}
+
+.lasso .origin {
+    fill: #222;
+    fill-opacity: .5;
+}
+
+.not_possible {
+}
+
+.possible {
+}

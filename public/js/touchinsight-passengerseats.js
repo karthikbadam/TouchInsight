@@ -41,7 +41,7 @@ PassengerSeats.prototype.refreshChart = function () {
         _self.dragging = {};
 
         _self.line = d3.svg.line();
-        _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s"));
+        _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s")).ticks(_self.height/20);
         _self.background;
         _self.foreground;
 

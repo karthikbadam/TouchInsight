@@ -41,7 +41,8 @@ FlightDistance.prototype.refreshChart = function () {
         _self.dragging = {};
 
         _self.line = d3.svg.line();
-        _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s"));
+        _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s"))
+            .ticks(_self.height/20);
         _self.background;
         _self.parallel;
 
@@ -50,7 +51,6 @@ FlightDistance.prototype.refreshChart = function () {
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
             .append("g")
             .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
-
 
         _self.x.domain(_self.dimensions = d3.keys(_self.flightDistances[0]["_id"])
             .filter(function (d) {
@@ -69,7 +69,6 @@ FlightDistance.prototype.refreshChart = function () {
             .enter().append("path")
             .attr("d", path)
             .attr("stroke", "#9ecae1")
-            .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "0.5px");
 
         // Add a group element for each dimension.
