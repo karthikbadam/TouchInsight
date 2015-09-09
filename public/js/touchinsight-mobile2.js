@@ -22,7 +22,7 @@ var PADDING = 10;
 
 var PADDING_Y = 30;
 
-var largedisplay = true;
+var device = 2;
 
 var colorscale = d3.scale.category10();
 
@@ -166,20 +166,6 @@ function onDataLoaded() {
         height: $("#div01").height(),
     });
 
-    flightsbar = new FlightsBar({
-        parentId: "div20",
-        cols: [source, destination],
-        width: $("#div20").width(),
-        height: $("#div20").height(),
-    });
-
-    passengersbar = new PassengersBar({
-        parentId: "div02",
-        cols: [source, destination],
-        width: $("#div02").width(),
-        height: $("#div02").height(),
-    });
-
     flightdistance = new FlightDistance({
         parentId: "div10",
         cols: [source, destination],
@@ -194,18 +180,44 @@ function onDataLoaded() {
         height: $("#div12").height(),
     });
 
-    distancebar = new DistanceBar({
+    distancebar = new Bar({
         parentId: "div00",
         cols: [source, destination],
         width: $("#div00").width(),
         height: $("#div00").height(),
+        target: distance,
+        link: "getDistanceBySource",
+        text: "Average Distance"
     });
 
-    populationbar = new PopulationBar({
+    populationbar = new Bar({
         parentId: "div22",
         cols: [source, destination],
         width: $("#div22").width(),
         height: $("#div22").height(),
+        target: sourcePopulation,
+        link: "getPopulationBySource",
+        text: "Population"
+    });
+
+    flightsbar = new Bar({
+        parentId: "div20",
+        cols: [source, destination],
+        width: $("#div20").width(),
+        height: $("#div20").height(),
+        target: numFlights,
+        link: "getFlightsBySource",
+        text: "Flights"
+    });
+
+    passengersbar = new Bar({
+        parentId: "div02",
+        cols: [source, destination],
+        width: $("#div02").width(),
+        height: $("#div02").height(),
+        target: passengers,
+        link: "getPassengersBySource",
+        text: "Passengers"
     });
 }
 
@@ -236,7 +248,7 @@ function createLayout() {
                     .style("top", PADDING_Y + l[i][j]["top"])
                     .style("background-color",
                         "white")
-                    .style("border", "1px solid #EEE")
+                    .style("border", "1px solid #DDD")
                     .style("opacity", 1)
                     .style("margin", PADDING / 2 - 4)
                     .style("overflow", "hidden");

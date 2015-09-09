@@ -41,7 +41,7 @@ PassengerSeats.prototype.refreshChart = function () {
         _self.dragging = {};
 
         _self.line = d3.svg.line();
-        _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s")).ticks(_self.height/20);
+        _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s")).ticks(_self.height / 20);
         _self.background;
         _self.foreground;
 
@@ -93,16 +93,22 @@ PassengerSeats.prototype.refreshChart = function () {
             });
 
         // Add and store a brush for each axis.
-        g.append("g")
-            .attr("class", "brush")
-            .each(function (d) {
-                d3.select(this).call(_self.y[d].brush = d3.svg.brush().y(_self.y[d])
-                    .on("brushstart", brushstart)
-                    .on("brushend", brush));
-            })
-            .selectAll("rect")
-            .attr("x", -8)
-            .attr("width", 16);
+        if (device == 2 && _self.parentId != "div" + mainView[0] + "" + mainView[1]) {
+
+            //do nothing
+
+        } else {
+            g.append("g")
+                .attr("class", "brush")
+                .each(function (d) {
+                    d3.select(this).call(_self.y[d].brush = d3.svg.brush().y(_self.y[d])
+                        .on("brushstart", brushstart)
+                        .on("brushend", brush));
+                })
+                .selectAll("rect")
+                .attr("x", -8)
+                .attr("width", 16);
+        }
 
 
         function transition(g) {
@@ -238,7 +244,7 @@ PassengerSeats.prototype.refreshMicroViz = function () {
         .enter().append("g")
         .attr("class", "dimension")
         .attr("transform", function (d, i) {
-            return "translate("+ _self.horizonWidth + "," + i * _self.horizonHeight / _self.dimensions.length + ")";
+            return "translate(" + _self.horizonWidth + "," + i * _self.horizonHeight / _self.dimensions.length + ")";
         });
 
 
@@ -262,6 +268,98 @@ PassengerSeats.prototype.refreshMicroViz = function () {
 
 }
 
+PassengerSeats.prototype.refreshThumbnail = function () {
+
+    var _self = this;
+
+    if (!_self.svg || _self.svg.select(".parallel").empty()) {
+
+        _self.x = d3.scale.ordinal().rangePoints([0, _self.width], 1);
+        _self.y = {};
+
+        _self.line = d3.svg.line();
+        _self.axis = d3.svg.axis().orient("left")
+            .tickFormat(d3.format("s")).ticks(_self.height / 20);
+
+        _self.svg = d3.select("#" + _self.parentId).append("svg")
+            .attr("class", "thumbnail")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
+
+        _self.x.domain(_self.dimensions = d3.keys(_self.passengerSeats[0]["_id"])
+            .filter(function (d) {
+                return (_self.y[d] = d3.scale.linear()
+                    .domain(d3.extent(_self.passengerSeats, function (p) {
+                        return +p["_id"][d];
+                    }))
+                    .range([_self.height, 0]));
+            }));
+
+        // Add blue foreground lines for focus.
+        _self.parallel = _self.svg.append("g")
+            .attr("class", "parallel")
+            .selectAll("path")
+            .data(_self.passengerSeats)
+            .enter().append("path")
+            .attr("d", path)
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-width", "0.5px");
+
+        // Add a group element for each dimension.
+        var g = _self.g = _self.svg.selectAll(".dimension")
+            .data(_self.dimensions)
+            .enter().append("g")
+            .attr("class", "dimension")
+            .attr("transform", function (d) {
+                return "translate(" + _self.x(d) + ")";
+            });
+
+        // Add an axis and title.
+        g.append("g")
+            .attr("class", "axis")
+            .each(function (d) {
+                d3.select(this).call(_self.axis.scale(_self.y[d]));
+            })
+            .append("text")
+            .style("text-anchor", "middle")
+            .attr("y", -9)
+            .text(function (d) {
+                return d;
+            });
+
+
+        function transition(g) {
+            return g.transition().duration(500);
+        }
+
+        // Returns the path for a given data point.
+        function path(d) {
+            return _self.line(_self.dimensions.map(function (p) {
+                return [_self.x(p), _self.y[p](d["_id"][p])];
+            }));
+        }
+
+    } else {
+
+        var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
+            .data(_self.passengerSeats);
+
+        parallelLines.exit().remove();
+
+        parallelLines.enter()
+            .append("path")
+            .transition().duration(1000)
+            .ease("linear")
+            .attr("d", path)
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-width", "0.5px");
+
+        parallelLines.attr("d", path);
+    }
+}
+
 PassengerSeats.prototype.postUpdate = function () {
 
     var _self = this;
@@ -278,18 +376,31 @@ PassengerSeats.prototype.postUpdate = function () {
 
         _self.passengerSeats = JSON.parse(data);
 
-        if (largedisplay) {
+        if (device == 0) {
             _self.refreshChart();
             return;
         }
 
-        if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+        if (device == 1) {
+            if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
-            _self.refreshChart();
+                _self.refreshChart();
 
-        } else {
+            } else {
 
-            _self.refreshMicroViz();
+                _self.refreshMicroViz();
+            }
+        }
+
+        if (device == 2) {
+            if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+
+                _self.refreshChart();
+
+            } else {
+
+                _self.refreshThumbnail();
+            }
         }
 
     });

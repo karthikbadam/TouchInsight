@@ -89,6 +89,15 @@ svg {
 .secondarypanel {
     z-index: 5;
     position: absolute;
+    border: 1px solid #222;
+}
+
+.thumbnail {
+    background-color: white;
+}
+
+.thumbnail:hover {
+    background-color: #deebf7;
 }
 
 .lasso path {

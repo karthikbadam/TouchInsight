@@ -69,21 +69,13 @@ PassengerChart.prototype.refreshChart = function () {
 
         _self.xAxis.ticks(d3.time.years, 1);
 
-
-        if (_self.width < 400) {
-
-            _self.xAxis.ticks(d3.time.years, 6);
-
-        }
-
-
         var yAxis = _self.yAxis = d3.svg.axis()
             .scale(y)
             .orient("left").tickFormat(d3.format("s"))
             .innerTickSize(-_self.width)
             .outerTickSize(0)
             .tickPadding(10)
-            .ticks(_self.height/20);
+            .ticks(_self.height / 20);
 
         var line = _self.line = d3.svg.line()
             .x(function (d) {
@@ -137,6 +129,7 @@ PassengerChart.prototype.refreshChart = function () {
             .selectAll("rect")
             .attr("y", -6)
             .attr("height", _self.height + 7);
+
 
         function brushed() {
 
@@ -252,6 +245,124 @@ PassengerChart.prototype.refreshMicroViz = function () {
 
 }
 
+PassengerChart.prototype.refreshThumbnail = function () {
+
+    var _self = this;
+
+    if (!_self.svg || _self.svg.select("path").empty()) {
+
+        _self.svg = d3.select("#" + _self.parentId)
+            .append("svg")
+            .attr("class", "thumbnail")
+            .attr("id", "passengerchart")
+            .attr("width", _self.width + _self.margin.left + _self.margin.right)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + (_self.margin.left) + "," + _self.margin.top + ")");
+
+        var x = _self.x = d3.time.scale()
+            .range([0, _self.width]);
+
+        var y = _self.y = d3.scale.linear()
+            .range([_self.height, 0]);
+
+        var xAxis = _self.xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom")
+            .tickFormat(function (d) {
+                return d3.time.format('%b %y')(new Date(d));
+            })
+            .innerTickSize(-_self.height)
+            .outerTickSize(0)
+            .tickPadding(10);
+
+        _self.xAxis.ticks(d3.time.years, 6);
+
+        var yAxis = _self.yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left").tickFormat(d3.format("s"))
+            .innerTickSize(-_self.width)
+            .outerTickSize(0)
+            .tickPadding(10)
+            .ticks(_self.height / 20);
+
+        var line = _self.line = d3.svg.line()
+            .x(function (d) {
+                return x(parseDate(d["_id"][date]));
+            })
+            .y(function (d) {
+                return y(d[passengers]);
+            });
+
+        x.domain(d3.extent(_self.passengerNum, function (d) {
+            return parseDate(d["_id"][date]);
+        }));
+
+        y.domain(d3.extent(_self.passengerNum, function (d) {
+            return d[passengers];
+        }));
+
+        _self.svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + _self.height + ")")
+            .call(xAxis);
+
+        _self.svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Passengers");
+
+        _self.passengerNum.sort(function (a, b) {
+            if (parseDate(b["_id"][date]).getTime() <
+                parseDate(a["_id"][date]).getTime()) return 1;
+            return -1;
+        });
+
+        _self.svg.append("path")
+            .datum(_self.passengerNum)
+            .attr("id", "time")
+            .attr("class", "flightsTime")
+            .attr("d", line)
+            .attr("fill", "transparent")
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-width", "1.5px");
+
+
+    } else {
+
+        _self.passengerNum.sort(function (a, b) {
+            if (parseDate(a["_id"]["Date"]).getTime() <
+                parseDate(b["_id"]["Date"]).getTime()) {
+                return 1;
+            }
+            return -1;
+        });
+
+        _self.y.domain(d3.extent(_self.passengerNum, function (d) {
+            return d[passengers];
+        }));
+
+        _self.yAxis.scale(_self.y);
+
+        _self.svg.select(".y.axis")
+            .call(_self.yAxis);
+
+        _self.svg.select("#time")
+            .datum(_self.passengerNum)
+            .transition().duration(500)
+            .attr("d", _self.line)
+            .attr("fill", "transparent")
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-width", "1.5px");
+
+    }
+}
+
 PassengerChart.prototype.postUpdate = function () {
 
     var _self = this;
@@ -268,18 +379,31 @@ PassengerChart.prototype.postUpdate = function () {
 
         _self.passengerNum = JSON.parse(data);
 
-        if (largedisplay) {
+        if (device == 0) {
             _self.refreshChart();
             return;
         }
 
-        if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+        if (device == 1) {
+            if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
-            _self.refreshChart();
+                _self.refreshChart();
 
-        } else {
+            } else {
 
-            _self.refreshMicroViz();
+                _self.refreshMicroViz();
+            }
+        }
+
+        if (device == 2) {
+            if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
+
+                _self.refreshChart();
+
+            } else {
+
+                _self.refreshThumbnail();
+            }
         }
 
     });

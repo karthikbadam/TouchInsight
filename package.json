@@ -21,6 +21,7 @@
         "d3": "*",
         "googlemaps": "*",
         "graceful-fs": "*",
-        "ejs": "*"
+        "ejs": "*",
+        "qs": "*"
     }
 }

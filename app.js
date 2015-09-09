@@ -50,6 +50,14 @@ app.get('/', function (req, res, next) {
     res.render('largedisplay.html', {});
 });
 
+app.get('/mobile1', function (req, res, next) {
+    res.render('mobile1.html', {});
+});
+
+app.get('/mobile2', function (req, res, next) {
+    res.render('mobile2.html', {});
+});
+
 // as soon as the app for the first time, read the dataset 
 // and load it
 
@@ -118,27 +126,28 @@ MongoClient.connect(mongourl, function (err, db) {
 
 function queryFlightConnections(db, query, callback) {
 
-    var data = db.collection("flights").aggregate([
-        {
-            $match: query
+    var data = db.collection("flights")
+        .aggregate([
+            {
+                $match: query
         },
-        {
-            $group: {
-                "_id": {
-                    "Source": "$Source",
-                    "Destination": "$Destination"
-                },
-                Flights: {
-                    $sum: "$Flights"
+            {
+                $group: {
+                    "_id": {
+                        "Source": "$Source",
+                        "Destination": "$Destination"
+                    },
+                    Flights: {
+                        $sum: "$Flights"
+                    }
                 }
-            }
         },
-        {
-            $sort: {
-                Flights: -1
-            }
+            {
+                $sort: {
+                    Flights: -1
+                }
         }
-                   ]);
+    ]);
 
     data.toArray(function (err, docs) {
         assert.equal(null, err);
@@ -171,27 +180,28 @@ app.get('/getFlightCounts', function (req, res, next) {
 
 function queryFlightsByTime(db, query, callback) {
 
-    var data = db.collection("flights").aggregate([
-        {
-            $match: query
-        },
-        {
-            $group: {
-                "_id": {
-                    "Date": "$Date"
-                },
-                Flights: {
-                    $sum: "$Flights"
+    var data = db.collection("flights")
+        .aggregate([
+            {
+                $match: query
+            },
+            {
+                $group: {
+                    "_id": {
+                        "Date": "$Date"
+                    },
+                    Flights: {
+                        $sum: "$Flights"
+                    }
+                }
+            },
+            {
+                $sort: {
+                    Date: 1
+
                 }
             }
-        },
-        {
-            $sort: {
-                Date: 1
-
-            }
-        }
-                   ]);
+        ]);
 
     data.toArray(function (err, docs) {
         assert.equal(null, err);
@@ -403,7 +413,7 @@ function queryFlightDistances(db, query, callback) {
             }
         },
         {
-            $limit: 10000
+            $limit: 1000
         }
                    ]);
 
@@ -459,7 +469,7 @@ function queryPassengerSeats(db, query, callback) {
             }
         },
         {
-            $limit: 10000
+            $limit: 1000
         }
 
                    ]);
