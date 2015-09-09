@@ -224,124 +224,305 @@ Bar.prototype.refreshMicroViz = function () {
         _self.svg.remove();
     }
 
-    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
-    _self.horizonHeight = _self.actualheight + _self.margin.top + _self.margin.bottom;
+    if (!_self.svg || _self.svg.select("rect").empty()) {
 
-    console.log("horizon" + _self.horizonHeight);
+        _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+        _self.horizonHeight = _self.actualheight + _self.margin.top + _self.margin.bottom;
 
-    var barWidth = 45;
+        console.log("horizon" + _self.horizonHeight);
 
-    var size = _self.horizonWidth / barWidth;
+        var barWidth = 45;
 
-    var data = _self.targetData.slice(0, Math.ceil(size / 2));
+        var size = _self.horizonWidth / barWidth;
 
-    var data2 = _self.targetData.slice(
-        _self.targetData.length - 1 - Math.ceil(size / 2),
-        _self.targetData.length - 1);
+        var data = _self.targetData.slice(0, Math.ceil(size / 2));
 
-    _self.svg = d3.select("#" + _self.parentId).append("svg")
-        .attr("id", "micro-flights-bar")
-        .attr("width", _self.horizonWidth)
-        .attr("height", _self.horizonHeight);
+        var data2 = _self.targetData.slice(
+            _self.targetData.length - 1 - Math.ceil(size / 2),
+            _self.targetData.length - 1);
 
-    _self.y = d3.scale.linear()
-        .range([_self.horizonHeight, 0]);
+        _self.svg = d3.select("#" + _self.parentId).append("svg")
+            .attr("id", "micro-flights-bar")
+            .attr("width", _self.horizonWidth)
+            .attr("height", _self.horizonHeight);
 
-    _self.y.domain([0, d3.max(_self.targetData, function (d) {
-        return d[_self.target];
-    })]);
+        _self.y = d3.scale.linear()
+            .range([_self.horizonHeight, 0]);
 
-    _self.opacityScale1 = d3.scale.linear()
-        .range([0.2, 1]);
+        _self.y.domain([0, d3.max(_self.targetData, function (d) {
+            return d[_self.target];
+        })]);
 
-    _self.opacityScale1.domain([0, d3.max(data, function (d) {
-        return d[_self.target];
-    })]);
+        _self.opacityScale1 = d3.scale.linear()
+            .range([0.2, 1]);
 
-    _self.opacityScale2 = d3.scale.linear()
-        .range([1, 0.2]);
+        _self.opacityScale1.domain([0, d3.max(data, function (d) {
+            return d[_self.target];
+        })]);
 
-    _self.opacityScale2.domain([0, d3.max(data2, function (d) {
-        return d[_self.target];
-    })]);
+        _self.opacityScale2 = d3.scale.linear()
+            .range([1, 0.2]);
 
-    var bar1 = _self.svg.selectAll(".high")
-        .data(data).enter()
-        .append("rect")
-        .attr("class", "high")
-        .attr("x", function (d, i) {
-            return i * barWidth;
-        })
-        .attr("y", function (d) {
-            return 0;
-        })
-        .attr("height", function (d) {
-            return _self.horizonHeight;
-        })
-        .attr("width", barWidth - 2)
-        .attr("fill", "#9ecae1")
-        .attr("fill-opacity", function (d) {
-            return _self.opacityScale1(d[_self.target]);
-        });
+        _self.opacityScale2.domain([0, d3.max(data2, function (d) {
+            return d[_self.target];
+        })]);
 
-    var text1 = _self.svg.selectAll(".texthigh")
-        .data(data).enter()
-        .append("text")
-        .attr("class", "texthigh")
-        .attr("x", function (d, i) {
-            return i * barWidth;
-        })
-        .attr("y", function (d) {
-            return _self.horizonHeight - 5;
-        })
-        .style("width", barWidth - 2)
-        .attr("fill", "#222")
-        .attr("font-size", "9px")
-        .text(function (d) {
-            return d["_id"][source].substr(0, 8);
-        });
+        var bar1 = _self.svg.selectAll(".high")
+            .data(data).enter()
+            .append("rect")
+            .attr("class", "high")
+            .attr("x", function (d, i) {
+                return i * barWidth;
+            })
+            .attr("y", function (d) {
+                return 0;
+            })
+            .attr("height", function (d) {
+                return _self.horizonHeight;
+            })
+            .attr("width", barWidth - 2)
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", function (d) {
+                return _self.opacityScale1(d[_self.target]);
+            });
 
-    var bar2 = _self.svg.selectAll(".low")
-        .data(data2).enter()
-        .append("rect")
-        .attr("class", "low")
-        .attr("x", function (d, i) {
-            return data.length * barWidth + i * barWidth;
-        })
-        .attr("y", function (d) {
-            return 0;
-        })
-        .attr("height", function (d) {
-            return _self.horizonHeight;
-        })
-        .attr("width", barWidth - 2)
-        .attr("fill", "#d62728")
-        .attr("fill-opacity", function (d) {
-            return _self.opacityScale2(d[_self.target]);
-        });
+        var text1 = _self.svg.selectAll(".texthigh")
+            .data(data).enter()
+            .append("text")
+            .attr("class", "texthigh")
+            .attr("x", function (d, i) {
+                return i * barWidth;
+            })
+            .attr("y", function (d) {
+                return _self.horizonHeight - 5;
+            })
+            .style("width", barWidth - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "9px")
+            .text(function (d) {
+                return d["_id"][source].substr(0, 8);
+            });
 
-    var text2 = _self.svg.selectAll(".textlow")
-        .data(data2).enter()
-        .append("text")
-        .attr("class", "textlow")
-        .attr("x", function (d, i) {
-            return data.length * barWidth + i * barWidth;
-        })
-        .attr("y", function (d) {
-            return _self.horizonHeight - 5;
-        })
-        .style("width", barWidth - 2)
-        .attr("fill", "#222")
-        .attr("font-size", "9px")
-        .text(function (d) {
-            return d["_id"][source].substr(0, 8);
-        });
+        var bar2 = _self.svg.selectAll(".low")
+            .data(data2).enter()
+            .append("rect")
+            .attr("class", "low")
+            .attr("x", function (d, i) {
+                return data.length * barWidth + i * barWidth;
+            })
+            .attr("y", function (d) {
+                return 0;
+            })
+            .attr("height", function (d) {
+                return _self.horizonHeight;
+            })
+            .attr("width", barWidth - 2)
+            .attr("fill", "#d62728")
+            .attr("fill-opacity", function (d) {
+                return _self.opacityScale2(d[_self.target]);
+            });
+
+        var text2 = _self.svg.selectAll(".textlow")
+            .data(data2).enter()
+            .append("text")
+            .attr("class", "textlow")
+            .attr("x", function (d, i) {
+                return data.length * barWidth + i * barWidth;
+            })
+            .attr("y", function (d) {
+                return _self.horizonHeight - 5;
+            })
+            .style("width", barWidth - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "9px")
+            .text(function (d) {
+                return d["_id"][source].substr(0, 8);
+            });
 
 
-    _self.svg.append("text")
-        .attr("transform", "translate(" + 0 + "," + 10 + ")")
-        .text("Flights from")
-        .style("font-size", "11px");
+        _self.svg.append("text")
+            .attr("transform", "translate(" + 0 + "," + 10 + ")")
+            .text(_self.text)
+            .style("font-size", "9px");
+
+    } else {
+        var barWidth = 45;
+
+        var size = _self.horizonWidth / barWidth;
+
+        var data = _self.targetData.slice(0, Math.ceil(size / 2));
+
+        var data2 = _self.targetData.slice(
+            _self.targetData.length - 1 - Math.ceil(size / 2),
+            _self.targetData.length - 1);
+
+        _self.y.domain([0, d3.max(_self.targetData, function (d) {
+            return d[_self.target];
+        })]);
+
+        _self.opacityScale1 = d3.scale.linear()
+            .range([0.2, 1]);
+
+        _self.opacityScale1.domain([0, d3.max(data, function (d) {
+            return d[_self.target];
+        })]);
+
+        _self.opacityScale2 = d3.scale.linear()
+            .range([1, 0.2]);
+
+        _self.opacityScale2.domain([0, d3.max(data2, function (d) {
+            return d[_self.target];
+        })]);
+
+        var bar1 = _self.svg.selectAll(".high")
+            .data(data);
+
+        bar1.exit().remove().transition().duration(500);
+
+        bar1.enter()
+            .append("rect")
+            .transition().duration(500)
+            .attr("class", "high")
+            .attr("x", function (d, i) {
+                return i * barWidth;
+            })
+            .attr("y", function (d) {
+                return 0;
+            })
+            .attr("height", function (d) {
+                return _self.horizonHeight;
+            })
+            .attr("width", barWidth - 2)
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", function (d) {
+                return _self.opacityScale1(d[_self.target]);
+            });
+
+        bar1.attr("x", function (d, i) {
+                return i * barWidth;
+            })
+            .attr("y", function (d) {
+                return 0;
+            })
+            .attr("height", function (d) {
+                return _self.horizonHeight;
+            })
+            .attr("width", barWidth - 2)
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", function (d) {
+                return _self.opacityScale1(d[_self.target]);
+            });
+
+        var text1 = _self.svg.selectAll(".texthigh")
+            .data(data);
+
+        text1.exit().remove().transition().duration(500);
+
+        text1.enter()
+            .append("text")
+            .transition().duration(500)
+            .attr("class", "texthigh")
+            .attr("x", function (d, i) {
+                return i * barWidth;
+            })
+            .attr("y", function (d) {
+                return _self.horizonHeight - 5;
+            })
+            .style("width", barWidth - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "9px")
+            .text(function (d) {
+                return d["_id"][source].substr(0, 8);
+            });
+
+        text1.attr("x", function (d, i) {
+                return i * barWidth;
+            })
+            .attr("y", function (d) {
+                return _self.horizonHeight - 5;
+            })
+            .style("width", barWidth - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "9px")
+            .text(function (d) {
+                return d["_id"][source].substr(0, 8);
+            });
+
+        var bar2 = _self.svg.selectAll(".low")
+            .data(data2);
+
+        bar2.exit().remove().transition().duration(500);
+
+        bar2.enter()
+            .append("rect")
+            .transition().duration(500)
+            .attr("class", "low")
+            .attr("x", function (d, i) {
+                return data.length * barWidth + i * barWidth;
+            })
+            .attr("y", function (d) {
+                return 0;
+            })
+            .attr("height", function (d) {
+                return _self.horizonHeight;
+            })
+            .attr("width", barWidth - 2)
+            .attr("fill", "#d62728")
+            .attr("fill-opacity", function (d) {
+                return _self.opacityScale2(d[_self.target]);
+            });
+
+        bar2.attr("x", function (d, i) {
+                return data.length * barWidth + i * barWidth;
+            })
+            .attr("y", function (d) {
+                return 0;
+            })
+            .attr("height", function (d) {
+                return _self.horizonHeight;
+            })
+            .attr("width", barWidth - 2)
+            .attr("fill", "#d62728")
+            .attr("fill-opacity", function (d) {
+                return _self.opacityScale2(d[_self.target]);
+            });
+
+        var text2 = _self.svg.selectAll(".textlow")
+            .data(data2);
+
+        text2.exit().remove().transition().duration(500);
+
+        text2.enter()
+            .append("text")
+            .transition().duration(500)
+            .attr("class", "textlow")
+            .attr("x", function (d, i) {
+                return data.length * barWidth + i * barWidth;
+            })
+            .attr("y", function (d) {
+                return _self.horizonHeight - 5;
+            })
+            .style("width", barWidth - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "9px")
+            .text(function (d) {
+                return d["_id"][source].substr(0, 8);
+            });
+
+        text2.attr("x", function (d, i) {
+                return data.length * barWidth + i * barWidth;
+            })
+            .attr("y", function (d) {
+                return _self.horizonHeight - 5;
+            })
+            .style("width", barWidth - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "9px")
+            .text(function (d) {
+                return d["_id"][source].substr(0, 8);
+            });
+
+    }
 }
 
 Bar.prototype.refreshThumbnail = function () {

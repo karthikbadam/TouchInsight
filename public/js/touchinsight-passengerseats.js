@@ -193,78 +193,100 @@ PassengerSeats.prototype.refreshMicroViz = function () {
 
     var _self = this;
 
-    _self.y = {};
-    _self.line = d3.svg.line().interpolate(function (points) {
-        return points.join("A 1,3 0 0 0 ");
-    });
+    if (!_self.svg || _self.svg.select(".parallel").empty()) {
 
-    _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s"));
-    _self.parallel;
-
-    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
-    _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
-
-    _self.svg = d3.select("#" + _self.parentId).append("svg")
-        .attr("id", "micro-flights-distance")
-        .attr("width", _self.horizonWidth)
-        .attr("height", _self.horizonHeight);
-
-
-    _self.dimensions = d3.keys(_self.passengerSeats[0]["_id"])
-        .filter(function (d) {
-            return (_self.y[d] = d3.scale.linear()
-                .domain(d3.extent(_self.passengerSeats, function (p) {
-                    return +p["_id"][d];
-                }))
-                .range([_self.horizonHeight / d3.keys(_self.passengerSeats[0]["_id"]).length - 5, 0]));
+        _self.y = {};
+        _self.line = d3.svg.line().interpolate(function (points) {
+            return points.join("A 1,3 0 0 0 ");
         });
 
+        _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s"));
+        _self.parallel;
 
-    // Add blue parallel lines for focus.
-    _self.parallel = _self.svg.append("g")
-        .attr("class", "parallel")
-        .selectAll("path")
-        .data(_self.passengerSeats)
-        .enter().append("path")
-        .attr("d", path)
-        .attr("stroke", "#9ecae1")
-        .attr("stroke-opacity", 0.1)
-        .attr("stroke-width", "0.5px");
+        _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+        _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
 
-    // Returns the path for a given data point.
-    function path(d) {
-        return _self.line(_self.dimensions.map(function (p, i) {
-            return [_self.horizonWidth, i * _self.horizonHeight / _self.dimensions.length
+        _self.svg = d3.select("#" + _self.parentId).append("svg")
+            .attr("id", "micro-flights-distance")
+            .attr("width", _self.horizonWidth)
+            .attr("height", _self.horizonHeight);
+
+
+        _self.dimensions = d3.keys(_self.passengerSeats[0]["_id"])
+            .filter(function (d) {
+                return (_self.y[d] = d3.scale.linear()
+                    .domain(d3.extent(_self.passengerSeats, function (p) {
+                        return +p["_id"][d];
+                    }))
+                    .range([_self.horizonHeight / d3.keys(_self.passengerSeats[0]["_id"]).length - 5, 0]));
+            });
+
+
+        // Add blue parallel lines for focus.
+        _self.parallel = _self.svg.append("g")
+            .attr("class", "parallel")
+            .selectAll("path")
+            .data(_self.passengerSeats)
+            .enter().append("path")
+            .attr("d", path)
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-opacity", 0.1)
+            .attr("stroke-width", "0.5px");
+
+        // Returns the path for a given data point.
+        function path(d) {
+            return _self.line(_self.dimensions.map(function (p, i) {
+                return [_self.horizonWidth, i * _self.horizonHeight / _self.dimensions.length
                     + _self.y[p](d["_id"][p])];
-        }));
+            }));
+        }
+
+        var g = _self.g = _self.svg.selectAll(".dimension")
+            .data(_self.dimensions)
+            .enter().append("g")
+            .attr("class", "dimension")
+            .attr("transform", function (d, i) {
+                return "translate(" + _self.horizonWidth + "," + i * _self.horizonHeight / _self.dimensions.length + ")";
+            });
+
+
+        // Add an axis and title.
+        g.append("g")
+            .attr("class", "axis")
+            .each(function (d) {
+                d3.select(this).call(_self.axis.scale(_self.y[d]));
+            })
+            .append("text")
+            .style("text-anchor", "end")
+            .attr("x", function (d, i) {
+                return -30;
+            })
+            .attr("y", function (d, i) {
+                return 20;
+            })
+            .text(function (d) {
+                return d;
+            });
+
+    } else {
+
+
+        var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
+            .data(_self.passengerSeats);
+
+        parallelLines.exit().remove();
+
+        parallelLines.enter()
+            .append("path")
+            .transition().duration(1000)
+            .ease("linear")
+            .attr("d", path)
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-width", "0.5px");
+
+        parallelLines.attr("d", path);
+
     }
-
-    var g = _self.g = _self.svg.selectAll(".dimension")
-        .data(_self.dimensions)
-        .enter().append("g")
-        .attr("class", "dimension")
-        .attr("transform", function (d, i) {
-            return "translate(" + _self.horizonWidth + "," + i * _self.horizonHeight / _self.dimensions.length + ")";
-        });
-
-
-    // Add an axis and title.
-    g.append("g")
-        .attr("class", "axis")
-        .each(function (d) {
-            d3.select(this).call(_self.axis.scale(_self.y[d]));
-        })
-        .append("text")
-        .style("text-anchor", "end")
-        .attr("x", function (d, i) {
-            return -30;
-        })
-        .attr("y", function (d, i) {
-            return 20;
-        })
-        .text(function (d) {
-            return d;
-        });;
 
 }
 

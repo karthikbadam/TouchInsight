@@ -80,6 +80,9 @@ function setGlobalQuery(query, propagate) {
 
 $(document).ready(function () {
 
+
+    d3.select("body").style("background-color", "white");
+    
     // creating the four buttons
     for (var i = 0; i < buttons.length; i++) {
         d3.select("#button-panel").append("div")

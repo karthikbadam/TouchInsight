@@ -197,50 +197,83 @@ PassengerChart.prototype.refreshMicroViz = function () {
         _self.svg.remove();
     }
 
-    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
-    _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
+    if (!_self.svg || _self.svg.select("path").empty()) {
 
-    _self.passengerNum.sort(function (a, b) {
-        if (parseDate(b["_id"][date]).getTime() <
-            parseDate(a["_id"][date]).getTime()) return 1;
-        return -1;
-    });
+        _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+        _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
 
-    var chart = d3.horizon()
-        .width(_self.horizonWidth)
-        .height(_self.horizonHeight)
-        .bands(6)
-        .mode("mirror")
-        .interpolate("basis");
+        _self.passengerNum.sort(function (a, b) {
+            if (parseDate(b["_id"][date]).getTime() <
+                parseDate(a["_id"][date]).getTime()) return 1;
+            return -1;
+        });
 
-    _self.svg = d3.select("#" + _self.parentId).append("svg")
-        .attr("id", "horizon-passenger")
-        .attr("width", _self.horizonWidth)
-        .attr("height", _self.horizonHeight);
+        var chart = _self.chart = d3.horizon()
+            .width(_self.horizonWidth)
+            .height(_self.horizonHeight)
+            .bands(6)
+            .mode("mirror")
+            .interpolate("basis");
 
-    // Offset so that positive is above-average and negative is below-average.
-    var mean = _self.passengerNum.reduce(function (sum, v) {
+        _self.svg = d3.select("#" + _self.parentId).append("svg")
+            .attr("id", "horizon-passenger")
+            .attr("width", _self.horizonWidth)
+            .attr("height", _self.horizonHeight);
 
-        if (sum[passengers])
-            return sum[passengers] + v[passengers];
-        else
-            return sum + v[passengers];
+        // Offset so that positive is above-average and negative is below-average.
+        var mean = _self.passengerNum.reduce(function (sum, v) {
 
-    }) / _self.passengerNum.length;
+            if (sum[passengers])
+                return sum[passengers] + v[passengers];
+            else
+                return sum + v[passengers];
 
-    console.log(mean);
+        }) / _self.passengerNum.length;
 
-    // Transpose column values to rows.
-    var data = _self.passengerNum.map(function (d, i) {
-        return [parseDate(d["_id"][date]), d[passengers] - mean];
-    });
+        console.log(mean);
 
-    _self.svg.data([data]).call(chart);
+        // Transpose column values to rows.
+        var data = _self.passengerNum.map(function (d, i) {
+            return [parseDate(d["_id"][date]), d[passengers] - mean];
+        });
 
-    _self.svg.append("text")
-        .attr("transform", "translate(" + 0 + "," + 10 + ")")
-        .text("Passengers over time")
-        .style("font-size", "11px");
+        _self.svg.data([data]).call(chart);
+
+        _self.svg.append("text")
+            .attr("transform", "translate(" + 0 + "," + 10 + ")")
+            .text("Passengers over time")
+            .style("font-size", "11px");
+
+    } else {
+
+        _self.passengerNum.sort(function (a, b) {
+            if (parseDate(b["_id"][date]).getTime() <
+                parseDate(a["_id"][date]).getTime()) return 1;
+            return -1;
+        });
+
+        var chart = _self.chart;
+
+        // Offset so that positive is above-average and negative is below-average.
+        var mean = _self.passengerNum.reduce(function (sum, v) {
+
+            if (sum[passengers])
+                return sum[passengers] + v[passengers];
+            else
+                return sum + v[passengers];
+
+        }) / _self.passengerNum.length;
+
+        console.log(mean);
+
+        // Transpose column values to rows.
+        var data = _self.passengerNum.map(function (d, i) {
+            return [parseDate(d["_id"][date]), d[passengers] - mean];
+        });
+
+        _self.svg.data([data]).call(chart);
+
+    }
 
 
 }

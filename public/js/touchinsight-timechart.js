@@ -202,53 +202,85 @@ TimeChart.prototype.refreshMicroViz = function () {
         _self.svg.remove();
     }
 
+    if (!_self.svg || _self.svg.select("path").empty()) {
 
-    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
-    _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
+        _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+        _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
 
-    _self.flightNum.sort(function (a, b) {
-        if (parseDate(b["_id"][date]).getTime() <
-            parseDate(a["_id"][date]).getTime()) return 1;
-        return -1;
-    });
+        _self.flightNum.sort(function (a, b) {
+            if (parseDate(b["_id"][date]).getTime() <
+                parseDate(a["_id"][date]).getTime()) return 1;
+            return -1;
+        });
 
-    var chart = d3.horizon()
-        .width(_self.horizonWidth)
-        .height(_self.horizonHeight)
-        .bands(6)
-        .mode("mirror")
-        .interpolate("basis");
+        var chart = _self.chart = d3.horizon()
+            .width(_self.horizonWidth)
+            .height(_self.horizonHeight)
+            .bands(6)
+            .mode("mirror")
+            .interpolate("basis");
 
-    _self.svg = d3.select("#" + _self.parentId).append("svg")
-        .attr("id", "horizon-flights")
-        .attr("width", _self.horizonWidth)
-        .attr("height", _self.horizonHeight);
+        _self.svg = d3.select("#" + _self.parentId).append("svg")
+            .attr("id", "horizon-flights")
+            .attr("width", _self.horizonWidth)
+            .attr("height", _self.horizonHeight);
 
-    // Offset so that positive is above-average and negative is below-average.
-    var mean = _self.flightNum.reduce(function (sum, v) {
+        // Offset so that positive is above-average and negative is below-average.
+        var mean = _self.flightNum.reduce(function (sum, v) {
 
-        if (sum[numFlights])
-            return sum[numFlights] + v[numFlights];
-        else
-            return sum + v[numFlights];
+            if (sum[numFlights])
+                return sum[numFlights] + v[numFlights];
+            else
+                return sum + v[numFlights];
 
-    }) / _self.flightNum.length;
+        }) / _self.flightNum.length;
 
-    console.log(mean);
+        console.log(mean);
 
-    // Transpose column values to rows.
-    var data = _self.flightNum.map(function (d, i) {
-        return [parseDate(d["_id"][date]), d[numFlights] - mean];
-    });
+        // Transpose column values to rows.
+        var data = _self.flightNum.map(function (d, i) {
+            return [parseDate(d["_id"][date]), d[numFlights] - mean];
+        });
 
-    _self.svg.data([data]).call(chart);
+        _self.svg.data([data]).call(chart);
 
-    _self.svg.append("text")
-        .attr("transform", "translate(" + 0 + "," + 10 + ")")
-        .text("Flights over time")
-        .style("font-size", "11px");
+        _self.svg.append("text")
+            .attr("transform", "translate(" + 0 + "," + 10 + ")")
+            .text("Flights over time")
+            .style("font-size", "11px");
+
+    } else {
+
+        _self.flightNum.sort(function (a, b) {
+            if (parseDate(b["_id"][date]).getTime() <
+                parseDate(a["_id"][date]).getTime()) return 1;
+            return -1;
+        });
+
+        var chart = _self.chart;
+
+        // Offset so that positive is above-average and negative is below-average.
+        var mean = _self.flightNum.reduce(function (sum, v) {
+
+            if (sum[numFlights])
+                return sum[numFlights] + v[numFlights];
+            else
+                return sum + v[numFlights];
+
+        }) / _self.flightNum.length;
+
+        console.log(mean);
+
+        // Transpose column values to rows.
+        var data = _self.flightNum.map(function (d, i) {
+            return [parseDate(d["_id"][date]), d[numFlights] - mean];
+        });
+
+        _self.svg.data([data]).call(chart);
 
 
+
+    }
 }
 
 TimeChart.prototype.refreshThumbnail = function () {

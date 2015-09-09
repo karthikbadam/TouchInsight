@@ -18,7 +18,7 @@ var width = 0;
 
 var height = 0;
 
-var PADDING = 10;
+var PADDING = 7;
 
 var device = 1;
 
@@ -238,8 +238,8 @@ function createLayout() {
                     .style("width", l[i][j]["width"] - PADDING / 2)
                     .style("height", l[i][j]["height"] - PADDING / 2)
                     .style("background-color",
-                        "transparent")
-                    .style("border", "1px solid #EEE")
+                        "white")
+                    .style("border", "1px solid #222")
                     .style("opacity", 1)
                     .style("margin", PADDING / 2 - 4)
                     .style("overflow", "hidden");

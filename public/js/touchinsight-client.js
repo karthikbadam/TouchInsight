@@ -20,7 +20,7 @@ var width = 0;
 
 var height = 0;
 
-var PADDING = 10;
+var PADDING = 5;
 
 var colorscale = d3.scale.category10();
 
@@ -232,8 +232,8 @@ function createLayout() {
                 .style("width", xWeights[j] * width - PADDING / 2)
                 .style("height", yWeights[i] * height - PADDING / 2)
                 .style("background-color",
-                    "transparent")
-                .style("border", "1px solid #EEE")
+                    "white")
+                .style("border", "1px solid #AAA")
                 .style("opacity", 1)
                 .style("margin", PADDING / 2 - 4)
                 .style("overflow", "hidden");

@@ -65,7 +65,6 @@ Map.prototype.refreshChart = function () {
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
             .style("opacity", 0);
 
-
         var lasso_draw = function () {
             // Style the possible dots
             _self.lasso.items().filter(function (d) {
@@ -112,23 +111,28 @@ Map.prototype.refreshChart = function () {
                     "possible": false
                 });
 
-            var query1 = new Query({
-                index: source,
-                value: selectedSources,
-                operator: "in",
-                logic: currentLogic
-            });
+            if (selectedSources.length > 0) {
 
-            setGlobalQuery(query1);
+                var query1 = new Query({
+                    index: source,
+                    value: selectedSources,
+                    operator: "in",
+                    logic: currentLogic
+                });
 
-            var query2 = new Query({
-                index: destination,
-                value: selectedDestinations,
-                operator: "in",
-                logic: "AND"
-            });
+                setGlobalQuery(query1, flag = selectedDestinations.length > 0 ? 0 : 1);
+            }
 
-            setGlobalQuery(query2, 1);
+            if (selectedDestinations.length > 0) {
+                var query2 = new Query({
+                    index: destination,
+                    value: selectedDestinations,
+                    operator: "in",
+                    logic: selectedSources.length > 0? "AND": currentLogic
+                });
+
+                setGlobalQuery(query2, 1);
+            }
 
             // Reset the style of the not selected dots
             _self.lasso.items().filter(function (d) {
