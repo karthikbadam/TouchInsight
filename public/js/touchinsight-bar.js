@@ -43,7 +43,7 @@ Bar.prototype.refreshChart = function () {
     if (!_self.svg || _self.svg.select("rect").empty()) {
 
         _self.height = 10000;
-        
+
         d3.select("#" + _self.parentId).append("text")
             .text(_self.text)
             .style("font-size", "12px");
@@ -218,16 +218,57 @@ Bar.prototype.refreshMicroViz = function () {
 
     var _self = this;
 
-    if (!_self.svg || _self.svg.select("rect").empty()) {
+    var div = _self.parentId;
 
-        _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
-        _self.horizonHeight = _self.actualheight + _self.margin.top + _self.margin.bottom;
+    div = div.replace("div", "");
+
+    var y = parseInt(div[0]);
+
+    var x = parseInt(div[1]);
+
+    var direction = "left";
+    var axisDirection = "right";
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.actualheight + _self.margin.top + _self.margin.bottom;
+
+    var majorDimension = _self.majorDimension = _self.horizonHeight;
+    var minorDimension = _self.minorDimension = _self.horizonWidth;
+
+    if (x - mainView[1] > 0) {
+
+        direction = "right";
+        axisDirection = "left";
+
+    }
+
+    if (y - mainView[0] > 0) {
+
+        direction = "bottom";
+        axisDirection = "top";
+
+        _self.majorDimension = _self.horizonWidth;
+        _self.minorDimension = _self.horizonHeight;
+
+    }
+
+    if (y - mainView[0] < 0) {
+
+        direction = "top";
+        axisDirection = "bottom";
+
+        _self.majorDimension = _self.horizonWidth;
+        _self.minorDimension = _self.horizonHeight;
+
+    }
+
+    if (!_self.svg || _self.svg.select("rect").empty()) {
 
         console.log("horizon" + _self.horizonHeight);
 
-        var barWidth = 45;
+        var barSize = 45;
 
-        var size = _self.horizonWidth / barWidth;
+        var size = _self.majorDimension / barSize;
 
         var data = _self.targetData.slice(0, Math.ceil(size / 2));
 
@@ -253,13 +294,6 @@ Bar.prototype.refreshMicroViz = function () {
 
             });
 
-        _self.y = d3.scale.linear()
-            .range([_self.horizonHeight, 0]);
-
-        _self.y.domain([0, d3.max(_self.targetData, function (d) {
-            return d[_self.target];
-        })]);
-
         _self.opacityScale1 = d3.scale.linear()
             .range([0.2, 1]);
 
@@ -279,15 +313,37 @@ Bar.prototype.refreshMicroViz = function () {
             .append("rect")
             .attr("class", "high")
             .attr("x", function (d, i) {
-                return i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 0;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
             })
-            .attr("y", function (d) {
-                return 0;
+            .attr("y", function (d, i) {
+
+                if (direction == "left" || direction == "right")
+                    return i * barSize;
+
+                if (direction == "top" || direction == "bottom")
+                    return 0;
+
             })
             .attr("height", function (d) {
-                return _self.horizonHeight;
+                if (direction == "left" || direction == "right")
+                    return barSize - 2;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension;
+
             })
-            .attr("width", barWidth - 2)
+            .attr("width", function (d) {
+                if (direction == "left" || direction == "right")
+                    return _self.minorDimension;
+
+                if (direction == "top" || direction == "bottom")
+                    return barSize - 2;
+            })
             .attr("fill", "#9ecae1")
             .attr("fill-opacity", function (d) {
                 return _self.opacityScale1(d[_self.target]);
@@ -298,12 +354,21 @@ Bar.prototype.refreshMicroViz = function () {
             .append("text")
             .attr("class", "texthigh")
             .attr("x", function (d, i) {
-                return i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
             })
-            .attr("y", function (d) {
-                return _self.horizonHeight - 5;
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return i * barSize - 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
             })
-            .style("width", barWidth - 2)
+            .style("width", barSize - 2)
             .attr("fill", "#222")
             .attr("font-size", "9px")
             .text(function (d) {
@@ -315,15 +380,37 @@ Bar.prototype.refreshMicroViz = function () {
             .append("rect")
             .attr("class", "low")
             .attr("x", function (d, i) {
-                return data.length * barWidth + i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 0;
+
+                if (direction == "top" || direction == "bottom")
+                    return data.length * barSize + i * barSize;
+
             })
-            .attr("y", function (d) {
-                return 0;
+            .attr("y", function (d, i) {
+
+                if (direction == "left" || direction == "right")
+                    return data.length * barSize + i * barSize;
+
+                if (direction == "top" || direction == "bottom")
+                    return 0;
+
             })
             .attr("height", function (d) {
-                return _self.horizonHeight;
+                if (direction == "left" || direction == "right")
+                    return barSize - 2;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension;
+
             })
-            .attr("width", barWidth - 2)
+            .attr("width", function (d) {
+                if (direction == "left" || direction == "right")
+                    return _self.minorDimension;
+
+                if (direction == "top" || direction == "bottom")
+                    return barSize - 2;
+            })
             .attr("fill", "#d62728")
             .attr("fill-opacity", function (d) {
                 return _self.opacityScale2(d[_self.target]);
@@ -334,12 +421,21 @@ Bar.prototype.refreshMicroViz = function () {
             .append("text")
             .attr("class", "textlow")
             .attr("x", function (d, i) {
-                return data.length * barWidth + i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return data.length * barSize + i * barSize;
+
             })
-            .attr("y", function (d) {
-                return _self.horizonHeight - 5;
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return data.length * barSize + i * barSize - 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
             })
-            .style("width", barWidth - 2)
+            .style("width", barSize - 2)
             .attr("fill", "#222")
             .attr("font-size", "9px")
             .text(function (d) {
@@ -353,19 +449,16 @@ Bar.prototype.refreshMicroViz = function () {
             .style("font-size", "9px");
 
     } else {
-        var barWidth = 45;
+        
+        var barSize = 45;
 
-        var size = _self.horizonWidth / barWidth;
+        var size = _self.majorDimension / barSize;
 
         var data = _self.targetData.slice(0, Math.ceil(size / 2));
 
         var data2 = _self.targetData.slice(
             _self.targetData.length - 1 - Math.ceil(size / 2),
             _self.targetData.length - 1);
-
-        _self.y.domain([0, d3.max(_self.targetData, function (d) {
-            return d[_self.target];
-        })]);
 
         _self.opacityScale1 = d3.scale.linear()
             .range([0.2, 1]);
@@ -391,30 +484,74 @@ Bar.prototype.refreshMicroViz = function () {
             .transition().duration(500)
             .attr("class", "high")
             .attr("x", function (d, i) {
-                return i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 0;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
             })
-            .attr("y", function (d) {
-                return 0;
+            .attr("y", function (d, i) {
+
+                if (direction == "left" || direction == "right")
+                    return i * barSize;
+
+                if (direction == "top" || direction == "bottom")
+                    return 0;
+
             })
             .attr("height", function (d) {
-                return _self.horizonHeight;
+                if (direction == "left" || direction == "right")
+                    return barSize - 2;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension;
+
             })
-            .attr("width", barWidth - 2)
+            .attr("width", function (d) {
+                if (direction == "left" || direction == "right")
+                    return _self.minorDimension;
+
+                if (direction == "top" || direction == "bottom")
+                    return barSize - 2;
+            })
             .attr("fill", "#9ecae1")
             .attr("fill-opacity", function (d) {
                 return _self.opacityScale1(d[_self.target]);
             });
 
         bar1.attr("x", function (d, i) {
-                return i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 0;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
             })
-            .attr("y", function (d) {
-                return 0;
+            .attr("y", function (d, i) {
+
+                if (direction == "left" || direction == "right")
+                    return i * barSize;
+
+                if (direction == "top" || direction == "bottom")
+                    return 0;
+
             })
             .attr("height", function (d) {
-                return _self.horizonHeight;
+                if (direction == "left" || direction == "right")
+                    return barSize - 2;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension;
+
             })
-            .attr("width", barWidth - 2)
+            .attr("width", function (d) {
+                if (direction == "left" || direction == "right")
+                    return _self.minorDimension;
+
+                if (direction == "top" || direction == "bottom")
+                    return barSize - 2;
+            })
             .attr("fill", "#9ecae1")
             .attr("fill-opacity", function (d) {
                 return _self.opacityScale1(d[_self.target]);
@@ -430,12 +567,21 @@ Bar.prototype.refreshMicroViz = function () {
             .transition().duration(500)
             .attr("class", "texthigh")
             .attr("x", function (d, i) {
-                return i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
             })
-            .attr("y", function (d) {
-                return _self.horizonHeight - 5;
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return i * barSize - 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
             })
-            .style("width", barWidth - 2)
+            .style("width", barSize - 2)
             .attr("fill", "#222")
             .attr("font-size", "9px")
             .text(function (d) {
@@ -443,12 +589,21 @@ Bar.prototype.refreshMicroViz = function () {
             });
 
         text1.attr("x", function (d, i) {
-                return i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
             })
-            .attr("y", function (d) {
-                return _self.horizonHeight - 5;
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return i * barSize - 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
             })
-            .style("width", barWidth - 2)
+            .style("width", barSize - 2)
             .attr("fill", "#222")
             .attr("font-size", "9px")
             .text(function (d) {
@@ -465,30 +620,74 @@ Bar.prototype.refreshMicroViz = function () {
             .transition().duration(500)
             .attr("class", "low")
             .attr("x", function (d, i) {
-                return data.length * barWidth + i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 0;
+
+                if (direction == "top" || direction == "bottom")
+                    return data.length * barSize + i * barSize;
+
             })
-            .attr("y", function (d) {
-                return 0;
+            .attr("y", function (d, i) {
+
+                if (direction == "left" || direction == "right")
+                    return data.length * barSize + i * barSize;
+
+                if (direction == "top" || direction == "bottom")
+                    return 0;
+
             })
             .attr("height", function (d) {
-                return _self.horizonHeight;
+                if (direction == "left" || direction == "right")
+                    return barSize - 2;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension;
+
             })
-            .attr("width", barWidth - 2)
+            .attr("width", function (d) {
+                if (direction == "left" || direction == "right")
+                    return _self.minorDimension;
+
+                if (direction == "top" || direction == "bottom")
+                    return barSize - 2;
+            })
             .attr("fill", "#d62728")
             .attr("fill-opacity", function (d) {
                 return _self.opacityScale2(d[_self.target]);
             });
 
         bar2.attr("x", function (d, i) {
-                return data.length * barWidth + i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 0;
+
+                if (direction == "top" || direction == "bottom")
+                    return data.length * barSize + i * barSize;
+
             })
-            .attr("y", function (d) {
-                return 0;
+            .attr("y", function (d, i) {
+
+                if (direction == "left" || direction == "right")
+                    return data.length * barSize + i * barSize;
+
+                if (direction == "top" || direction == "bottom")
+                    return 0;
+
             })
             .attr("height", function (d) {
-                return _self.horizonHeight;
+                if (direction == "left" || direction == "right")
+                    return barSize - 2;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension;
+
             })
-            .attr("width", barWidth - 2)
+            .attr("width", function (d) {
+                if (direction == "left" || direction == "right")
+                    return _self.minorDimension;
+
+                if (direction == "top" || direction == "bottom")
+                    return barSize - 2;
+            })
             .attr("fill", "#d62728")
             .attr("fill-opacity", function (d) {
                 return _self.opacityScale2(d[_self.target]);
@@ -504,12 +703,21 @@ Bar.prototype.refreshMicroViz = function () {
             .transition().duration(500)
             .attr("class", "textlow")
             .attr("x", function (d, i) {
-                return data.length * barWidth + i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return data.length * barSize + i * barSize;
+
             })
-            .attr("y", function (d) {
-                return _self.horizonHeight - 5;
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return data.length * barSize + i * barSize - 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
             })
-            .style("width", barWidth - 2)
+            .style("width", barSize - 2)
             .attr("fill", "#222")
             .attr("font-size", "9px")
             .text(function (d) {
@@ -517,12 +725,21 @@ Bar.prototype.refreshMicroViz = function () {
             });
 
         text2.attr("x", function (d, i) {
-                return data.length * barWidth + i * barWidth;
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return data.length * barSize + i * barSize;
+
             })
-            .attr("y", function (d) {
-                return _self.horizonHeight - 5;
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return data.length * barSize + i * barSize - 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
             })
-            .style("width", barWidth - 2)
+            .style("width", barSize - 2)
             .attr("fill", "#222")
             .attr("font-size", "9px")
             .text(function (d) {
@@ -537,6 +754,9 @@ Bar.prototype.refreshThumbnail = function () {
     var _self = this;
 
     if (!_self.svg || _self.svg.select("rect").empty()) {
+
+        _self.height = 10000;
+
 
         d3.select("#" + _self.parentId).append("text")
             .text(_self.text)
@@ -711,8 +931,8 @@ Bar.prototype.reDrawChart = function (flag, width, height) {
 
     _self.actualheight = height - _self.margin.top - _self.margin.bottom;
 
-    $("#"+_self.parentId).empty();
-    
+    $("#" + _self.parentId).empty();
+
     if (flag) {
 
         _self.svg = null;

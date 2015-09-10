@@ -12,7 +12,7 @@ function Parallel(options) {
         bottom: 10,
         left: 10
     };
-    
+
     _self.link = options.link;
 
     _self.width = options.width - _self.margin.left - _self.margin.right;
@@ -95,15 +95,15 @@ Parallel.prototype.refreshChart = function () {
             });
 
         g.append("g")
-                .attr("class", "brush")
-                .each(function (d) {
-                    d3.select(this).call(_self.y[d].brush = d3.svg.brush().y(_self.y[d])
-                        .on("brushstart", brushstart)
-                        .on("brushend", brush));
-                })
-                .selectAll("rect")
-                .attr("x", -8)
-                .attr("width", 16);
+            .attr("class", "brush")
+            .each(function (d) {
+                d3.select(this).call(_self.y[d].brush = d3.svg.brush().y(_self.y[d])
+                    .on("brushstart", brushstart)
+                    .on("brushend", brush));
+            })
+            .selectAll("rect")
+            .attr("x", -8)
+            .attr("width", 16);
 
         function transition(g) {
             return g.transition().duration(500);
@@ -181,36 +181,93 @@ Parallel.prototype.refreshMicroViz = function () {
 
     var _self = this;
 
+    var div = _self.parentId;
+
+    div = div.replace("div", "");
+
+    var y = parseInt(div[0]);
+
+    var x = parseInt(div[1]);
+
+    var direction = "left";
+    var axisDirection = "right";
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
+
+    var majorDimension = _self.majorDimension = _self.horizonHeight;
+    var minorDimension = _self.minorDimension = _self.horizonWidth;
+
+
+    if (x - mainView[1] > 0) {
+
+        direction = "right";
+        axisDirection = "left";
+
+    }
+
+
+    if (y - mainView[0] > 0) {
+
+        direction = "bottom";
+        axisDirection = "top";
+
+        _self.majorDimension = _self.horizonWidth;
+        _self.minorDimension = _self.horizonHeight;
+
+    }
+
+
+    if (y - mainView[0] < 0) {
+
+        direction = "top";
+        axisDirection = "bottom";
+
+        _self.majorDimension = _self.horizonWidth;
+        _self.minorDimension = _self.horizonHeight;
+
+    }
+
     if (!_self.svg || _self.svg.select(".parallel").empty()) {
 
         _self.y = {};
         _self.line = d3.svg.line().interpolate(function (points) {
-            return points.join("A 1,3 0 0 0 ");
+
+            if (direction == "right")
+                return points.join("A 1,3 0 0 0 ");
+
+            if (direction == "left")
+                return points.join("A 1,3 0 0 1 ");
+
+            if (direction == "bottom")
+                return points.join("A 1,1 0 0 1 ");
+
+            if (direction == "top")
+                return points.join("A 1,1 0 0 0 ");
+
         });
 
-        _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s"));
+        _self.axis = d3.svg.axis().orient(axisDirection)
+            .tickFormat(d3.format("s"));
         _self.parallel;
-
-        _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
-        _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
 
         _self.svg = d3.select("#" + _self.parentId).append("svg")
             .attr("id", "micro-flights-distance")
             .attr("width", _self.horizonWidth)
             .attr("height", _self.horizonHeight)
             .on("click", function () {
-                var divId = _self.parentId; 
-                
+                var divId = _self.parentId;
+
                 divId = divId.replace("div", "");
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
-            
-                if (y != mainView[0] || x!= mainView[1]) {
+
+                if (y != mainView[0] || x != mainView[1]) {
                     mainView = [y, x];
-                    reDrawInterface();    
+                    reDrawInterface();
                 }
-            
-        });
+
+            });
 
 
         _self.dimensions = d3.keys(_self.targetData[0]["_id"])
@@ -219,7 +276,7 @@ Parallel.prototype.refreshMicroViz = function () {
                     .domain(d3.extent(_self.targetData, function (p) {
                         return +p["_id"][d];
                     }))
-                    .range([_self.horizonHeight / d3.keys(_self.targetData[0]["_id"]).length - 5, 0]));
+                    .range([_self.majorDimension / d3.keys(_self.targetData[0]["_id"]).length - 5, 0]));
             });
 
 
@@ -237,8 +294,17 @@ Parallel.prototype.refreshMicroViz = function () {
         // Returns the path for a given data point.
         function path(d) {
             return _self.line(_self.dimensions.map(function (p, i) {
-                return [_self.horizonWidth, i * _self.horizonHeight / _self.dimensions.length
-                    + _self.y[p](d["_id"][p])];
+                if (direction == "left" || direction == "right")
+                    return [direction == "left" ? 0 : _self.minorDimension,
+                        i * _self.majorDimension / _self.dimensions.length
+                        + _self.y[p](d["_id"][p])];
+
+                if (direction == "top" || direction == "bottom")
+                    return [i * _self.majorDimension / _self.dimensions.length
+                        + _self.y[p](d["_id"][p]), direction == "top" ? 0 :
+                            _self.minorDimension,
+                        ];
+
             }));
         }
 
@@ -247,7 +313,12 @@ Parallel.prototype.refreshMicroViz = function () {
             .enter().append("g")
             .attr("class", "dimension")
             .attr("transform", function (d, i) {
-                return "translate(" + _self.horizonWidth + "," + i * _self.horizonHeight / _self.dimensions.length + ")";
+                if (direction == "left" || direction == "right")
+                    return "translate(" + (direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+
+                if (direction == "top" || direction == "bottom")
+                    return "translate(" + +i * _self.majorDimension / _self.dimensions.length + "," + (direction == "top" ? 0 : _self.minorDimension) + ")";
+
             });
 
 
@@ -260,10 +331,20 @@ Parallel.prototype.refreshMicroViz = function () {
             .append("text")
             .style("text-anchor", "end")
             .attr("x", function (d, i) {
-                return -30;
+                if (direction == "left" || direction == "right")
+                    return direction == "left" ? 40 : -30;
+
+                if (direction == "top" || direction == "bottom")
+                    return 20;
+
             })
             .attr("y", function (d, i) {
-                return 20;
+                if (direction == "left" || direction == "right")
+                    return 20;
+
+                if (direction == "top" || direction == "bottom")
+                    return direction == "top" ? 40 : -30;
+
             })
             .text(function (d) {
                 return d;
@@ -384,29 +465,29 @@ Parallel.prototype.refreshThumbnail = function () {
 }
 
 Parallel.prototype.reDrawChart = function (flag, width, height) {
- 
-    var _self = this; 
-    
+
+    var _self = this;
+
     _self.width = width - _self.margin.left - _self.margin.right;
-    
+
     _self.height = height - _self.margin.top - _self.margin.bottom;
 
-    $("#"+_self.parentId).empty();
+    $("#" + _self.parentId).empty();
 
     if (flag) {
-        
+
         _self.svg = null;
-        
-        _self.refreshChart();   
-    
+
+        _self.refreshChart();
+
     } else {
-        
+
         _self.svg = null;
-        
-        device == 1? _self.refreshMicroViz(): _self.refreshThumbnail();
-        
+
+        device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
+
     }
-       
+
 }
 
 Parallel.prototype.postUpdate = function () {
@@ -416,7 +497,7 @@ Parallel.prototype.postUpdate = function () {
     $.ajax({
 
         type: "GET",
-        url: "/"+ _self.link,
+        url: "/" + _self.link,
         data: {
             data: queryStack
         }

@@ -14,11 +14,11 @@ function TimeChart(options) {
     };
 
     _self.target = options.target;
-    
+
     _self.text = options.text;
-    
+
     _self.link = options.link;
-    
+
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
@@ -89,11 +89,12 @@ TimeChart.prototype.refreshChart = function () {
             .tickPadding(10)
             .ticks(_self.height / 20);
 
-        var line = _self.line = d3.svg.line()
+        var area = _self.area = d3.svg.area()
             .x(function (d) {
                 return x(parseDate(d["_id"][date]));
             })
-            .y(function (d) {
+            .y0(_self.height)
+            .y1(function (d) {
                 return y(d[_self.target]);
             });
 
@@ -130,8 +131,9 @@ TimeChart.prototype.refreshChart = function () {
             .datum(_self.targetData)
             .attr("id", "time")
             .attr("class", "flightsTime")
-            .attr("d", line)
-            .attr("fill", "transparent")
+            .attr("d", area)
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", 0.5)
             .attr("stroke", "#9ecae1")
             .attr("stroke-width", "1.5px");
 
@@ -167,7 +169,6 @@ TimeChart.prototype.refreshChart = function () {
             });
 
             setGlobalQuery(query, 1);
-
         }
 
     } else {
@@ -191,8 +192,9 @@ TimeChart.prototype.refreshChart = function () {
 
         _self.svg.select("#time")
             .datum(_self.targetData)
-            .attr("d", _self.line)
-            .attr("fill", "transparent")
+            .attr("d", _self.area)
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", 0.5)
             .attr("stroke", "#9ecae1")
             .attr("stroke-width", "1.5px");
 
@@ -204,10 +206,51 @@ TimeChart.prototype.refreshMicroViz = function () {
 
     var _self = this;
 
-    if (!_self.svg || _self.svg.select("path").empty()) {
+    var div = _self.parentId;
 
-        _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
-        _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
+    div = div.replace("div", "");
+
+    var y = parseInt(div[0]);
+
+    var x = parseInt(div[1]);
+
+    var direction = "left";
+    var axisDirection = "right";
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
+
+    var majorDimension = _self.majorDimension = _self.horizonHeight;
+    var minorDimension = _self.minorDimension = _self.horizonWidth;
+
+    if (x - mainView[1] > 0) {
+
+        direction = "right";
+        axisDirection = "left";
+
+    }
+
+    if (y - mainView[0] > 0) {
+
+        direction = "bottom";
+        axisDirection = "top";
+
+        _self.majorDimension = _self.horizonWidth;
+        _self.minorDimension = _self.horizonHeight;
+
+    }
+
+    if (y - mainView[0] < 0) {
+
+        direction = "top";
+        axisDirection = "bottom";
+
+        _self.majorDimension = _self.horizonWidth;
+        _self.minorDimension = _self.horizonHeight;
+
+    }
+
+    if (!_self.svg || _self.svg.select("path").empty()) {
 
         _self.targetData.sort(function (a, b) {
             if (parseDate(b["_id"][date]).getTime() <
@@ -216,29 +259,48 @@ TimeChart.prototype.refreshMicroViz = function () {
         });
 
         var chart = _self.chart = d3.horizon()
-            .width(_self.horizonWidth)
-            .height(_self.horizonHeight)
+            .width(_self.majorDimension)
+            .height(_self.minorDimension)
             .bands(6)
             .mode("mirror")
             .interpolate("basis");
 
         _self.svg = d3.select("#" + _self.parentId).append("svg")
-            .attr("id", "horizon-"+_self.target)
-            .attr("width", _self.horizonWidth)
-            .attr("height", _self.horizonHeight)
+            .attr("id", "horizon-" + _self.target)
+            .attr("width", _self.majorDimension)
+            .attr("height", _self.minorDimension)
             .on("click", function () {
-                var divId = _self.parentId; 
-                
+                var divId = _self.parentId;
+
                 divId = divId.replace("div", "");
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
-            
-                if (y != mainView[0] || x!= mainView[1]) {
+
+                if (y != mainView[0] || x != mainView[1]) {
                     mainView = [y, x];
-                    reDrawInterface();    
+                    reDrawInterface();
                 }
+
+            })
+            .style("transform-origin", function () {
+                if (direction == "left")
+                    return "left bottom";
+                
+                if (direction == "right")
+                    return "left bottom";
+                
             
-        });
+            })
+            .style("-webkit-transform", function () {
+                if (direction == "left")
+                    return "translate(0px," + (-_self.minorDimension) + "px)" + " " + "rotate(90deg)";
+
+                if (direction == "right")
+                    return "translate(0px," + (-_self.minorDimension) + "px)" + " " + "rotate(90deg)";
+
+                return "translate(0px,0px)";
+            });
+
 
         // Offset so that positive is above-average and negative is below-average.
         var mean = _self.targetData.reduce(function (sum, v) {
@@ -260,8 +322,8 @@ TimeChart.prototype.refreshMicroViz = function () {
         _self.svg.data([data]).call(chart);
 
         _self.svg.append("text")
-            .attr("transform", "translate(" + 0 + "," + 10 + ")")
-            .text("Flights over time")
+            .attr("transform", "translate(" + 10 + "," + 10 + ")")
+            .text(_self.text)
             .style("font-size", "11px");
 
     } else {
@@ -340,11 +402,12 @@ TimeChart.prototype.refreshThumbnail = function () {
             .tickPadding(10)
             .ticks(_self.height / 20);
 
-        var line = _self.line = d3.svg.line()
+        var area = _self.area = d3.svg.area()
             .x(function (d) {
                 return x(parseDate(d["_id"][date]));
             })
-            .y(function (d) {
+            .y0(_self.height)
+            .y1(function (d) {
                 return y(d[_self.target]);
             });
 
@@ -381,8 +444,9 @@ TimeChart.prototype.refreshThumbnail = function () {
             .datum(_self.targetData)
             .attr("id", "time")
             .attr("class", "flightsTime")
-            .attr("d", line)
-            .attr("fill", "transparent")
+            .attr("d", area)
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", 0.5)
             .attr("stroke", "#9ecae1")
             .attr("stroke-width", "1.5px");
 
@@ -409,8 +473,9 @@ TimeChart.prototype.refreshThumbnail = function () {
         _self.svg.select("#time")
             .datum(_self.targetData)
             .transition().duration(500)
-            .attr("d", _self.line)
-            .attr("fill", "transparent")
+            .attr("d", _self.area)
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", 0.5)
             .attr("stroke", "#9ecae1")
             .attr("stroke-width", "1.5px");
 
@@ -419,28 +484,28 @@ TimeChart.prototype.refreshThumbnail = function () {
 }
 
 TimeChart.prototype.reDrawChart = function (flag, width, height) {
- 
-    var _self = this; 
-    
+
+    var _self = this;
+
     _self.width = width - _self.margin.left - _self.margin.right;
-    
+
     _self.height = height - _self.margin.top - _self.margin.bottom;
 
-    $("#"+_self.parentId).empty();
-        
+    $("#" + _self.parentId).empty();
+
     _self.svg = null;
-    
+
     if (flag) {
-        
-        _self.refreshChart();   
-    
+
+        _self.refreshChart();
+
     } else {
-                
-        device == 1? _self.refreshMicroViz(): _self.refreshThumbnail();
-        
+
+        device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
+
     }
-    
-    
+
+
 }
 
 TimeChart.prototype.postUpdate = function () {
@@ -450,7 +515,7 @@ TimeChart.prototype.postUpdate = function () {
     $.ajax({
 
         type: "GET",
-        url: "/"+_self.link,
+        url: "/" + _self.link,
         data: {
             data: queryStack
         }
