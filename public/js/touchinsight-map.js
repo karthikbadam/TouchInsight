@@ -57,7 +57,7 @@ Map.prototype.refreshChart = function () {
             .append("svg")
             .attr("id", "choropleth")
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
-            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom);
 
         // Create the area where the lasso event can be triggered
         var lasso_area = _self.svg.append("rect")

@@ -13,6 +13,12 @@ function TimeChart(options) {
         left: 30
     };
 
+    _self.target = options.target;
+    
+    _self.text = options.text;
+    
+    _self.link = options.link;
+    
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
@@ -88,15 +94,15 @@ TimeChart.prototype.refreshChart = function () {
                 return x(parseDate(d["_id"][date]));
             })
             .y(function (d) {
-                return y(d[numFlights]);
+                return y(d[_self.target]);
             });
 
-        x.domain(d3.extent(_self.flightNum, function (d) {
+        x.domain(d3.extent(_self.targetData, function (d) {
             return parseDate(d["_id"][date]);
         }));
 
-        y.domain(d3.extent(_self.flightNum, function (d) {
-            return d[numFlights];
+        y.domain(d3.extent(_self.targetData, function (d) {
+            return d[_self.target];
         }));
 
         _self.svg.append("g")
@@ -112,16 +118,16 @@ TimeChart.prototype.refreshChart = function () {
             .attr("y", 6)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .text("Flights");
+            .text(_self.text);
 
-        _self.flightNum.sort(function (a, b) {
+        _self.targetData.sort(function (a, b) {
             if (parseDate(b["_id"][date]).getTime() <
                 parseDate(a["_id"][date]).getTime()) return 1;
             return -1;
         });
 
         _self.svg.append("path")
-            .datum(_self.flightNum)
+            .datum(_self.targetData)
             .attr("id", "time")
             .attr("class", "flightsTime")
             .attr("d", line)
@@ -166,7 +172,7 @@ TimeChart.prototype.refreshChart = function () {
 
     } else {
 
-        _self.flightNum.sort(function (a, b) {
+        _self.targetData.sort(function (a, b) {
             if (parseDate(a["_id"]["Date"]).getTime() <
                 parseDate(b["_id"]["Date"]).getTime()) {
                 return 1;
@@ -174,8 +180,8 @@ TimeChart.prototype.refreshChart = function () {
             return -1;
         });
 
-        _self.y.domain(d3.extent(_self.flightNum, function (d) {
-            return d[numFlights];
+        _self.y.domain(d3.extent(_self.targetData, function (d) {
+            return d[_self.target];
         }));
 
         _self.yAxis.scale(_self.y);
@@ -184,7 +190,7 @@ TimeChart.prototype.refreshChart = function () {
             .call(_self.yAxis);
 
         _self.svg.select("#time")
-            .datum(_self.flightNum)
+            .datum(_self.targetData)
             .attr("d", _self.line)
             .attr("fill", "transparent")
             .attr("stroke", "#9ecae1")
@@ -207,7 +213,7 @@ TimeChart.prototype.refreshMicroViz = function () {
         _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
         _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
 
-        _self.flightNum.sort(function (a, b) {
+        _self.targetData.sort(function (a, b) {
             if (parseDate(b["_id"][date]).getTime() <
                 parseDate(a["_id"][date]).getTime()) return 1;
             return -1;
@@ -221,25 +227,25 @@ TimeChart.prototype.refreshMicroViz = function () {
             .interpolate("basis");
 
         _self.svg = d3.select("#" + _self.parentId).append("svg")
-            .attr("id", "horizon-flights")
+            .attr("id", "horizon-"+_self.target)
             .attr("width", _self.horizonWidth)
             .attr("height", _self.horizonHeight);
 
         // Offset so that positive is above-average and negative is below-average.
-        var mean = _self.flightNum.reduce(function (sum, v) {
+        var mean = _self.targetData.reduce(function (sum, v) {
 
-            if (sum[numFlights])
-                return sum[numFlights] + v[numFlights];
+            if (sum[_self.target])
+                return sum[_self.target] + v[_self.target];
             else
-                return sum + v[numFlights];
+                return sum + v[_self.target];
 
-        }) / _self.flightNum.length;
+        }) / _self.targetData.length;
 
         console.log(mean);
 
         // Transpose column values to rows.
-        var data = _self.flightNum.map(function (d, i) {
-            return [parseDate(d["_id"][date]), d[numFlights] - mean];
+        var data = _self.targetData.map(function (d, i) {
+            return [parseDate(d["_id"][date]), d[_self.target] - mean];
         });
 
         _self.svg.data([data]).call(chart);
@@ -251,7 +257,7 @@ TimeChart.prototype.refreshMicroViz = function () {
 
     } else {
 
-        _self.flightNum.sort(function (a, b) {
+        _self.targetData.sort(function (a, b) {
             if (parseDate(b["_id"][date]).getTime() <
                 parseDate(a["_id"][date]).getTime()) return 1;
             return -1;
@@ -260,20 +266,20 @@ TimeChart.prototype.refreshMicroViz = function () {
         var chart = _self.chart;
 
         // Offset so that positive is above-average and negative is below-average.
-        var mean = _self.flightNum.reduce(function (sum, v) {
+        var mean = _self.targetData.reduce(function (sum, v) {
 
-            if (sum[numFlights])
-                return sum[numFlights] + v[numFlights];
+            if (sum[_self.target])
+                return sum[_self.target] + v[_self.target];
             else
-                return sum + v[numFlights];
+                return sum + v[_self.target];
 
-        }) / _self.flightNum.length;
+        }) / _self.targetData.length;
 
         console.log(mean);
 
         // Transpose column values to rows.
-        var data = _self.flightNum.map(function (d, i) {
-            return [parseDate(d["_id"][date]), d[numFlights] - mean];
+        var data = _self.targetData.map(function (d, i) {
+            return [parseDate(d["_id"][date]), d[_self.target] - mean];
         });
 
         _self.svg.data([data]).call(chart);
@@ -330,15 +336,15 @@ TimeChart.prototype.refreshThumbnail = function () {
                 return x(parseDate(d["_id"][date]));
             })
             .y(function (d) {
-                return y(d[numFlights]);
+                return y(d[_self.target]);
             });
 
-        x.domain(d3.extent(_self.flightNum, function (d) {
+        x.domain(d3.extent(_self.targetData, function (d) {
             return parseDate(d["_id"][date]);
         }));
 
-        y.domain(d3.extent(_self.flightNum, function (d) {
-            return d[numFlights];
+        y.domain(d3.extent(_self.targetData, function (d) {
+            return d[_self.target];
         }));
 
         _self.svg.append("g")
@@ -356,14 +362,14 @@ TimeChart.prototype.refreshThumbnail = function () {
             .style("text-anchor", "end")
             .text("Flights");
 
-        _self.flightNum.sort(function (a, b) {
+        _self.targetData.sort(function (a, b) {
             if (parseDate(b["_id"][date]).getTime() <
                 parseDate(a["_id"][date]).getTime()) return 1;
             return -1;
         });
 
         _self.svg.append("path")
-            .datum(_self.flightNum)
+            .datum(_self.targetData)
             .attr("id", "time")
             .attr("class", "flightsTime")
             .attr("d", line)
@@ -374,7 +380,7 @@ TimeChart.prototype.refreshThumbnail = function () {
 
     } else {
 
-        _self.flightNum.sort(function (a, b) {
+        _self.targetData.sort(function (a, b) {
             if (parseDate(a["_id"]["Date"]).getTime() <
                 parseDate(b["_id"]["Date"]).getTime()) {
                 return 1;
@@ -382,8 +388,8 @@ TimeChart.prototype.refreshThumbnail = function () {
             return -1;
         });
 
-        _self.y.domain(d3.extent(_self.flightNum, function (d) {
-            return d[numFlights];
+        _self.y.domain(d3.extent(_self.targetData, function (d) {
+            return d[_self.target];
         }));
 
         _self.yAxis.scale(_self.y);
@@ -392,7 +398,7 @@ TimeChart.prototype.refreshThumbnail = function () {
             .call(_self.yAxis);
 
         _self.svg.select("#time")
-            .datum(_self.flightNum)
+            .datum(_self.targetData)
             .transition().duration(500)
             .attr("d", _self.line)
             .attr("fill", "transparent")
@@ -410,14 +416,14 @@ TimeChart.prototype.postUpdate = function () {
     $.ajax({
 
         type: "GET",
-        url: "/getFlightsByTime",
+        url: "/"+_self.link,
         data: {
             data: queryStack
         }
 
     }).done(function (data) {
 
-        _self.flightNum = JSON.parse(data);
+        _self.targetData = JSON.parse(data);
 
         if (device == 0) {
             _self.refreshChart();

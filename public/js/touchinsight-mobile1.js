@@ -155,27 +155,35 @@ function onDataLoaded() {
         cols: [source, destination],
         width: $("#div21").width(),
         height: $("#div21").height(),
+        target: numFlights,
+        link: "getFlightsByTime",
+        text: "Flights"
     });
 
-    passengerchart = new PassengerChart({
+    passengerchart = new TimeChart({
         parentId: "div01",
         cols: [source, destination],
         width: $("#div01").width(),
         height: $("#div01").height(),
+        target: passengers,
+        link: "getPassengersByTime",
+        text: "Passengers"
     });
 
-    flightdistance = new FlightDistance({
+    flightdistance = new Parallel({
         parentId: "div10",
         cols: [source, destination],
         width: $("#div10").width(),
         height: $("#div10").height(),
+        link: "getFlightDistances"
     });
 
-    passengerseats = new PassengerSeats({
+    passengerseats = new Parallel({
         parentId: "div12",
         cols: [source, destination],
         width: $("#div12").width(),
         height: $("#div12").height(),
+        link: "getPassengerSeats"
     });
 
     distancebar = new Bar({
