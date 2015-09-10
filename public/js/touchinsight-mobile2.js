@@ -41,6 +41,8 @@ var queryStack = [];
 
 var historyQueryStack = [];
 
+var svgs = [];
+
 // represents which visualization is the main one and others are micro visualizations
 var mainView = [1, 1];
 
@@ -82,7 +84,7 @@ $(document).ready(function () {
 
 
     d3.select("body").style("background-color", "white");
-    
+
     // creating the four buttons
     for (var i = 0; i < buttons.length; i++) {
         d3.select("#button-panel").append("div")
@@ -155,6 +157,8 @@ function onDataLoaded() {
         height: $("#div11").height(),
     });
 
+    svgs[1][1] = geomap;
+
     timechart = new TimeChart({
         parentId: "div21",
         cols: [source, destination],
@@ -164,6 +168,8 @@ function onDataLoaded() {
         link: "getFlightsByTime",
         text: "Flights"
     });
+
+    svgs[2][1] = timechart;
 
     passengerchart = new TimeChart({
         parentId: "div01",
@@ -175,6 +181,8 @@ function onDataLoaded() {
         text: "Passengers"
     });
 
+    svgs[0][1] = passengerchart;
+
     flightdistance = new Parallel({
         parentId: "div10",
         cols: [source, destination],
@@ -183,6 +191,8 @@ function onDataLoaded() {
         link: "getFlightDistances"
     });
 
+    svgs[1][0] = flightdistance;
+
     passengerseats = new Parallel({
         parentId: "div12",
         cols: [source, destination],
@@ -190,6 +200,8 @@ function onDataLoaded() {
         height: $("#div12").height(),
         link: "getPassengerSeats"
     });
+
+    svgs[1][2] = passengerseats;
 
     distancebar = new Bar({
         parentId: "div00",
@@ -201,6 +213,8 @@ function onDataLoaded() {
         text: "Average Distance"
     });
 
+    svgs[0][0] = distancebar;
+
     populationbar = new Bar({
         parentId: "div22",
         cols: [source, destination],
@@ -210,6 +224,8 @@ function onDataLoaded() {
         link: "getPopulationBySource",
         text: "Population"
     });
+
+    svgs[2][2] = populationbar;
 
     flightsbar = new Bar({
         parentId: "div20",
@@ -221,6 +237,8 @@ function onDataLoaded() {
         text: "Flights"
     });
 
+    svgs[2][0] = flightsbar;
+
     passengersbar = new Bar({
         parentId: "div02",
         cols: [source, destination],
@@ -230,6 +248,8 @@ function onDataLoaded() {
         link: "getPassengersBySource",
         text: "Passengers"
     });
+
+    svgs[0][2] = passengersbar;
 }
 
 function createLayout() {
@@ -237,10 +257,14 @@ function createLayout() {
     //GRID[1] = GRID[0];
 
     var l = getDimensions(mainView[0], mainView[1]);
+    
+    svgs = new Array(GRID[1]);
 
-    for (var i = 0; i < GRID[0]; i++) {
+    for (var i = 0; i < GRID[1]; i++) {
 
-        for (var j = 0; j < GRID[1]; j++) {
+        svgs[i] = new Array(GRID[0]);
+
+        for (var j = 0; j < GRID[0]; j++) {
 
             if (l[i][j] != 0) {
 

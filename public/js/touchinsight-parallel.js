@@ -197,7 +197,20 @@ Parallel.prototype.refreshMicroViz = function () {
         _self.svg = d3.select("#" + _self.parentId).append("svg")
             .attr("id", "micro-flights-distance")
             .attr("width", _self.horizonWidth)
-            .attr("height", _self.horizonHeight);
+            .attr("height", _self.horizonHeight)
+            .on("click", function () {
+                var divId = _self.parentId; 
+                
+                divId = divId.replace("div", "");
+                var y = parseInt(divId[0]);
+                var x = parseInt(divId[1]);
+            
+                if (y != mainView[0] || x!= mainView[1]) {
+                    mainView = [y, x];
+                    reDrawInterface();    
+                }
+            
+        });
 
 
         _self.dimensions = d3.keys(_self.targetData[0]["_id"])
@@ -368,6 +381,32 @@ Parallel.prototype.refreshThumbnail = function () {
 
         parallelLines.attr("d", path);
     }
+}
+
+Parallel.prototype.reDrawChart = function (flag, width, height) {
+ 
+    var _self = this; 
+    
+    _self.width = width - _self.margin.left - _self.margin.right;
+    
+    _self.height = height - _self.margin.top - _self.margin.bottom;
+
+    $("#"+_self.parentId).empty();
+
+    if (flag) {
+        
+        _self.svg = null;
+        
+        _self.refreshChart();   
+    
+    } else {
+        
+        _self.svg = null;
+        
+        device == 1? _self.refreshMicroViz(): _self.refreshThumbnail();
+        
+    }
+       
 }
 
 Parallel.prototype.postUpdate = function () {

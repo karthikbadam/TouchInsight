@@ -128,7 +128,7 @@ Map.prototype.refreshChart = function () {
                     index: destination,
                     value: selectedDestinations,
                     operator: "in",
-                    logic: selectedSources.length > 0? "AND": currentLogic
+                    logic: selectedSources.length > 0 ? "AND" : currentLogic
                 });
 
                 setGlobalQuery(query2, 1);
@@ -502,7 +502,20 @@ Map.prototype.refreshThumbnail = function () {
             .attr("id", "choropleth")
             .attr("class", "thumbnail")
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
-            .attr("height", _self.height + _self.margin.top + _self.margin.bottom);
+            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+            .on("click", function () {
+                var divId = _self.parentId;
+
+                divId = divId.replace("div", "");
+                var y = parseInt(divId[0]);
+                var x = parseInt(divId[1]);
+
+                if (y != mainView[0] || x != mainView[1]) {
+                    mainView = [y, x];
+                    reDrawInterface();
+                }
+
+            });
 
         // draw map
         d3.json("data/us.json", function (error, us) {
@@ -811,6 +824,32 @@ Map.prototype.refreshThumbnail = function () {
 
 }
 
+Map.prototype.reDrawChart = function (flag, width, height) {
+
+    var _self = this;
+
+    _self.width = width - _self.margin.left - _self.margin.right;
+
+    _self.height = height - _self.margin.top - _self.margin.bottom;
+
+    $("#"+_self.parentId).empty();
+    
+    if (flag) {
+
+        _self.svg = null;
+
+        _self.refreshChart();
+
+    } else {
+
+        _self.svg = null;
+
+        device == 1 ? _self.refreshThumbnail() : _self.refreshThumbnail();
+
+    }
+
+
+}
 
 Map.prototype.postUpdate = function () {
 

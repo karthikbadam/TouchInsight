@@ -10,7 +10,7 @@ function TimeChart(options) {
         top: 2,
         right: 10,
         bottom: 20,
-        left: 30
+        left: 35
     };
 
     _self.target = options.target;
@@ -204,10 +204,6 @@ TimeChart.prototype.refreshMicroViz = function () {
 
     var _self = this;
 
-    if (!d3.select("#timechart").empty()) {
-        _self.svg.remove();
-    }
-
     if (!_self.svg || _self.svg.select("path").empty()) {
 
         _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
@@ -229,7 +225,20 @@ TimeChart.prototype.refreshMicroViz = function () {
         _self.svg = d3.select("#" + _self.parentId).append("svg")
             .attr("id", "horizon-"+_self.target)
             .attr("width", _self.horizonWidth)
-            .attr("height", _self.horizonHeight);
+            .attr("height", _self.horizonHeight)
+            .on("click", function () {
+                var divId = _self.parentId; 
+                
+                divId = divId.replace("div", "");
+                var y = parseInt(divId[0]);
+                var x = parseInt(divId[1]);
+            
+                if (y != mainView[0] || x!= mainView[1]) {
+                    mainView = [y, x];
+                    reDrawInterface();    
+                }
+            
+        });
 
         // Offset so that positive is above-average and negative is below-average.
         var mean = _self.targetData.reduce(function (sum, v) {
@@ -407,6 +416,31 @@ TimeChart.prototype.refreshThumbnail = function () {
 
     }
 
+}
+
+TimeChart.prototype.reDrawChart = function (flag, width, height) {
+ 
+    var _self = this; 
+    
+    _self.width = width - _self.margin.left - _self.margin.right;
+    
+    _self.height = height - _self.margin.top - _self.margin.bottom;
+
+    $("#"+_self.parentId).empty();
+        
+    _self.svg = null;
+    
+    if (flag) {
+        
+        _self.refreshChart();   
+    
+    } else {
+                
+        device == 1? _self.refreshMicroViz(): _self.refreshThumbnail();
+        
+    }
+    
+    
 }
 
 TimeChart.prototype.postUpdate = function () {

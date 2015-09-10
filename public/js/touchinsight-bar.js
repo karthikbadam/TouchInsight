@@ -24,10 +24,6 @@ function Bar(options) {
 
     _self.actualheight = options.height - _self.margin.top - _self.margin.bottom;
 
-    //_self.height = options.height - _self.margin.top - _self.margin.bottom;
-
-    _self.height = 10000;
-
     var query = new Query({
         index: "Date",
         value: ["199101", "200912"],
@@ -46,6 +42,8 @@ Bar.prototype.refreshChart = function () {
 
     if (!_self.svg || _self.svg.select("rect").empty()) {
 
+        _self.height = 10000;
+        
         d3.select("#" + _self.parentId).append("text")
             .text(_self.text)
             .style("font-size", "12px");
@@ -220,10 +218,6 @@ Bar.prototype.refreshMicroViz = function () {
 
     var _self = this;
 
-    if (!d3.select("#flightsbar").empty()) {
-        _self.svg.remove();
-    }
-
     if (!_self.svg || _self.svg.select("rect").empty()) {
 
         _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
@@ -244,7 +238,20 @@ Bar.prototype.refreshMicroViz = function () {
         _self.svg = d3.select("#" + _self.parentId).append("svg")
             .attr("id", "micro-flights-bar")
             .attr("width", _self.horizonWidth)
-            .attr("height", _self.horizonHeight);
+            .attr("height", _self.horizonHeight)
+            .on("click", function () {
+                var divId = _self.parentId;
+
+                divId = divId.replace("div", "");
+                var y = parseInt(divId[0]);
+                var x = parseInt(divId[1]);
+
+                if (y != mainView[0] || x != mainView[1]) {
+                    mainView = [y, x];
+                    reDrawInterface();
+                }
+
+            });
 
         _self.y = d3.scale.linear()
             .range([_self.horizonHeight, 0]);
@@ -696,6 +703,32 @@ Bar.prototype.refreshThumbnail = function () {
 
 }
 
+Bar.prototype.reDrawChart = function (flag, width, height) {
+
+    var _self = this;
+
+    _self.width = width - _self.margin.left - _self.margin.right;
+
+    _self.actualheight = height - _self.margin.top - _self.margin.bottom;
+
+    $("#"+_self.parentId).empty();
+    
+    if (flag) {
+
+        _self.svg = null;
+
+        _self.refreshChart();
+
+    } else {
+
+        _self.svg = null;
+
+        device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
+
+    }
+
+
+}
 
 Bar.prototype.postUpdate = function () {
 

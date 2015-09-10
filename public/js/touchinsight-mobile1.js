@@ -42,6 +42,9 @@ var historyQueryStack = [];
 // represents which visualization is the main one and others are micro visualizations
 var mainView = [1, 1];
 
+var svgs = [];
+
+
 function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
@@ -139,6 +142,51 @@ $(document).ready(function () {
 
 });
 
+function reDrawInterface() {
+
+    var l = getDimensions(mainView[0], mainView[1]);
+
+    for (var i = 0; i < GRID[1]; i++) {
+
+        for (var j = 0; j < GRID[0]; j++) {
+
+            if (l[i][j] != 0) {
+
+                d3.select("#div" + i + j)
+                    .style("width", l[i][j]["width"] - PADDING / 2)
+                    .style("height", l[i][j]["height"] - PADDING / 2)
+                    .style("background-color",
+                        "white")
+                    .style("border", "1px solid #222")
+                    .style("opacity", 1)
+                    .style("margin", PADDING / 2 - 4)
+                    .style("overflow", "hidden")
+                    .style("display", "inline-block");
+
+                if (i == mainView[0] && j == mainView[1]) {
+
+                    svgs[i][j].reDrawChart(1, $("#div" + i + j).width(), 
+                                           $("#div" + i + j).height());
+
+                } else {
+
+                    svgs[i][j].reDrawChart(0, $("#div" + i + j).width(), 
+                                           $("#div" + i + j).height());
+
+                }
+
+            } else {
+
+                d3.select("#div" + i + j)
+                    .style("display", "none");
+
+            }
+        }
+    }
+
+
+}
+
 
 function onDataLoaded() {
 
@@ -150,6 +198,8 @@ function onDataLoaded() {
         height: $("#div11").height(),
     });
 
+    svgs[1][1] = geomap;
+
     timechart = new TimeChart({
         parentId: "div21",
         cols: [source, destination],
@@ -159,6 +209,8 @@ function onDataLoaded() {
         link: "getFlightsByTime",
         text: "Flights"
     });
+
+    svgs[2][1] = timechart;
 
     passengerchart = new TimeChart({
         parentId: "div01",
@@ -170,6 +222,8 @@ function onDataLoaded() {
         text: "Passengers"
     });
 
+    svgs[0][1] = passengerchart;
+
     flightdistance = new Parallel({
         parentId: "div10",
         cols: [source, destination],
@@ -178,6 +232,8 @@ function onDataLoaded() {
         link: "getFlightDistances"
     });
 
+    svgs[1][0] = flightdistance;
+
     passengerseats = new Parallel({
         parentId: "div12",
         cols: [source, destination],
@@ -185,6 +241,8 @@ function onDataLoaded() {
         height: $("#div12").height(),
         link: "getPassengerSeats"
     });
+
+    svgs[1][2] = passengerseats;
 
     distancebar = new Bar({
         parentId: "div00",
@@ -196,6 +254,8 @@ function onDataLoaded() {
         text: "Average Distance"
     });
 
+    svgs[0][0] = distancebar;
+
     populationbar = new Bar({
         parentId: "div22",
         cols: [source, destination],
@@ -205,6 +265,8 @@ function onDataLoaded() {
         link: "getPopulationBySource",
         text: "Population"
     });
+
+    svgs[2][2] = populationbar;
 
     flightsbar = new Bar({
         parentId: "div20",
@@ -216,6 +278,8 @@ function onDataLoaded() {
         text: "Flights"
     });
 
+    svgs[2][0] = flightsbar;
+
     passengersbar = new Bar({
         parentId: "div02",
         cols: [source, destination],
@@ -225,6 +289,9 @@ function onDataLoaded() {
         link: "getPassengersBySource",
         text: "Passengers"
     });
+
+    svgs[0][2] = passengersbar;
+
 }
 
 
@@ -234,9 +301,13 @@ function createLayout() {
 
     var l = getDimensions(1, 1);
 
-    for (var i = 0; i < GRID[0]; i++) {
+    svgs = new Array(GRID[1]);
 
-        for (var j = 0; j < GRID[1]; j++) {
+    for (var i = 0; i < GRID[1]; i++) {
+
+        svgs[i] = new Array(GRID[0]);
+
+        for (var j = 0; j < GRID[0]; j++) {
 
             if (l[i][j] != 0) {
 
@@ -253,6 +324,7 @@ function createLayout() {
                     .style("overflow", "hidden");
 
             }
+
         }
     }
 
@@ -284,7 +356,7 @@ function getDimensions(mainVIndex, mainHIndex) {
 
     right = GRID[0] - 1 - mainHIndex;
     rightExists = right > 0 ? 1 : 0;
-    
+
     var PROPORTIONS = 15;
 
     //assigning the dimensions to the main view
