@@ -155,6 +155,7 @@ function reDrawInterface() {
                 d3.select("#div" + i + j)
                     .style("width", l[i][j]["width"] - PADDING / 2)
                     .style("height", l[i][j]["height"] - PADDING / 2)
+                    .transition().duration(500)
                     .style("background-color",
                         "white")
                     .style("border", "1px solid #222")

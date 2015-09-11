@@ -17,7 +17,7 @@ function Map(options) {
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
 
-    _self.edges = 0;
+    _self.targetData = 0;
 
     var query = new Query({
         index: "Date",
@@ -179,9 +179,9 @@ Map.prototype.refreshChart = function () {
             var sourceCities = [];
             var destinationCities = [];
 
-            for (var i = 0; i < _self.edges.length; i++) {
+            for (var i = 0; i < _self.targetData.length; i++) {
 
-                var d = _self.edges[i];
+                var d = _self.targetData[i];
                 var sourceCity = d["_id"][source];
                 var destinationCity = d["_id"][destination];
 
@@ -239,7 +239,7 @@ Map.prototype.refreshChart = function () {
                 .style("pointer-events", "none")
                 .attr("class", "links")
                 .selectAll("line")
-                .data(_self.edges)
+                .data(_self.targetData)
                 .enter().append("line")
                 .attr("class", "link")
                 .style("pointer-events", "none")
@@ -302,9 +302,9 @@ Map.prototype.refreshChart = function () {
         var cities = [];
         var sourceCities = [];
         var destinationCities = [];
-        for (var i = 0; i < _self.edges.length; i++) {
+        for (var i = 0; i < _self.targetData.length; i++) {
 
-            var d = _self.edges[i];
+            var d = _self.targetData[i];
             var sourceCity = d["_id"][source];
             var destinationCity = d["_id"][destination];
 
@@ -383,7 +383,7 @@ Map.prototype.refreshChart = function () {
 
         _self.lasso.items(d3.selectAll("circle"));
 
-        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.edges);
+        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData);
 
         cityLinks.exit().remove();
 
@@ -476,6 +476,244 @@ Map.prototype.refreshChart = function () {
 
 }
 
+Map.prototype.refreshMicroViz = function () {
+
+    var _self = this;
+
+    var _self = this;
+
+    var div = _self.parentId;
+
+    div = div.replace("div", "");
+
+    var y = parseInt(div[0]);
+
+    var x = parseInt(div[1]);
+
+    var direction = "left";
+    var axisDirection = "right";
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
+
+    var majorDimension = _self.majorDimension = _self.horizonHeight;
+    var minorDimension = _self.minorDimension = _self.horizonWidth;
+
+    if (x - mainView[1] > 0) {
+        direction = "right";
+        axisDirection = "left";
+    }
+
+    if (y - mainView[0] > 0) {
+        direction = "bottom";
+        axisDirection = "top";
+        _self.majorDimension = _self.horizonWidth;
+        _self.minorDimension = _self.horizonHeight;
+    }
+
+
+    if (y - mainView[0] < 0) {
+        direction = "top";
+        axisDirection = "bottom";
+        _self.majorDimension = _self.horizonWidth;
+        _self.minorDimension = _self.horizonHeight;
+    }
+
+    if (!_self.svg || _self.svg.select(".parallel").empty()) {
+
+        _self.y = {};
+        _self.line = d3.svg.line().interpolate(function (points) {
+
+            if (direction == "right")
+                return points.join("A 1,3 0 0 0 ");
+
+            if (direction == "left")
+                return points.join("A 1,3 0 0 1 ");
+
+            if (direction == "bottom")
+                return points.join("A 1,1 0 0 1 ");
+
+            if (direction == "top")
+                return points.join("A 1,1 0 0 0 ");
+
+        });
+
+        _self.axis = d3.svg.axis().orient(axisDirection);
+        _self.parallel;
+
+        _self.svg = d3.select("#" + _self.parentId).append("svg")
+            .attr("id", "horizon-choropleth")
+            .attr("width", _self.horizonWidth)
+            .attr("height", _self.horizonHeight)
+            .on("click", function () {
+                var divId = _self.parentId;
+
+                divId = divId.replace("div", "");
+                var y = parseInt(divId[0]);
+                var x = parseInt(divId[1]);
+
+                if (y != mainView[0] || x != mainView[1]) {
+                    mainView = [y, x];
+                    reDrawInterface();
+                }
+
+            });
+
+
+        _self.dimensions = [source, destination];
+
+        var top = _self.top = 35;
+
+        _self.targetData = _self.targetData.slice(0, _self.top - 1);
+
+        var cities = {};
+
+        cities[_self.dimensions[0]] = d3.map(_self.targetData,
+            function (d) {
+                return d["_id"][_self.dimensions[0]];
+            }).keys();
+
+        cities[_self.dimensions[1]] = d3.map(_self.targetData,
+            function (d) {
+                return d["_id"][_self.dimensions[1]];
+            }).keys();
+
+        _self.dimensions.forEach(function (d) {
+            _self.y[d] = d3.scale.ordinal()
+                .domain(cities[d])
+                .rangePoints([_self.majorDimension / _self.dimensions.length - 5, 0])
+        });
+
+        // Add blue parallel lines for focus.
+        _self.parallel = _self.svg.append("g")
+            .attr("class", "parallel")
+            .selectAll("path")
+            .data(_self.targetData)
+            .enter().append("path")
+            .attr("d", path)
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-opacity", 0.1)
+            .attr("stroke-width", "0.5px")
+            .attr("stroke-width", function (d, i) {
+                return (Math.log(d["Flights"] + 0.5)) + "px";
+            });
+
+        // Returns the path for a given data point.
+        function path(d) {
+            return _self.line(_self.dimensions.map(function (p, i) {
+                if (direction == "left" || direction == "right")
+                    return [direction == "left" ? 0 : _self.minorDimension,
+                        i * _self.majorDimension / _self.dimensions.length
+                        + _self.y[p](d["_id"][p])];
+
+                if (direction == "top" || direction == "bottom")
+                    return [i * _self.majorDimension / _self.dimensions.length
+                        + _self.y[p](d["_id"][p]), direction == "top" ? 0 :
+                            _self.minorDimension,
+                        ];
+
+            }));
+        }
+
+        var g = _self.g = _self.svg.selectAll(".dimension")
+            .data(_self.dimensions)
+            .enter().append("g")
+            .attr("class", "dimension")
+            .attr("transform", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return "translate(" + (direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+
+                if (direction == "top" || direction == "bottom")
+                    return "translate(" + i * _self.majorDimension / _self.dimensions.length + "," + (direction == "top" ? 0 : _self.minorDimension) + ")";
+
+            });
+
+
+        // Add an axis and title.
+        g.append("g")
+            .attr("class", "axis")
+            .each(function (d) {
+                d3.select(this)
+                    .call(_self.axis.scale(_self.y[d]))
+                    .selectAll("text")
+                    .attr("transform", function (d, i) {
+                        if (direction == "top" || direction == "bottom")
+                            return direction == "top" ? "rotate(90)" : "rotate(-90)";
+
+                        return "rotate(0)";
+                    })
+                    .style("text-anchor", function () {
+                        return direction == "right" ? "end" : "start";
+                    });
+            })
+            .append("text")
+            .style("text-anchor", "end")
+            .attr("x", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return direction == "left" ? 40 : -30;
+
+                if (direction == "top" || direction == "bottom")
+                    return 40;
+
+            })
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return 40;
+
+                if (direction == "top" || direction == "bottom")
+                    return direction == "top" ? 70 : -70;
+
+            })
+            .text(function (d) {
+                return d;
+            });
+
+    } else {
+
+        _self.targetData = _self.targetData.slice(0, _self.top - 1);
+
+        var cities = {};
+
+        cities[_self.dimensions[0]] = d3.map(_self.targetData,
+            function (d) {
+                return d["_id"][_self.dimensions[0]];
+            }).keys();
+
+        cities[_self.dimensions[1]] = d3.map(_self.targetData,
+            function (d) {
+                return d["_id"][_self.dimensions[1]];
+            }).keys();
+
+        _self.dimensions.forEach(function (d) {
+            _self.y[d] = d3.scale.ordinal()
+                .domain(cities[d])
+                .rangePoints([_self.majorDimension / _self.dimensions.length - 5, 0])
+        });
+
+        _self.g.selectAll("g")
+            .each(function (d) {
+                d3.select(this).call(_self.axis.scale(_self.y[d]));
+            })
+
+        var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
+            .data(_self.targetData);
+
+        parallelLines.exit().remove();
+
+        parallelLines.enter()
+            .append("path")
+            .transition().duration(1000)
+            .ease("linear")
+            .attr("d", path)
+            .attr("stroke", "#9ecae1")
+            .attr("stroke-width", "0.5px");
+
+        parallelLines.attr("d", path);
+
+    }
+
+}
+
 
 Map.prototype.refreshThumbnail = function () {
 
@@ -542,9 +780,9 @@ Map.prototype.refreshThumbnail = function () {
             var sourceCities = [];
             var destinationCities = [];
 
-            for (var i = 0; i < _self.edges.length; i++) {
+            for (var i = 0; i < _self.targetData.length; i++) {
 
-                var d = _self.edges[i];
+                var d = _self.targetData[i];
                 var sourceCity = d["_id"][source];
                 var destinationCity = d["_id"][destination];
 
@@ -599,7 +837,7 @@ Map.prototype.refreshThumbnail = function () {
                 .style("pointer-events", "none")
                 .attr("class", "links")
                 .selectAll("line")
-                .data(_self.edges)
+                .data(_self.targetData)
                 .enter().append("line")
                 .attr("class", "link")
                 .style("pointer-events", "none")
@@ -654,9 +892,9 @@ Map.prototype.refreshThumbnail = function () {
         var cities = [];
         var sourceCities = [];
         var destinationCities = [];
-        for (var i = 0; i < _self.edges.length; i++) {
+        for (var i = 0; i < _self.targetData.length; i++) {
 
-            var d = _self.edges[i];
+            var d = _self.targetData[i];
             var sourceCity = d["_id"][source];
             var destinationCity = d["_id"][destination];
 
@@ -731,7 +969,7 @@ Map.prototype.refreshThumbnail = function () {
                 return "1px";
             });
 
-        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.edges);
+        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData);
 
         cityLinks.exit().remove();
 
@@ -832,8 +1070,8 @@ Map.prototype.reDrawChart = function (flag, width, height) {
 
     _self.height = height - _self.margin.top - _self.margin.bottom;
 
-    $("#"+_self.parentId).empty();
-    
+    $("#" + _self.parentId).empty();
+
     if (flag) {
 
         _self.svg = null;
@@ -844,7 +1082,7 @@ Map.prototype.reDrawChart = function (flag, width, height) {
 
         _self.svg = null;
 
-        device == 1 ? _self.refreshThumbnail() : _self.refreshThumbnail();
+        device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
 
     }
 
@@ -864,7 +1102,7 @@ Map.prototype.postUpdate = function () {
         }
     }).done(function (data) {
 
-        _self.edges = JSON.parse(data);
+        _self.targetData = JSON.parse(data);
 
         if (device == 0) {
             _self.refreshChart();

@@ -322,9 +322,9 @@ TimeChart.prototype.refreshMicroViz = function () {
         _self.svg.data([data]).call(chart);
 
         _self.svg.append("text")
-            .attr("transform", "translate(" + 10 + "," + 10 + ")")
+            .attr("transform", "translate(" + 10 + "," + 15 + ")")
             .text(_self.text)
-            .style("font-size", "11px");
+            .style("font-size", "13px");
 
     } else {
 

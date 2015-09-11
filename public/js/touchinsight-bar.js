@@ -444,9 +444,9 @@ Bar.prototype.refreshMicroViz = function () {
 
 
         _self.svg.append("text")
-            .attr("transform", "translate(" + 0 + "," + 10 + ")")
+            .attr("transform", "translate(" + 5 + "," + 10 + ")")
             .text(_self.text)
-            .style("font-size", "9px");
+            .style("font-size", "11px");
 
     } else {
         

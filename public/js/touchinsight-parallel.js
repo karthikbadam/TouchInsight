@@ -335,15 +335,15 @@ Parallel.prototype.refreshMicroViz = function () {
                     return direction == "left" ? 40 : -30;
 
                 if (direction == "top" || direction == "bottom")
-                    return 20;
+                    return 40;
 
             })
             .attr("y", function (d, i) {
                 if (direction == "left" || direction == "right")
-                    return 20;
+                    return 60;
 
                 if (direction == "top" || direction == "bottom")
-                    return direction == "top" ? 40 : -30;
+                    return direction == "top" ? 60 : -60;
 
             })
             .text(function (d) {
@@ -351,7 +351,6 @@ Parallel.prototype.refreshMicroViz = function () {
             });
 
     } else {
-
 
         var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
             .data(_self.targetData);
