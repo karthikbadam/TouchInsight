@@ -774,7 +774,21 @@ Bar.prototype.refreshThumbnail = function () {
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
             .append("g")
             .attr("transform", "translate(" + (_self.margin.left) + "," +
-                _self.margin.top + ")");
+                _self.margin.top + ")")
+            .on("click", function () {
+                var divId = _self.parentId;
+
+                divId = divId.replace("div", "");
+                var y = parseInt(divId[0]);
+                var x = parseInt(divId[1]);
+
+                if (y != mainView[0] || x != mainView[1]) {
+                    mainView = [y, x];
+                    reDrawInterface();
+                }
+
+            });
+
 
 
         _self.x = d3.scale.linear()

@@ -389,7 +389,20 @@ Parallel.prototype.refreshThumbnail = function () {
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
             .append("g")
-            .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
+            .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")")
+            .on("click", function () {
+                var divId = _self.parentId;
+
+                divId = divId.replace("div", "");
+                var y = parseInt(divId[0]);
+                var x = parseInt(divId[1]);
+
+                if (y != mainView[0] || x != mainView[1]) {
+                    mainView = [y, x];
+                    reDrawInterface();
+                }
+
+            });;
 
         _self.x.domain(_self.dimensions = d3.keys(_self.targetData[0]["_id"])
             .filter(function (d) {

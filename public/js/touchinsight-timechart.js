@@ -285,11 +285,11 @@ TimeChart.prototype.refreshMicroViz = function () {
             .style("transform-origin", function () {
                 if (direction == "left")
                     return "left bottom";
-                
+
                 if (direction == "right")
                     return "left bottom";
-                
-            
+
+
             })
             .style("-webkit-transform", function () {
                 if (direction == "left")
@@ -374,7 +374,20 @@ TimeChart.prototype.refreshThumbnail = function () {
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
             .append("g")
             .attr("transform", "translate(" + (_self.margin.left) + "," +
-                _self.margin.top + ")");
+                _self.margin.top + ")")
+            .on("click", function () {
+                var divId = _self.parentId;
+
+                divId = divId.replace("div", "");
+                var y = parseInt(divId[0]);
+                var x = parseInt(divId[1]);
+
+                if (y != mainView[0] || x != mainView[1]) {
+                    mainView = [y, x];
+                    reDrawInterface();
+                }
+
+            });
 
         var x = _self.x = d3.time.scale()
             .range([0, _self.width]);

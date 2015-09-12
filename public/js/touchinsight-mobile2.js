@@ -147,6 +147,61 @@ $(document).ready(function () {
 });
 
 
+function reDrawInterface() {
+
+    var l = getDimensions(mainView[0], mainView[1]);
+
+    for (var i = 0; i < GRID[1]; i++) {
+
+        for (var j = 0; j < GRID[0]; j++) {
+
+            if (l[i][j] != 0) {
+                
+                var classname = "secondarypanel";
+
+                if (mainView[0] == i && mainView[1] == j) {
+                    classname = "mainpanel";
+                }
+
+                d3.select("#div" + i + j)
+                    .attr("class", classname)
+                    .style("width", l[i][j]["width"])
+                    .style("height", l[i][j]["height"])
+                    .style("left", l[i][j]["left"])
+                    .style("top", PADDING_Y + l[i][j]["top"])
+                    .style("background-color",
+                        "white")
+                    .style("border", "1px solid #DDD")
+                    .style("opacity", 1)
+                    .style("margin", PADDING / 2 - 4)
+                    .style("overflow", "hidden")
+                    .style("display", "block");
+                
+                if (i == mainView[0] && j == mainView[1]) {
+
+                    svgs[i][j].reDrawChart(1, $("#div" + i + j).width(), 
+                                           $("#div" + i + j).height());
+
+                } else {
+
+                    svgs[i][j].reDrawChart(0, $("#div" + i + j).width(), 
+                                           $("#div" + i + j).height());
+
+                }
+
+            } else {
+
+                d3.select("#div" + i + j)
+                    .style("display", "none");
+
+            }
+        }
+    }
+
+
+}
+
+
 function onDataLoaded() {
 
     //creating the views
@@ -250,7 +305,9 @@ function onDataLoaded() {
     });
 
     svgs[0][2] = passengersbar;
+
 }
+
 
 function createLayout() {
 
