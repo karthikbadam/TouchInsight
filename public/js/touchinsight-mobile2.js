@@ -166,7 +166,10 @@ function reDrawInterface() {
                 d3.select("#div" + i + j)
                     .attr("class", classname)
                     .style("width", l[i][j]["width"])
-                    .style("height", l[i][j]["height"])
+                    .style("height", l[i][j]["height"]);
+                
+                d3.select("#div" + i + j)
+                    .transition().delay(500)
                     .style("left", l[i][j]["left"])
                     .style("top", PADDING_Y + l[i][j]["top"])
                     .style("background-color",
