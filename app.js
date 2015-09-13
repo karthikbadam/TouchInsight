@@ -252,7 +252,8 @@ function queryPassengersByTime(db, query, callback) {
                 Date: 1
 
             }
-    }]);
+    }
+    ]);
 
     data.toArray(function (err, docs) {
         assert.equal(null, err);
@@ -413,7 +414,7 @@ function queryFlightDistances(db, query, callback) {
             }
         },
         {
-            $limit: 1000
+            $limit: 5000
         }
                    ]);
 
@@ -469,7 +470,7 @@ function queryPassengerSeats(db, query, callback) {
             }
         },
         {
-            $limit: 1000
+            $limit: 5000
         }
 
                    ]);
