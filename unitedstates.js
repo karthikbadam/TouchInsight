@@ -1,8 +1,7 @@
 // Top 275 U.S. Cities
 // Source: http://en.wikipedia.org/wiki/List_of_United_States_cities_by_population
 var cities = 
-	[
-	 'New York, New York'
+	['New York, New York'
 	,'Los Angeles, California'
 	,'Chicago, Illinois'
 	,'Houston, Texas'
