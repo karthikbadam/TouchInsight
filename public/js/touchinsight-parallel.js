@@ -39,7 +39,10 @@ Parallel.prototype.refreshChart = function () {
     if (!_self.svg || _self.svg.select(".parallel").empty()) {
 
         _self.x = d3.scale.ordinal().rangePoints([0, _self.width], 1);
-        _self.y = {};
+
+        if (!_self.y)
+            _self.y = {};
+
         _self.dragging = {};
 
         _self.line = d3.svg.line();
@@ -55,11 +58,13 @@ Parallel.prototype.refreshChart = function () {
 
         _self.x.domain(_self.dimensions = d3.keys(_self.targetData[0]["_id"])
             .filter(function (d) {
-                return (_self.y[d] = d3.scale.linear()
+                return (
+                    _self.y[d] = !_self.y[d] ? d3.scale.linear()
                     .domain([0, d3.max(_self.targetData, function (p) {
                         return +p["_id"][d];
                     })])
-                    .range([_self.height, 0]));
+                    .range([_self.height, 0]) : _self.y[d].range([_self.height, 0])
+                );
             }));
 
         // Add blue foreground lines for focus.
@@ -230,7 +235,8 @@ Parallel.prototype.refreshMicroViz = function () {
 
     if (!_self.svg || _self.svg.select(".parallel").empty()) {
 
-        _self.y = {};
+        if (!_self.y)
+            _self.y = {};
         _self.line = d3.svg.line().interpolate(function (points) {
 
             if (direction == "right")
@@ -272,11 +278,16 @@ Parallel.prototype.refreshMicroViz = function () {
 
         _self.dimensions = d3.keys(_self.targetData[0]["_id"])
             .filter(function (d) {
-                return (_self.y[d] = d3.scale.linear()
-                    .domain(d3.extent(_self.targetData, function (p) {
+                return (
+                    _self.y[d] = !_self.y[d] ? d3.scale.linear()
+                    .domain([0, d3.max(_self.targetData, function (p) {
                         return +p["_id"][d];
-                    }))
-                    .range([_self.majorDimension / d3.keys(_self.targetData[0]["_id"]).length - 5, 0]));
+                    })])
+                    .range([_self.majorDimension / 
+                            d3.keys(_self.targetData[0]["_id"]).length - 5, 0])
+                    : _self.y[d].range([_self.majorDimension / 
+                                        d3.keys(_self.targetData[0]["_id"]).length - 5, 0])
+                );
             });
 
 
@@ -378,7 +389,8 @@ Parallel.prototype.refreshThumbnail = function () {
     if (!_self.svg || _self.svg.select(".parallel").empty()) {
 
         _self.x = d3.scale.ordinal().rangePoints([0, _self.width], 1);
-        _self.y = {};
+        if (!_self.y)
+            _self.y = {};
 
         _self.line = d3.svg.line();
         _self.axis = d3.svg.axis().orient("left")
@@ -406,11 +418,13 @@ Parallel.prototype.refreshThumbnail = function () {
 
         _self.x.domain(_self.dimensions = d3.keys(_self.targetData[0]["_id"])
             .filter(function (d) {
-                return (_self.y[d] = d3.scale.linear()
-                    .domain(d3.extent(_self.targetData, function (p) {
+                return (
+                    _self.y[d] = !_self.y[d] ? d3.scale.linear()
+                    .domain([0, d3.max(_self.targetData, function (p) {
                         return +p["_id"][d];
-                    }))
-                    .range([_self.height, 0]));
+                    })])
+                    .range([_self.height, 0]) : _self.y[d].range([_self.height, 0])
+                );
             }));
 
         // Add blue foreground lines for focus.
@@ -547,4 +561,4 @@ Parallel.prototype.postUpdate = function () {
 
     });
 
-}
+}   
