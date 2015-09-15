@@ -62,7 +62,7 @@ app.get('/mobile2', function (req, res, next) {
 // and load it
 
 //start with stock list
-var stream = fs.createReadStream("public/data/flights2.csv");
+var stream = fs.createReadStream("public/data/flights3.csv");
 
 var sourceID = "SID";
 var destID = "DID";
@@ -397,10 +397,25 @@ function queryFlightDistances(db, query, callback) {
             $match: query
         },
         {
+            $project: {
+                DistanceLowerBound: {
+                    $subtract: ["$Distance", {
+                        $mod: ["$Distance", 200]
+                    }]
+                },
+                FlightsLowerBound: {
+                    $subtract: ["$Flights", {
+                        $mod: ["$Flights", 50]
+                    }]
+                },
+                Passengers: "$Passengers"
+            }
+        },
+        {
             $group: {
                 "_id": {
-                    "Distance": "$Distance",
-                    "Flights": "$Flights"
+                    "Distance": "$DistanceLowerBound",
+                    "Flights": "$FlightsLowerBound"
                 },
                 Passengers: {
                     $sum: "$Passengers"
@@ -414,7 +429,7 @@ function queryFlightDistances(db, query, callback) {
             }
         },
         {
-            $limit: 5000
+            $limit: 300
         }
                    ]);
 
@@ -453,11 +468,37 @@ function queryPassengerSeats(db, query, callback) {
             $match: query
         },
         {
+            $project: {
+                PassLowerBound: {
+                    $add: [5000, {
+                        $subtract: ["$Passengers", {
+                            $mod: ["$Passengers", 10000]
+                        }]
+                    }]
+                },
+                PopLowerBound: {
+                    $add: [1000000, {
+                        $subtract: ["$SPopulation", {
+                            $mod: ["$SPopulation", 2000000]
+                        }]
+                    }]
+                },
+                SeatsLowerBound: {
+                    $add: [5000, {
+                        $subtract: ["$Seats", {
+                            $mod: ["$Seats", 10000]
+                        }]
+                    }]
+                },
+                Flights: "$Flights"
+            }
+        },
+        {
             $group: {
                 "_id": {
-                    "Seats": "$Seats",
-                    "Passengers": "$Passengers",
-                    "SPopulation": "$SPopulation"
+                    "Seats": "$SeatsLowerBound",
+                    "Passengers": "$PassLowerBound",
+                    "SPopulation": "$PopLowerBound"
                 },
                 Flights: {
                     $sum: "$Flights"
@@ -470,10 +511,10 @@ function queryPassengerSeats(db, query, callback) {
             }
         },
         {
-            $limit: 5000
+            $limit: 300
         }
 
-                   ]);
+    ]);
 
     data.toArray(function (err, docs) {
         assert.equal(null, err);
