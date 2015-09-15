@@ -115,6 +115,17 @@ $(document).ready(function () {
                 if (currentLogic == "CLEAN") {
 
                     queryStack.length = 0;
+                    
+                    var query = new Query({
+                        index: "Date",
+                        value: ["199001", "200912"],
+                        operator: "range",
+                        logic: "CLEAN"
+                    });
+
+                    setGlobalQuery(query, 1);
+                    
+                    $(this).toggleClass('active');
 
                 }
             });

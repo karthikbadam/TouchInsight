@@ -142,7 +142,10 @@ Map.prototype.refreshChart = function () {
                     "not_possible": false,
                     "possible": false
                 })
-                .attr("r", "3px");
+                .attr("r", function (d) {
+                    //return _self.colors(d["_id"][destination]);
+                    return d.type == source ? "3px" : "6px";
+                });
 
         };
 
@@ -828,292 +831,292 @@ Map.prototype.refreshThumbnail = function () {
                 .attr("class", "state-boundary")
                 .attr("d", _self.path)
                 .style("pointer-events", "none");
-            
+
         });
-//
-//            var cities = [];
-//            var sourceCities = [];
-//            var destinationCities = [];
-//
-//            for (var i = 0; i < _self.targetData.length; i++) {
-//
-//                var d = _self.targetData[i];
-//                var sourceCity = d["_id"][source];
-//                var destinationCity = d["_id"][destination];
-//
-//                if (sourceCities.indexOf(sourceCity) < 0) {
-//                    cities.push({
-//                        name: sourceCity,
-//                        type: source
-//                    });
-//                    sourceCities.push(sourceCity);
-//                }
-//
-//                if (destinationCities.indexOf(destinationCity) < 0) {
-//                    cities.push({
-//                        name: destinationCity,
-//                        type: destination
-//                    });
-//                    destinationCities.push(destinationCity);
-//                }
-//            }
-//
-//            _self.svg
-//                .selectAll(".city")
-//                .data(cities)
-//                .enter().append("circle")
-//                .attr("class", "city")
-//                .style("pointer-events", "none")
-//                .attr("fill", function (d) {
-//                    //return _self.colors(d["_id"][destination]);
-//                    return d.type == source ? "#4292c6" : "#fb6a4a";
-//                })
-//                .attr("cx", function (d, i) {
-//
-//                    var s = d.name;
-//                    var loc = usStates[s];
-//
-//                    return _self.projection([loc.lon, loc.lat])[0];
-//                }).attr("cy", function (d, i) {
-//
-//                    var s = d.name;
-//                    var loc = usStates[s];
-//
-//                    return _self.projection([loc.lon, loc.lat])[1];
-//                })
-//                .attr("fill-opacity", 1)
-//                .attr("stroke", "white")
-//                .attr("stroke-width", "0.5px")
-//                .attr("r", function (d, i) {
-//                    return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
-//                });
-//
-//            _self.svg.append("g")
-//                .style("pointer-events", "none")
-//                .attr("class", "links")
-//                .selectAll("line")
-//                .data(_self.targetData.slice(0, 100))
-//                .enter().append("line")
-//                .attr("class", "link")
-//                .style("pointer-events", "none")
-//                .attr("stroke", function (d) {
-//                    return "#9ecae1";
-//                    //return _self.colors(d["_id"][destination]);
-//                })
-//                .attr("stroke-width", function (d, i) {
-//                    return (Math.log(d["Flights"] + 0.5)) * _self.thumbnailscale + "px";
-//                })
-//                .attr("stroke-opacity", 0.1)
-//                .attr("x1", function (d, i) {
-//
-//                    var s = d["_id"][source];
-//                    var loc = usStates[s];
-//                    var c = _self.projection([loc.lon, loc.lat])
-//
-//                    return c[0];
-//                })
-//                .attr("y1", function (d, i) {
-//
-//                    var s = d["_id"][source];
-//                    var loc = usStates[s];
-//                    var c = _self.projection([loc.lon, loc.lat])
-//
-//                    return c[1];
-//
-//                })
-//                .attr("x2", function (d, i) {
-//
-//                    var s = d["_id"][destination];
-//                    var loc = usStates[s];
-//                    var c = _self.projection([loc.lon, loc.lat])
-//
-//                    return c[0];
-//
-//                })
-//                .attr("y2", function (d, i) {
-//
-//                    var s = d["_id"][destination];
-//                    var loc = usStates[s];
-//                    var c = _self.projection([loc.lon, loc.lat])
-//
-//                    return c[1];
-//
-//                });
-//
-//        });
+        //
+        //            var cities = [];
+        //            var sourceCities = [];
+        //            var destinationCities = [];
+        //
+        //            for (var i = 0; i < _self.targetData.length; i++) {
+        //
+        //                var d = _self.targetData[i];
+        //                var sourceCity = d["_id"][source];
+        //                var destinationCity = d["_id"][destination];
+        //
+        //                if (sourceCities.indexOf(sourceCity) < 0) {
+        //                    cities.push({
+        //                        name: sourceCity,
+        //                        type: source
+        //                    });
+        //                    sourceCities.push(sourceCity);
+        //                }
+        //
+        //                if (destinationCities.indexOf(destinationCity) < 0) {
+        //                    cities.push({
+        //                        name: destinationCity,
+        //                        type: destination
+        //                    });
+        //                    destinationCities.push(destinationCity);
+        //                }
+        //            }
+        //
+        //            _self.svg
+        //                .selectAll(".city")
+        //                .data(cities)
+        //                .enter().append("circle")
+        //                .attr("class", "city")
+        //                .style("pointer-events", "none")
+        //                .attr("fill", function (d) {
+        //                    //return _self.colors(d["_id"][destination]);
+        //                    return d.type == source ? "#4292c6" : "#fb6a4a";
+        //                })
+        //                .attr("cx", function (d, i) {
+        //
+        //                    var s = d.name;
+        //                    var loc = usStates[s];
+        //
+        //                    return _self.projection([loc.lon, loc.lat])[0];
+        //                }).attr("cy", function (d, i) {
+        //
+        //                    var s = d.name;
+        //                    var loc = usStates[s];
+        //
+        //                    return _self.projection([loc.lon, loc.lat])[1];
+        //                })
+        //                .attr("fill-opacity", 1)
+        //                .attr("stroke", "white")
+        //                .attr("stroke-width", "0.5px")
+        //                .attr("r", function (d, i) {
+        //                    return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
+        //                });
+        //
+        //            _self.svg.append("g")
+        //                .style("pointer-events", "none")
+        //                .attr("class", "links")
+        //                .selectAll("line")
+        //                .data(_self.targetData.slice(0, 100))
+        //                .enter().append("line")
+        //                .attr("class", "link")
+        //                .style("pointer-events", "none")
+        //                .attr("stroke", function (d) {
+        //                    return "#9ecae1";
+        //                    //return _self.colors(d["_id"][destination]);
+        //                })
+        //                .attr("stroke-width", function (d, i) {
+        //                    return (Math.log(d["Flights"] + 0.5)) * _self.thumbnailscale + "px";
+        //                })
+        //                .attr("stroke-opacity", 0.1)
+        //                .attr("x1", function (d, i) {
+        //
+        //                    var s = d["_id"][source];
+        //                    var loc = usStates[s];
+        //                    var c = _self.projection([loc.lon, loc.lat])
+        //
+        //                    return c[0];
+        //                })
+        //                .attr("y1", function (d, i) {
+        //
+        //                    var s = d["_id"][source];
+        //                    var loc = usStates[s];
+        //                    var c = _self.projection([loc.lon, loc.lat])
+        //
+        //                    return c[1];
+        //
+        //                })
+        //                .attr("x2", function (d, i) {
+        //
+        //                    var s = d["_id"][destination];
+        //                    var loc = usStates[s];
+        //                    var c = _self.projection([loc.lon, loc.lat])
+        //
+        //                    return c[0];
+        //
+        //                })
+        //                .attr("y2", function (d, i) {
+        //
+        //                    var s = d["_id"][destination];
+        //                    var loc = usStates[s];
+        //                    var c = _self.projection([loc.lon, loc.lat])
+        //
+        //                    return c[1];
+        //
+        //                });
+        //
+        //        });
 
     }
 
-        var cities = [];
-        var sourceCities = [];
-        var destinationCities = [];
-        for (var i = 0; i < _self.targetData.length; i++) {
+    var cities = [];
+    var sourceCities = [];
+    var destinationCities = [];
+    for (var i = 0; i < _self.targetData.length; i++) {
 
-            var d = _self.targetData[i];
-            var sourceCity = d["_id"][source];
-            var destinationCity = d["_id"][destination];
+        var d = _self.targetData[i];
+        var sourceCity = d["_id"][source];
+        var destinationCity = d["_id"][destination];
 
-            if (sourceCities.indexOf(sourceCity) < 0) {
-                cities.push({
-                    name: sourceCity,
-                    type: source
-                });
-                sourceCities.push(sourceCity);
-            }
-
-            if (destinationCities.indexOf(destinationCity) < 0) {
-                cities.push({
-                    name: destinationCity,
-                    type: destination
-                });
-                destinationCities.push(destinationCity);
-            }
+        if (sourceCities.indexOf(sourceCity) < 0) {
+            cities.push({
+                name: sourceCity,
+                type: source
+            });
+            sourceCities.push(sourceCity);
         }
 
-        var cityCircles = _self.svg
-            .selectAll(".city")
-            .data(cities);
-
-        cityCircles.exit().attr("r", "0.1px").transition().delay(1000);
-
-        cityCircles.enter().append("circle")
-            .transition().delay(1000)
-            .attr("class", "city")
-            .style("pointer-events", "none")
-            .attr("fill", function (d) {
-                //return _self.colors(d["_id"][destination]);
-                return d.type == source ? "#4292c6" : "#fb6a4a";
-            })
-            .attr("cx", function (d, i) {
-
-                var s = d.name;
-                var loc = usStates[s];
-
-                return _self.projection([loc.lon, loc.lat])[0];
-            }).attr("cy", function (d, i) {
-
-                var s = d.name;
-                var loc = usStates[s];
-
-                return _self.projection([loc.lon, loc.lat])[1];
-            })
-            .attr("fill-opacity", 1)
-            .attr("stroke", "white")
-            .attr("stroke-width", "0.5px")
-            .attr("r", function (d, i) {
-                return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
+        if (destinationCities.indexOf(destinationCity) < 0) {
+            cities.push({
+                name: destinationCity,
+                type: destination
             });
+            destinationCities.push(destinationCity);
+        }
+    }
 
-        cityCircles.attr("cx", function (d, i) {
+    var cityCircles = _self.svg
+        .selectAll(".city")
+        .data(cities);
 
-                var s = d.name;
-                var loc = usStates[s];
+    cityCircles.exit().attr("r", "0.1px").transition().delay(1000);
 
-                return _self.projection([loc.lon, loc.lat])[0];
-            }).attr("cy", function (d, i) {
+    cityCircles.enter().append("circle")
+        .transition().delay(1000)
+        .attr("class", "city")
+        .style("pointer-events", "none")
+        .attr("fill", function (d) {
+            //return _self.colors(d["_id"][destination]);
+            return d.type == source ? "#4292c6" : "#fb6a4a";
+        })
+        .attr("cx", function (d, i) {
 
-                var s = d.name;
-                var loc = usStates[s];
+            var s = d.name;
+            var loc = usStates[s];
 
-                return _self.projection([loc.lon, loc.lat])[1];
-            })
-            .attr("fill-opacity", 1)
-            .attr("stroke", "white")
-            .attr("stroke-width", "0.5px")
-            .attr("r", function (d, i) {
-                return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
-            });
+            return _self.projection([loc.lon, loc.lat])[0];
+        }).attr("cy", function (d, i) {
 
-        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData.slice(0, 100));
+            var s = d.name;
+            var loc = usStates[s];
 
-        cityLinks.exit().remove();
+            return _self.projection([loc.lon, loc.lat])[1];
+        })
+        .attr("fill-opacity", 1)
+        .attr("stroke", "white")
+        .attr("stroke-width", "0.5px")
+        .attr("r", function (d, i) {
+            return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
+        });
 
-        cityLinks.enter()
-            .append("line")
-            .attr("class", "link")
-            .attr("stroke", function (d) {
-                return "#9ecae1";
-                //return _self.colors(d["_id"][destination]);
-            })
-            .attr("stroke-width", function (d, i) {
-                return 0.5;
-                return (1 + Math.log(d["Flights"] + 1))*_self.thumbnailscale + "px";
-            })
-            .attr("stroke-opacity", 0.1)
-            .attr("x1", function (d, i) {
+    cityCircles.attr("cx", function (d, i) {
 
-                var s = d["_id"][source];
-                var loc = usStates[s];
-                var c = _self.projection([loc.lon, loc.lat])
+            var s = d.name;
+            var loc = usStates[s];
 
-                return c[0];
-            })
-            .attr("y1", function (d, i) {
+            return _self.projection([loc.lon, loc.lat])[0];
+        }).attr("cy", function (d, i) {
 
-                var s = d["_id"][source];
-                var loc = usStates[s];
-                var c = _self.projection([loc.lon, loc.lat])
+            var s = d.name;
+            var loc = usStates[s];
 
-                return c[1];
+            return _self.projection([loc.lon, loc.lat])[1];
+        })
+        .attr("fill-opacity", 1)
+        .attr("stroke", "white")
+        .attr("stroke-width", "0.5px")
+        .attr("r", function (d, i) {
+            return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
+        });
 
-            })
-            .attr("x2", function (d, i) {
+    var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData.slice(0, 100));
 
-                var s = d["_id"][destination];
-                var loc = usStates[s];
-                var c = _self.projection([loc.lon, loc.lat])
+    cityLinks.exit().remove();
 
-                return c[0];
+    cityLinks.enter()
+        .append("line")
+        .attr("class", "link")
+        .attr("stroke", function (d) {
+            return "#9ecae1";
+            //return _self.colors(d["_id"][destination]);
+        })
+        .attr("stroke-width", function (d, i) {
+            return 0.5;
+            return (1 + Math.log(d["Flights"] + 1)) * _self.thumbnailscale + "px";
+        })
+        .attr("stroke-opacity", 0.1)
+        .attr("x1", function (d, i) {
 
-            })
-            .attr("y2", function (d, i) {
+            var s = d["_id"][source];
+            var loc = usStates[s];
+            var c = _self.projection([loc.lon, loc.lat])
 
-                var s = d["_id"][destination];
-                var loc = usStates[s];
-                var c = _self.projection([loc.lon, loc.lat])
+            return c[0];
+        })
+        .attr("y1", function (d, i) {
 
-                return c[1];
+            var s = d["_id"][source];
+            var loc = usStates[s];
+            var c = _self.projection([loc.lon, loc.lat])
 
-            });
+            return c[1];
 
-        cityLinks.attr("x1", function (d, i) {
+        })
+        .attr("x2", function (d, i) {
 
-                var s = d["_id"][source];
-                var loc = usStates[s];
-                var c = _self.projection([loc.lon, loc.lat])
+            var s = d["_id"][destination];
+            var loc = usStates[s];
+            var c = _self.projection([loc.lon, loc.lat])
 
-                return c[0];
-            })
-            .attr("y1", function (d, i) {
+            return c[0];
 
-                var s = d["_id"][source];
-                var loc = usStates[s];
-                var c = _self.projection([loc.lon, loc.lat])
+        })
+        .attr("y2", function (d, i) {
 
-                return c[1];
+            var s = d["_id"][destination];
+            var loc = usStates[s];
+            var c = _self.projection([loc.lon, loc.lat])
 
-            })
-            .attr("x2", function (d, i) {
+            return c[1];
 
-                var s = d["_id"][destination];
-                var loc = usStates[s];
-                var c = _self.projection([loc.lon, loc.lat])
+        });
 
-                return c[0];
+    cityLinks.attr("x1", function (d, i) {
 
-            })
-            .attr("y2", function (d, i) {
+            var s = d["_id"][source];
+            var loc = usStates[s];
+            var c = _self.projection([loc.lon, loc.lat])
 
-                var s = d["_id"][destination];
-                var loc = usStates[s];
-                var c = _self.projection([loc.lon, loc.lat])
+            return c[0];
+        })
+        .attr("y1", function (d, i) {
 
-                return c[1];
+            var s = d["_id"][source];
+            var loc = usStates[s];
+            var c = _self.projection([loc.lon, loc.lat])
 
-            });
+            return c[1];
+
+        })
+        .attr("x2", function (d, i) {
+
+            var s = d["_id"][destination];
+            var loc = usStates[s];
+            var c = _self.projection([loc.lon, loc.lat])
+
+            return c[0];
+
+        })
+        .attr("y2", function (d, i) {
+
+            var s = d["_id"][destination];
+            var loc = usStates[s];
+            var c = _self.projection([loc.lon, loc.lat])
+
+            return c[1];
+
+        });
 
 
-    
+
 
 }
 
