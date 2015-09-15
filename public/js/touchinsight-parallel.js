@@ -13,6 +13,8 @@ function Parallel(options) {
         left: 10
     };
 
+    _self.target = options.target;
+
     _self.link = options.link;
 
     _self.width = options.width - _self.margin.left - _self.margin.right;
@@ -21,7 +23,7 @@ function Parallel(options) {
 
     var query = new Query({
         index: "Date",
-        value: ["199101", "200912"],
+        value: ["199001", "200912"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -67,6 +69,12 @@ Parallel.prototype.refreshChart = function () {
                 );
             }));
 
+        _self.datadimension = d3.scale.linear().domain(d3.extent(_self.targetData,
+                function (p) {
+                    return +p[_self.target];
+                }))
+            .range([1, 20]);
+
         // Add blue foreground lines for focus.
         _self.parallel = _self.svg.append("g")
             .attr("class", "parallel")
@@ -75,7 +83,9 @@ Parallel.prototype.refreshChart = function () {
             .enter().append("path")
             .attr("d", path)
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "0.5px");
+            .attr("stroke-width", function (d) {
+                return _self.datadimension(d[_self.target]) + "px";
+            });
 
         // Add a group element for each dimension.
         var g = _self.g = _self.svg.selectAll(".dimension")
@@ -167,16 +177,24 @@ Parallel.prototype.refreshChart = function () {
 
         var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
             .data(_self.targetData);
+        
+        _self.datadimension.domain(d3.extent(_self.targetData,
+                function (p) {
+                    return +p[_self.target];
+                }))
+            .range([1, 20]);
 
         parallelLines.exit().remove();
 
         parallelLines.enter()
             .append("path")
-            .transition().duration(1000)
+            .transition().delay(500)
             .ease("linear")
             .attr("d", path)
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "0.5px");
+            .attr("stroke-width", function (d) {
+                return _self.datadimension(d[_self.target]) + "px";
+            });
 
         parallelLines.attr("d", path);
     }
@@ -194,8 +212,8 @@ Parallel.prototype.refreshMicroViz = function () {
 
     var x = parseInt(div[1]);
 
-    var direction = "left";
-    var axisDirection = "right";
+    _self.direction = "left";
+    _self.axisDirection = "right";
 
     _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
     _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
@@ -203,19 +221,18 @@ Parallel.prototype.refreshMicroViz = function () {
     var majorDimension = _self.majorDimension = _self.horizonHeight;
     var minorDimension = _self.minorDimension = _self.horizonWidth;
 
-
     if (x - mainView[1] > 0) {
 
-        direction = "right";
-        axisDirection = "left";
+        _self.direction = "right";
+        _self.axisDirection = "left";
 
     }
 
 
     if (y - mainView[0] > 0) {
 
-        direction = "bottom";
-        axisDirection = "top";
+        _self.direction = "bottom";
+        _self.axisDirection = "top";
 
         _self.majorDimension = _self.horizonWidth;
         _self.minorDimension = _self.horizonHeight;
@@ -225,40 +242,50 @@ Parallel.prototype.refreshMicroViz = function () {
 
     if (y - mainView[0] < 0) {
 
-        direction = "top";
-        axisDirection = "bottom";
+        _self.direction = "top";
+        _self.axisDirection = "bottom";
 
         _self.majorDimension = _self.horizonWidth;
         _self.minorDimension = _self.horizonHeight;
 
     }
 
-    if (!_self.svg || _self.svg.select(".parallel").empty()) {
+    if (d3.select("#micro" + _self.parentId).empty() || _self.svg.select(".parallel").empty()) {
+
+        $("#" + _self.parentId).empty();
 
         if (!_self.y)
             _self.y = {};
+
         _self.line = d3.svg.line().interpolate(function (points) {
 
-            if (direction == "right")
+            if (_self.direction == "right")
                 return points.join("A 1,3 0 0 0 ");
 
-            if (direction == "left")
+            if (_self.direction == "left")
                 return points.join("A 1,3 0 0 1 ");
 
-            if (direction == "bottom")
+            if (_self.direction == "bottom")
                 return points.join("A 1,1 0 0 1 ");
 
-            if (direction == "top")
+            if (_self.direction == "top")
                 return points.join("A 1,1 0 0 0 ");
 
         });
-
-        _self.axis = d3.svg.axis().orient(axisDirection)
+        
+        _self.datadimension = d3.scale.linear().domain(d3.extent(_self.targetData,
+                function (p) {
+                    return +p[_self.target];
+                }))
+            .range([1, 20]);
+        
+        _self.axis = d3.svg.axis().orient(_self.axisDirection)
             .tickFormat(d3.format("s"));
+
         _self.parallel;
 
         _self.svg = d3.select("#" + _self.parentId).append("svg")
-            .attr("id", "micro-flights-distance")
+            .attr("id", "micro" + _self.parentId)
             .attr("width", _self.horizonWidth)
             .attr("height", _self.horizonHeight)
             .on("click", function () {
@@ -283,9 +310,8 @@ Parallel.prototype.refreshMicroViz = function () {
                     .domain([0, d3.max(_self.targetData, function (p) {
                         return +p["_id"][d];
                     })])
-                    .range([_self.majorDimension / 
-                            d3.keys(_self.targetData[0]["_id"]).length - 5, 0])
-                    : _self.y[d].range([_self.majorDimension / 
+                    .range([_self.majorDimension /
+                            d3.keys(_self.targetData[0]["_id"]).length - 5, 0]) : _self.y[d].range([_self.majorDimension /
                                         d3.keys(_self.targetData[0]["_id"]).length - 5, 0])
                 );
             });
@@ -299,20 +325,22 @@ Parallel.prototype.refreshMicroViz = function () {
             .enter().append("path")
             .attr("d", path)
             .attr("stroke", "#9ecae1")
-            .attr("stroke-opacity", 0.1)
-            .attr("stroke-width", "0.5px");
+            .attr("stroke-opacity", 0.05)
+            .attr("stroke-width", function (d) {
+                return _self.datadimension(d[_self.target]) + "px";
+            });
 
         // Returns the path for a given data point.
         function path(d) {
             return _self.line(_self.dimensions.map(function (p, i) {
-                if (direction == "left" || direction == "right")
-                    return [direction == "left" ? 0 : _self.minorDimension,
+                if (_self.direction == "left" || _self.direction == "right")
+                    return [_self.direction == "left" ? 0 : _self.minorDimension,
                         i * _self.majorDimension / _self.dimensions.length
                         + _self.y[p](d["_id"][p])];
 
-                if (direction == "top" || direction == "bottom")
+                if (_self.direction == "top" || _self.direction == "bottom")
                     return [i * _self.majorDimension / _self.dimensions.length
-                        + _self.y[p](d["_id"][p]), direction == "top" ? 0 :
+                        + _self.y[p](d["_id"][p]), _self.direction == "top" ? 0 :
                             _self.minorDimension,
                         ];
 
@@ -324,11 +352,11 @@ Parallel.prototype.refreshMicroViz = function () {
             .enter().append("g")
             .attr("class", "dimension")
             .attr("transform", function (d, i) {
-                if (direction == "left" || direction == "right")
-                    return "translate(" + (direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+                if (_self.direction == "left" || _self.direction == "right")
+                    return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
 
-                if (direction == "top" || direction == "bottom")
-                    return "translate(" + +i * _self.majorDimension / _self.dimensions.length + "," + (direction == "top" ? 0 : _self.minorDimension) + ")";
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return "translate(" + +i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
 
             });
 
@@ -342,19 +370,19 @@ Parallel.prototype.refreshMicroViz = function () {
             .append("text")
             .style("text-anchor", "end")
             .attr("x", function (d, i) {
-                if (direction == "left" || direction == "right")
-                    return direction == "left" ? 40 : -30;
+                if (_self.direction == "left" || _self.direction == "right")
+                    return _self.direction == "left" ? 40 : -30;
 
-                if (direction == "top" || direction == "bottom")
+                if (_self.direction == "top" || _self.direction == "bottom")
                     return 40;
 
             })
             .attr("y", function (d, i) {
-                if (direction == "left" || direction == "right")
+                if (_self.direction == "left" || _self.direction == "right")
                     return 60;
 
-                if (direction == "top" || direction == "bottom")
-                    return direction == "top" ? 60 : -60;
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return _self.direction == "top" ? 60 : -60;
 
             })
             .text(function (d) {
@@ -363,8 +391,45 @@ Parallel.prototype.refreshMicroViz = function () {
 
     } else {
 
+        _self.datadimension.domain(d3.extent(_self.targetData,
+                function (p) {
+                    return +p[_self.target];
+                }))
+            .range([1, 20]);
+        
+        _self.line.interpolate(function (points) {
+
+            if (_self.direction == "right")
+                return points.join("A 1,3 0 0 0 ");
+
+            if (_self.direction == "left")
+                return points.join("A 1,3 0 0 1 ");
+
+            if (_self.direction == "bottom")
+                return points.join("A 1,1 0 0 1 ");
+
+            if (_self.direction == "top")
+                return points.join("A 1,1 0 0 0 ");
+
+        });
+
+        _self.dimensions.forEach(function (d) {
+
+            _self.y[d]
+                .range([_self.majorDimension /
+                                        d3.keys(_self.targetData[0]["_id"]).length - 5, 0])
+
+        });
+
+        _self.axis.orient(_self.axisDirection)
+            .tickFormat(d3.format("s"));
+
         var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
             .data(_self.targetData);
+
+        _self.svg
+            .attr("width", _self.horizonWidth)
+            .attr("height", _self.horizonHeight);
 
         parallelLines.exit().remove();
 
@@ -374,10 +439,47 @@ Parallel.prototype.refreshMicroViz = function () {
             .ease("linear")
             .attr("d", path)
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "0.5px");
+            .attr("stroke-width", function (d) {
+                return _self.datadimension(d[_self.target]) + "px";
+            });
 
         parallelLines.attr("d", path);
 
+        _self.g
+            .attr("transform", function (d, i) {
+                if (_self.direction == "left" || _self.direction == "right")
+                    return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return "translate(" + +i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
+
+            });
+
+        _self.g.selectAll(".axis")
+            .each(function (d) {
+                d3.select(this).call(_self.axis.scale(_self.y[d]));
+            })
+            .select("text")
+            .style("text-anchor", "end")
+            .attr("x", function (d, i) {
+                if (_self.direction == "left" || _self.direction == "right")
+                    return _self.direction == "left" ? 40 : -30;
+
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return -40;
+
+            })
+            .attr("y", function (d, i) {
+                if (_self.direction == "left" || _self.direction == "right")
+                    return 60;
+
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return _self.direction == "top" ? 60 : -60;
+
+            })
+            .text(function (d) {
+                return d;
+            });
     }
 
 }
@@ -385,8 +487,16 @@ Parallel.prototype.refreshMicroViz = function () {
 Parallel.prototype.refreshThumbnail = function () {
 
     var _self = this;
+    
+    _self.thumbnailscale = 0.5;
+    
+    _self.thumbnailwidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.thumbnailheight = _self.height + _self.margin.top + _self.margin.bottom
 
-    if (!_self.svg || _self.svg.select(".parallel").empty()) {
+    if (d3.select("#thumbnail"+_self.parentId).empty() ||
+        _self.svg.select(".parallel").empty()) {
+        
+        $("#" + _self.parentId).empty();
 
         _self.x = d3.scale.ordinal().rangePoints([0, _self.width], 1);
         if (!_self.y)
@@ -395,13 +505,18 @@ Parallel.prototype.refreshThumbnail = function () {
         _self.line = d3.svg.line();
         _self.axis = d3.svg.axis().orient("left")
             .tickFormat(d3.format("s")).ticks(_self.height / 20);
+        
+        _self.datadimension = d3.scale.linear().domain(d3.extent(_self.targetData,
+                function (p) {
+                    return +p[_self.target];
+                }))
+            .range([1*_self.thumbnailscale, 20*_self.thumbnailscale]);
 
         _self.svg = d3.select("#" + _self.parentId).append("svg")
+            .attr("id", "thumbnail"+_self.parentId)
             .attr("class", "thumbnail")
-            .attr("width", _self.width + _self.margin.left + _self.margin.right)
-            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")")
+            .attr("width", _self.thumbnailwidth)
+            .attr("height", _self.thumbnailheight)
             .on("click", function () {
                 var divId = _self.parentId;
 
@@ -414,7 +529,12 @@ Parallel.prototype.refreshThumbnail = function () {
                     reDrawInterface();
                 }
 
-            });;
+            })
+            .append("g")
+            .attr("transform", "translate(" + _self.margin.left*_self.thumbnailscale
+                  + "," + _self.margin.top + ")")
+            .style("pointer-events", "none")   
+            .style('font-size', 10*_self.thumbnailscale + "px");
 
         _self.x.domain(_self.dimensions = d3.keys(_self.targetData[0]["_id"])
             .filter(function (d) {
@@ -423,7 +543,8 @@ Parallel.prototype.refreshThumbnail = function () {
                     .domain([0, d3.max(_self.targetData, function (p) {
                         return +p["_id"][d];
                     })])
-                    .range([_self.height, 0]) : _self.y[d].range([_self.height, 0])
+                    .range([_self.thumbnailheight - _self.margin.top, 0]) : 
+                    _self.y[d].range([_self.thumbnailheight - _self.margin.top, 0])
                 );
             }));
 
@@ -435,7 +556,11 @@ Parallel.prototype.refreshThumbnail = function () {
             .enter().append("path")
             .attr("d", path)
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "0.5px");
+            .attr("stroke-width", function (d) {
+                return _self.datadimension(d[_self.target]) + "px";
+            })
+            .attr("stroke-linecap", "round")
+            .style("pointer-events", "none");
 
         // Add a group element for each dimension.
         var g = _self.g = _self.svg.selectAll(".dimension")
@@ -472,6 +597,12 @@ Parallel.prototype.refreshThumbnail = function () {
         }
 
     } else {
+        
+        _self.datadimension.domain(d3.extent(_self.targetData,
+                function (p) {
+                    return +p[_self.target];
+                }))
+            .range([1, 20]);
 
         var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
             .data(_self.targetData);
@@ -483,8 +614,11 @@ Parallel.prototype.refreshThumbnail = function () {
             .transition().duration(1000)
             .ease("linear")
             .attr("d", path)
+            .attr("stroke-linecap", "round")
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "0.5px");
+            .attr("stroke-width", function (d) {
+                return _self.datadimension(d[_self.target]) + "px";
+            });
 
         parallelLines.attr("d", path);
     }
@@ -498,17 +632,17 @@ Parallel.prototype.reDrawChart = function (flag, width, height) {
 
     _self.height = height - _self.margin.top - _self.margin.bottom;
 
-    $("#" + _self.parentId).empty();
-
     if (flag) {
 
         _self.svg = null;
+
+        $("#" + _self.parentId).empty();
 
         _self.refreshChart();
 
     } else {
 
-        _self.svg = null;
+        //_self.svg = null;
 
         device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
 
@@ -561,4 +695,4 @@ Parallel.prototype.postUpdate = function () {
 
     });
 
-}   
+}

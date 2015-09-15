@@ -21,7 +21,7 @@ function Map(options) {
 
     var query = new Query({
         index: "Date",
-        value: ["199101", "200912"],
+        value: ["199001", "200912"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -74,7 +74,7 @@ Map.prototype.refreshChart = function () {
                     "not_possible": false,
                     "possible": true
                 })
-                .attr("r", "6px");
+                .attr("r", "8px");
 
             // Style the not possible dot
             _self.lasso.items().filter(function (d) {
@@ -95,7 +95,7 @@ Map.prototype.refreshChart = function () {
             _self.lasso.items().filter(function (d) {
                     if (d.selected === true) {
 
-                        if (d.type == source) {
+                        if (d.type == source || d.type == destination) {
                             selectedSources.push(d.name);
                         }
 
@@ -165,6 +165,7 @@ Map.prototype.refreshChart = function () {
                 .style("pointer-events", "none");
 
             _self.svg.append("path")
+                .attr("id", "boundary")
                 .datum(
                     topojson.mesh(us,
                         us.objects.states,
@@ -228,8 +229,9 @@ Map.prototype.refreshChart = function () {
                 .attr("fill-opacity", 1)
                 .attr("stroke", "white")
                 .attr("stroke-width", "0.5px")
-                .attr("r", function (d, i) {
-                    return "3px";
+                .attr("r", function (d) {
+                    //return _self.colors(d["_id"][destination]);
+                    return d.type == source ? "3px" : "6px";
                 });
 
 
@@ -239,7 +241,7 @@ Map.prototype.refreshChart = function () {
                 .style("pointer-events", "none")
                 .attr("class", "links")
                 .selectAll("line")
-                .data(_self.targetData)
+                .data(_self.targetData.slice(0, 100))
                 .enter().append("line")
                 .attr("class", "link")
                 .style("pointer-events", "none")
@@ -250,7 +252,7 @@ Map.prototype.refreshChart = function () {
                 .attr("stroke-width", function (d, i) {
                     return (Math.log(d["Flights"] + 0.5)) + "px";
                 })
-                .attr("stroke-opacity", 0.03)
+                .attr("stroke-opacity", 0.1)
                 .attr("x1", function (d, i) {
 
                     var s = d["_id"][source];
@@ -329,11 +331,10 @@ Map.prototype.refreshChart = function () {
             .selectAll(".city")
             .data(cities);
 
-        cityCircles.exit().attr("r", "0.1px").transition().duration(1000);
-
+        cityCircles.exit().attr("r", "0.1px").transition().delay(1000);
 
         cityCircles.enter().append("circle")
-            .transition().duration(1000)
+            .transition().delay(1000)
             .attr("class", "city")
             .style("pointer-events", "none")
             .attr("fill", function (d) {
@@ -356,8 +357,8 @@ Map.prototype.refreshChart = function () {
             .attr("fill-opacity", 1)
             .attr("stroke", "white")
             .attr("stroke-width", "0.5px")
-            .attr("r", function (d, i) {
-                return "3px";
+            .attr("r", function (d) {
+                return d.type == source ? "3px" : "6px";
             });
 
         cityCircles.attr("cx", function (d, i) {
@@ -376,14 +377,14 @@ Map.prototype.refreshChart = function () {
             .attr("fill-opacity", 1)
             .attr("stroke", "white")
             .attr("stroke-width", "0.5px")
-            .attr("r", function (d, i) {
-                return "3px";
+            .attr("r", function (d) {
+                return d.type == source ? "3px" : "6px";
             });
 
 
         _self.lasso.items(d3.selectAll("circle"));
 
-        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData);
+        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData.slice(0, 100));
 
         cityLinks.exit().remove();
 
@@ -398,7 +399,7 @@ Map.prototype.refreshChart = function () {
                 return 0.5;
                 return (1 + Math.log(d["Flights"] + 1)) + "px";
             })
-            .attr("stroke-opacity", 0.05)
+            .attr("stroke-opacity", 0.1)
             .attr("x1", function (d, i) {
 
                 var s = d["_id"][source];
@@ -490,8 +491,8 @@ Map.prototype.refreshMicroViz = function () {
 
     var x = parseInt(div[1]);
 
-    var direction = "left";
-    var axisDirection = "right";
+    _self.direction = "left";
+    _self.axisDirection = "right";
 
     _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
     _self.horizonHeight = _self.height + _self.margin.top + _self.margin.bottom;
@@ -500,45 +501,47 @@ Map.prototype.refreshMicroViz = function () {
     var minorDimension = _self.minorDimension = _self.horizonWidth;
 
     if (x - mainView[1] > 0) {
-        direction = "right";
-        axisDirection = "left";
+        _self.direction = "right";
+        _self.axisDirection = "left";
     }
 
     if (y - mainView[0] > 0) {
-        direction = "bottom";
-        axisDirection = "top";
+        _self.direction = "bottom";
+        _self.axisDirection = "top";
         _self.majorDimension = _self.horizonWidth;
         _self.minorDimension = _self.horizonHeight;
     }
 
 
     if (y - mainView[0] < 0) {
-        direction = "top";
-        axisDirection = "bottom";
+        _self.direction = "top";
+        _self.axisDirection = "bottom";
         _self.majorDimension = _self.horizonWidth;
         _self.minorDimension = _self.horizonHeight;
     }
 
-    if (!_self.svg || _self.svg.select(".parallel").empty()) {
+    if (d3.select("#horizon-choropleth").empty() || _self.svg.select(".parallel").empty()) {
+
+        $("#" + _self.parentId).empty();
 
         _self.y = {};
         _self.line = d3.svg.line().interpolate(function (points) {
 
-            if (direction == "right")
+            if (_self.direction == "right")
                 return points.join("A 1,3 0 0 0 ");
 
-            if (direction == "left")
+            if (_self.direction == "left")
                 return points.join("A 1,3 0 0 1 ");
 
-            if (direction == "bottom")
+            if (_self.direction == "bottom")
                 return points.join("A 1,1 0 0 1 ");
 
-            if (direction == "top")
+            if (_self.direction == "top")
                 return points.join("A 1,1 0 0 0 ");
 
         });
 
-        _self.axis = d3.svg.axis().orient(axisDirection);
+        _self.axis = d3.svg.axis().orient(_self.axisDirection);
         _self.parallel;
 
         _self.svg = d3.select("#" + _self.parentId).append("svg")
@@ -564,16 +567,16 @@ Map.prototype.refreshMicroViz = function () {
 
         var top = _self.top = 35;
 
-        _self.targetData = _self.targetData.slice(0, _self.top - 1);
+        _self.targetDataTemp = _self.targetData.slice(0, _self.top - 1);
 
         var cities = {};
 
-        cities[_self.dimensions[0]] = d3.map(_self.targetData,
+        cities[_self.dimensions[0]] = d3.map(_self.targetDataTemp,
             function (d) {
                 return d["_id"][_self.dimensions[0]];
             }).keys();
 
-        cities[_self.dimensions[1]] = d3.map(_self.targetData,
+        cities[_self.dimensions[1]] = d3.map(_self.targetDataTemp,
             function (d) {
                 return d["_id"][_self.dimensions[1]];
             }).keys();
@@ -581,34 +584,35 @@ Map.prototype.refreshMicroViz = function () {
         _self.dimensions.forEach(function (d) {
             _self.y[d] = d3.scale.ordinal()
                 .domain(cities[d])
-                .rangePoints([_self.majorDimension / _self.dimensions.length - 5, 0])
+                .rangePoints([_self.majorDimension / _self.dimensions.length - 10, 0])
         });
 
         // Add blue parallel lines for focus.
         _self.parallel = _self.svg.append("g")
             .attr("class", "parallel")
             .selectAll("path")
-            .data(_self.targetData)
+            .data(_self.targetDataTemp)
             .enter().append("path")
             .attr("d", path)
             .attr("stroke", "#9ecae1")
             .attr("stroke-opacity", 0.1)
             .attr("stroke-width", "0.5px")
             .attr("stroke-width", function (d, i) {
+                return "1px";
                 return (Math.log(d["Flights"] + 0.5)) + "px";
             });
 
         // Returns the path for a given data point.
         function path(d) {
             return _self.line(_self.dimensions.map(function (p, i) {
-                if (direction == "left" || direction == "right")
-                    return [direction == "left" ? 0 : _self.minorDimension,
+                if (_self.direction == "left" || _self.direction == "right")
+                    return [_self.direction == "left" ? 0 : _self.minorDimension,
                         i * _self.majorDimension / _self.dimensions.length
                         + _self.y[p](d["_id"][p])];
 
-                if (direction == "top" || direction == "bottom")
+                if (_self.direction == "top" || _self.direction == "bottom")
                     return [i * _self.majorDimension / _self.dimensions.length
-                        + _self.y[p](d["_id"][p]), direction == "top" ? 0 :
+                        + _self.y[p](d["_id"][p]), _self.direction == "top" ? 0 :
                             _self.minorDimension,
                         ];
 
@@ -620,11 +624,11 @@ Map.prototype.refreshMicroViz = function () {
             .enter().append("g")
             .attr("class", "dimension")
             .attr("transform", function (d, i) {
-                if (direction == "left" || direction == "right")
-                    return "translate(" + (direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+                if (_self.direction == "left" || _self.direction == "right")
+                    return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
 
-                if (direction == "top" || direction == "bottom")
-                    return "translate(" + i * _self.majorDimension / _self.dimensions.length + "," + (direction == "top" ? 0 : _self.minorDimension) + ")";
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return "translate(" + i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
 
             });
 
@@ -637,31 +641,31 @@ Map.prototype.refreshMicroViz = function () {
                     .call(_self.axis.scale(_self.y[d]))
                     .selectAll("text")
                     .attr("transform", function (d, i) {
-                        if (direction == "top" || direction == "bottom")
-                            return direction == "top" ? "rotate(90)" : "rotate(-90)";
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? "rotate(90)" : "rotate(-90)";
 
                         return "rotate(0)";
                     })
                     .style("text-anchor", function () {
-                        return direction == "right" ? "end" : "start";
+                        return _self.direction == "right" ? "end" : "start";
                     });
             })
             .append("text")
             .style("text-anchor", "end")
             .attr("x", function (d, i) {
-                if (direction == "left" || direction == "right")
-                    return direction == "left" ? 40 : -30;
+                if (_self.direction == "left" || _self.direction == "right")
+                    return _self.direction == "left" ? 40 : -30;
 
-                if (direction == "top" || direction == "bottom")
+                if (_self.direction == "top" || _self.direction == "bottom")
                     return 40;
 
             })
             .attr("y", function (d, i) {
-                if (direction == "left" || direction == "right")
+                if (_self.direction == "left" || _self.direction == "right")
                     return 40;
 
-                if (direction == "top" || direction == "bottom")
-                    return direction == "top" ? 70 : -70;
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return _self.direction == "top" ? 70 : -70;
 
             })
             .text(function (d) {
@@ -670,43 +674,69 @@ Map.prototype.refreshMicroViz = function () {
 
     } else {
 
-        _self.targetData = _self.targetData.slice(0, _self.top - 1);
+        _self.axis.orient(_self.axisDirection);
+
+        _self.targetDataTemp = _self.targetData.slice(0, _self.top - 1);
+
+        _self.svg.attr("width", _self.horizonWidth)
+            .attr("height", _self.horizonHeight)
 
         var cities = {};
 
-        cities[_self.dimensions[0]] = d3.map(_self.targetData,
+        cities[_self.dimensions[0]] = d3.map(_self.targetDataTemp,
             function (d) {
                 return d["_id"][_self.dimensions[0]];
             }).keys();
 
-        cities[_self.dimensions[1]] = d3.map(_self.targetData,
+        cities[_self.dimensions[1]] = d3.map(_self.targetDataTemp,
             function (d) {
                 return d["_id"][_self.dimensions[1]];
             }).keys();
 
         _self.dimensions.forEach(function (d) {
-            _self.y[d] = d3.scale.ordinal()
-                .domain(cities[d])
-                .rangePoints([_self.majorDimension / _self.dimensions.length - 5, 0])
+            _self.y[d].domain(cities[d])
+                .rangePoints([_self.majorDimension / _self.dimensions.length - 10, 0])
         });
 
-        _self.g.selectAll("g")
+
+        _self.g
+            .attr("class", "dimension")
+            .attr("transform", function (d, i) {
+                if (_self.direction == "left" || _self.direction == "right")
+                    return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return "translate(" + i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
+
+            });
+
+        _self.g.selectAll(".axis")
             .each(function (d) {
-                d3.select(this).call(_self.axis.scale(_self.y[d]));
+                d3.select(this).call(_self.axis.scale(_self.y[d]))
+                    .selectAll("text")
+                    .attr("transform", function (d, i) {
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? "rotate(90)" : "rotate(-90)";
+
+                        return "rotate(0)";
+                    })
+                    .style("text-anchor", function () {
+                        return _self.direction == "right" ? "end" : "start";
+                    });
             })
 
         var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
-            .data(_self.targetData);
+            .data(_self.targetDataTemp);
 
         parallelLines.exit().remove();
 
         parallelLines.enter()
             .append("path")
-            .transition().duration(1000)
+            .transition().delay(500)
             .ease("linear")
             .attr("d", path)
             .attr("stroke", "#9ecae1")
-            .attr("stroke-width", "0.5px");
+            .attr("stroke-width", "1px");
 
         parallelLines.attr("d", path);
 
@@ -719,25 +749,17 @@ Map.prototype.refreshThumbnail = function () {
 
     var _self = this;
 
-    if (d3.select("#map").empty()) {
+    if (d3.select("#thumbnail-choropleth").empty() || d3.select("#map").empty()) {
+
+        //$("#"+_self.parentId).empty();
 
         var top = 49.3457868;
         var left = -124.7844079;
         var right = -66.9513812;
         var bottom = 24.7433195;
 
-        var scale = 55 * (_self.height + _self.margin.top + _self.margin.bottom) / Math.abs(bottom - top);
-
-        _self.projection = d3.geo.albersUsa()
-            .scale(scale)
-            .translate([(_self.width + _self.margin.left + _self.margin.right) / 2, (_self.height + _self.margin.top + _self.margin.bottom) / 2]);
-
-        _self.path = d3.geo.path()
-            .projection(_self.projection);
-
-        _self.svg = d3.select("#" + _self.parentId)
-            .append("svg")
-            .attr("id", "choropleth")
+        _self.svg
+            .attr("id", "thumbnail-choropleth")
             .attr("class", "thumbnail")
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
@@ -755,17 +777,48 @@ Map.prototype.refreshThumbnail = function () {
 
             });
 
+        _self.thumbnailscale = 0.5;
+
+        var scale = 55 * (_self.height + _self.margin.top + _self.margin.bottom) / Math.abs(bottom - top);
+
+        _self.projection = d3.geo.albersUsa()
+            .scale(scale)
+            .translate([(_self.width + _self.margin.left + _self.margin.right) / 2, (_self.height + _self.margin.top + _self.margin.bottom) / 2]);
+
+        _self.path = d3.geo.path()
+            .projection(_self.projection);
+
+        //        _self.svg = d3.select("#" + _self.parentId)
+        //            .append("svg")
+        //            .attr("id", "thumbnail-choropleth")
+        //            .attr("class", "thumbnail")
+        //            .attr("width", _self.width + _self.margin.left + _self.margin.right)
+        //            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
+        //            .on("click", function () {
+        //                var divId = _self.parentId;
+        //
+        //                divId = divId.replace("div", "");
+        //                var y = parseInt(divId[0]);
+        //                var x = parseInt(divId[1]);
+        //
+        //                if (y != mainView[0] || x != mainView[1]) {
+        //                    mainView = [y, x];
+        //                    reDrawInterface();
+        //                }
+        //
+        //            });
+
         // draw map
         d3.json("data/us.json", function (error, us) {
 
-            _self.svg.append("path")
-                .attr("id", "map")
+            _self.svg.select("#map")
                 .datum(topojson.feature(us, us.objects.land))
                 .attr("class", "land")
                 .attr("d", _self.path)
                 .style("pointer-events", "none");
 
-            _self.svg.append("path")
+            _self.svg.select("#boundary")
+                .attr("id", "boundary")
                 .datum(
                     topojson.mesh(us,
                         us.objects.states,
@@ -775,119 +828,121 @@ Map.prototype.refreshThumbnail = function () {
                 .attr("class", "state-boundary")
                 .attr("d", _self.path)
                 .style("pointer-events", "none");
-
-            var cities = [];
-            var sourceCities = [];
-            var destinationCities = [];
-
-            for (var i = 0; i < _self.targetData.length; i++) {
-
-                var d = _self.targetData[i];
-                var sourceCity = d["_id"][source];
-                var destinationCity = d["_id"][destination];
-
-                if (sourceCities.indexOf(sourceCity) < 0) {
-                    cities.push({
-                        name: sourceCity,
-                        type: source
-                    });
-                    sourceCities.push(sourceCity);
-                }
-
-                if (destinationCities.indexOf(destinationCity) < 0) {
-                    cities.push({
-                        name: destinationCity,
-                        type: destination
-                    });
-                    destinationCities.push(destinationCity);
-                }
-            }
-
-            _self.svg
-                .selectAll(".city")
-                .data(cities)
-                .enter().append("circle")
-                .attr("class", "city")
-                .style("pointer-events", "none")
-                .attr("fill", function (d) {
-                    //return _self.colors(d["_id"][destination]);
-                    return d.type == source ? "#4292c6" : "#fb6a4a";
-                })
-                .attr("cx", function (d, i) {
-
-                    var s = d.name;
-                    var loc = usStates[s];
-
-                    return _self.projection([loc.lon, loc.lat])[0];
-                }).attr("cy", function (d, i) {
-
-                    var s = d.name;
-                    var loc = usStates[s];
-
-                    return _self.projection([loc.lon, loc.lat])[1];
-                })
-                .attr("fill-opacity", 1)
-                .attr("stroke", "white")
-                .attr("stroke-width", "0.5px")
-                .attr("r", function (d, i) {
-                    return "1px";
-                });
-
-            _self.svg.append("g")
-                .style("pointer-events", "none")
-                .attr("class", "links")
-                .selectAll("line")
-                .data(_self.targetData)
-                .enter().append("line")
-                .attr("class", "link")
-                .style("pointer-events", "none")
-                .attr("stroke", function (d) {
-                    return "#9ecae1";
-                    //return _self.colors(d["_id"][destination]);
-                })
-                .attr("stroke-width", function (d, i) {
-                    return (Math.log(d["Flights"] + 0.5)) + "px";
-                })
-                .attr("stroke-opacity", 0.01)
-                .attr("x1", function (d, i) {
-
-                    var s = d["_id"][source];
-                    var loc = usStates[s];
-                    var c = _self.projection([loc.lon, loc.lat])
-
-                    return c[0];
-                })
-                .attr("y1", function (d, i) {
-
-                    var s = d["_id"][source];
-                    var loc = usStates[s];
-                    var c = _self.projection([loc.lon, loc.lat])
-
-                    return c[1];
-
-                })
-                .attr("x2", function (d, i) {
-
-                    var s = d["_id"][destination];
-                    var loc = usStates[s];
-                    var c = _self.projection([loc.lon, loc.lat])
-
-                    return c[0];
-
-                })
-                .attr("y2", function (d, i) {
-
-                    var s = d["_id"][destination];
-                    var loc = usStates[s];
-                    var c = _self.projection([loc.lon, loc.lat])
-
-                    return c[1];
-
-                });
-
+            
         });
+//
+//            var cities = [];
+//            var sourceCities = [];
+//            var destinationCities = [];
+//
+//            for (var i = 0; i < _self.targetData.length; i++) {
+//
+//                var d = _self.targetData[i];
+//                var sourceCity = d["_id"][source];
+//                var destinationCity = d["_id"][destination];
+//
+//                if (sourceCities.indexOf(sourceCity) < 0) {
+//                    cities.push({
+//                        name: sourceCity,
+//                        type: source
+//                    });
+//                    sourceCities.push(sourceCity);
+//                }
+//
+//                if (destinationCities.indexOf(destinationCity) < 0) {
+//                    cities.push({
+//                        name: destinationCity,
+//                        type: destination
+//                    });
+//                    destinationCities.push(destinationCity);
+//                }
+//            }
+//
+//            _self.svg
+//                .selectAll(".city")
+//                .data(cities)
+//                .enter().append("circle")
+//                .attr("class", "city")
+//                .style("pointer-events", "none")
+//                .attr("fill", function (d) {
+//                    //return _self.colors(d["_id"][destination]);
+//                    return d.type == source ? "#4292c6" : "#fb6a4a";
+//                })
+//                .attr("cx", function (d, i) {
+//
+//                    var s = d.name;
+//                    var loc = usStates[s];
+//
+//                    return _self.projection([loc.lon, loc.lat])[0];
+//                }).attr("cy", function (d, i) {
+//
+//                    var s = d.name;
+//                    var loc = usStates[s];
+//
+//                    return _self.projection([loc.lon, loc.lat])[1];
+//                })
+//                .attr("fill-opacity", 1)
+//                .attr("stroke", "white")
+//                .attr("stroke-width", "0.5px")
+//                .attr("r", function (d, i) {
+//                    return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
+//                });
+//
+//            _self.svg.append("g")
+//                .style("pointer-events", "none")
+//                .attr("class", "links")
+//                .selectAll("line")
+//                .data(_self.targetData.slice(0, 100))
+//                .enter().append("line")
+//                .attr("class", "link")
+//                .style("pointer-events", "none")
+//                .attr("stroke", function (d) {
+//                    return "#9ecae1";
+//                    //return _self.colors(d["_id"][destination]);
+//                })
+//                .attr("stroke-width", function (d, i) {
+//                    return (Math.log(d["Flights"] + 0.5)) * _self.thumbnailscale + "px";
+//                })
+//                .attr("stroke-opacity", 0.1)
+//                .attr("x1", function (d, i) {
+//
+//                    var s = d["_id"][source];
+//                    var loc = usStates[s];
+//                    var c = _self.projection([loc.lon, loc.lat])
+//
+//                    return c[0];
+//                })
+//                .attr("y1", function (d, i) {
+//
+//                    var s = d["_id"][source];
+//                    var loc = usStates[s];
+//                    var c = _self.projection([loc.lon, loc.lat])
+//
+//                    return c[1];
+//
+//                })
+//                .attr("x2", function (d, i) {
+//
+//                    var s = d["_id"][destination];
+//                    var loc = usStates[s];
+//                    var c = _self.projection([loc.lon, loc.lat])
+//
+//                    return c[0];
+//
+//                })
+//                .attr("y2", function (d, i) {
+//
+//                    var s = d["_id"][destination];
+//                    var loc = usStates[s];
+//                    var c = _self.projection([loc.lon, loc.lat])
+//
+//                    return c[1];
+//
+//                });
+//
+//        });
 
-    } else {
+    }
 
         var cities = [];
         var sourceCities = [];
@@ -919,10 +974,10 @@ Map.prototype.refreshThumbnail = function () {
             .selectAll(".city")
             .data(cities);
 
-        cityCircles.exit().attr("r", "0.1px").transition().duration(1000);
+        cityCircles.exit().attr("r", "0.1px").transition().delay(1000);
 
         cityCircles.enter().append("circle")
-            .transition().duration(1000)
+            .transition().delay(1000)
             .attr("class", "city")
             .style("pointer-events", "none")
             .attr("fill", function (d) {
@@ -946,7 +1001,7 @@ Map.prototype.refreshThumbnail = function () {
             .attr("stroke", "white")
             .attr("stroke-width", "0.5px")
             .attr("r", function (d, i) {
-                return "3px";
+                return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
             });
 
         cityCircles.attr("cx", function (d, i) {
@@ -966,10 +1021,10 @@ Map.prototype.refreshThumbnail = function () {
             .attr("stroke", "white")
             .attr("stroke-width", "0.5px")
             .attr("r", function (d, i) {
-                return "1px";
+                return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
             });
 
-        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData);
+        var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData.slice(0, 100));
 
         cityLinks.exit().remove();
 
@@ -982,9 +1037,9 @@ Map.prototype.refreshThumbnail = function () {
             })
             .attr("stroke-width", function (d, i) {
                 return 0.5;
-                return (1 + Math.log(d["Flights"] + 1)) + "px";
+                return (1 + Math.log(d["Flights"] + 1))*_self.thumbnailscale + "px";
             })
-            .attr("stroke-opacity", 0.01)
+            .attr("stroke-opacity", 0.1)
             .attr("x1", function (d, i) {
 
                 var s = d["_id"][source];
@@ -1058,7 +1113,7 @@ Map.prototype.refreshThumbnail = function () {
             });
 
 
-    }
+    
 
 }
 
@@ -1070,17 +1125,18 @@ Map.prototype.reDrawChart = function (flag, width, height) {
 
     _self.height = height - _self.margin.top - _self.margin.bottom;
 
-    $("#" + _self.parentId).empty();
 
     if (flag) {
 
         _self.svg = null;
 
+        $("#" + _self.parentId).empty();
+
         _self.refreshChart();
 
     } else {
 
-        _self.svg = null;
+        //_self.svg = null;
 
         device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
 

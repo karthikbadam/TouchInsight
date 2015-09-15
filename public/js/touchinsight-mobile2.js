@@ -43,6 +43,8 @@ var historyQueryStack = [];
 
 var svgs = [];
 
+var l;
+
 // represents which visualization is the main one and others are micro visualizations
 var mainView = [1, 1];
 
@@ -67,15 +69,18 @@ function setGlobalQuery(query, propagate) {
 
     // update all other visualizations
     if (propagate) {
-        geomap.postUpdate();
-        timechart.postUpdate();
-        passengerchart.postUpdate();
-        flightsbar.postUpdate();
-        passengersbar.postUpdate();
-        flightdistance.postUpdate();
-        passengerseats.postUpdate();
-        distancebar.postUpdate();
-        populationbar.postUpdate();
+        
+        for (var i = 0; i < GRID[1]; i++) {
+
+            for (var j = 0; j < GRID[0]; j++) {
+
+                if (l[i][j] != 0) {
+                    
+                    svgs[i][j].postUpdate();
+                }
+            }
+
+        }
     }
 
 }
@@ -115,7 +120,7 @@ $(document).ready(function () {
             });
     }
 
-    $("#" + buttons[3]).toggleClass('active');
+    //$("#" + buttons[3]).toggleClass('active');
 
     width = $("#content").width();
     height = $("#content").height();
@@ -148,8 +153,10 @@ $(document).ready(function () {
 
 
 function reDrawInterface() {
+    
+    var prevL = l;
 
-    var l = getDimensions(mainView[0], mainView[1]);
+    l = getDimensions(mainView[0], mainView[1]);
 
     for (var i = 0; i < GRID[1]; i++) {
 
@@ -186,7 +193,8 @@ function reDrawInterface() {
                                            $("#div" + i + j).height());
 
                 } else {
-
+                   if (prevL[i][j] == 0)
+                        svgs[i][j].postUpdate();
                     svgs[i][j].reDrawChart(0, $("#div" + i + j).width(), 
                                            $("#div" + i + j).height());
 
@@ -246,7 +254,8 @@ function onDataLoaded() {
         cols: [source, destination],
         width: $("#div10").width(),
         height: $("#div10").height(),
-        link: "getFlightDistances"
+        link: "getFlightDistances",
+        target: passengers
     });
 
     svgs[1][0] = flightdistance;
@@ -256,7 +265,8 @@ function onDataLoaded() {
         cols: [source, destination],
         width: $("#div12").width(),
         height: $("#div12").height(),
-        link: "getPassengerSeats"
+        link: "getPassengerSeats",
+        target: numFlights
     });
 
     svgs[1][2] = passengerseats;
@@ -316,7 +326,7 @@ function createLayout() {
 
     //GRID[1] = GRID[0];
 
-    var l = getDimensions(mainView[0], mainView[1]);
+    l = getDimensions(mainView[0], mainView[1]);
     
     svgs = new Array(GRID[1]);
 

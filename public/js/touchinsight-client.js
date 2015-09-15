@@ -105,7 +105,7 @@ $(document).ready(function () {
             });
     }
 
-    $("#" + buttons[3]).toggleClass('active');
+    //$("#" + buttons[3]).toggleClass('active');
 
     width = $("#content").width();
     height = $("#content").height();
@@ -171,7 +171,8 @@ function onDataLoaded() {
         cols: [source, destination],
         width: $("#div10").width(),
         height: $("#div10").height(),
-        link: "getFlightDistances"
+        link: "getFlightDistances",
+        target: "Passengers"
     });
 
     passengerseats = new Parallel({
@@ -179,7 +180,8 @@ function onDataLoaded() {
         cols: [source, destination],
         width: $("#div12").width(),
         height: $("#div12").height(),
-        link: "getPassengerSeats"
+        link: "getPassengerSeats",
+        target: "Flights"
     });
 
     distancebar = new Bar({
