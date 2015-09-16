@@ -37,7 +37,7 @@ var usStates = {};
 
 var buttons = ["OR", "AND", "NOT", "CLEAN"];
 
-var currentLogic = "CLEAN";
+var currentLogic = "AND";
 
 var queryStack = [];
 

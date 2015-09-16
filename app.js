@@ -23,7 +23,7 @@ var ObjectId = require('mongodb').ObjectID;
 var FIRST_TIME_EXECUTED = false;
 
 // connect to the flights database in mongodb
-var mongourl = 'mongodb://localhost:27017/flights';
+var mongourl = 'mongodb://127.0.0.1:27017/flights';
 
 var app = express();
 
@@ -58,11 +58,17 @@ app.get('/mobile2', function (req, res, next) {
     res.render('mobile2.html', {});
 });
 
+app.get('/survey', function (req, res, next) {
+    res.render('data.html', {});
+});
+
 // as soon as the app for the first time, read the dataset 
 // and load it
 
 //start with stock list
-var stream = fs.createReadStream("public/data/flights3.csv");
+var stream = fs.createReadStream("public/data/flight_edges.tsv");
+
+//db.flights.createIndex( { "Source": 1, "Passengers": -1 , "Flights": -1, "Date": 1, "sourcePopulation": -1} )
 
 var sourceID = "SID";
 var destID = "DID";
@@ -83,7 +89,8 @@ function initialize(db, callback) {
     if (FIRST_TIME_EXECUTED) {
         var csvStream = csv
             .fromStream(stream, {
-                headers: true
+                headers: true,
+                delimiter: '\t'
             })
             .on("data", function (d) {
 
@@ -122,6 +129,36 @@ MongoClient.connect(mongourl, function (err, db) {
         db.close();
     });
 });
+
+
+var createIndex = false;
+
+var indexFlights = function (db, callback) {
+    db.collection('flights').createIndex({
+            "Passengers": -1,
+            "Distance": -1,
+            "Flights": -1,
+            "Date": 1,
+            "SPopulation": -1,
+            "Source": 1,
+            "Seats" : -1
+        },
+        null,
+        function (err, results) {
+            console.log(results);
+            callback();
+        }
+    );
+};
+
+if (createIndex) {
+    MongoClient.connect(mongourl, function(err, db) {
+      assert.equal(null, err);
+      indexFlights(db, function() {
+          db.close();
+      });
+    });   
+}
 
 
 function queryFlightConnections(db, query, callback) {

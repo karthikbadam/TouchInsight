@@ -120,20 +120,20 @@ Map.prototype.refreshChart = function () {
                     logic: currentLogic
                 });
 
-                //setGlobalQuery(query1, flag = selectedDestinations.length > 0 ? 0 : 1);
-                setGlobalQuery(query1, flag = 1);
+                setGlobalQuery(query1, flag = selectedDestinations.length > 0 ? 0 : 1);
+                //setGlobalQuery(query1, flag = 1);
             }
 
-//            if (selectedDestinations.length > 0) {
-//                var query2 = new Query({
-//                    index: destination,
-//                    value: selectedDestinations,
-//                    operator: "in",
-//                    logic: selectedSources.length > 0 ? "AND" : currentLogic
-//                });
-//
-//                setGlobalQuery(query2, 1);
-//            }
+            if (selectedDestinations.length > 0) {
+                var query2 = new Query({
+                    index: destination,
+                    value: selectedDestinations,
+                    operator: "in",
+                    logic: selectedSources.length > 0 ? "AND" : currentLogic
+                });
+
+                setGlobalQuery(query2, 1);
+            }
 
             // Reset the style of the not selected dots
             _self.lasso.items().filter(function (d) {
@@ -222,13 +222,19 @@ Map.prototype.refreshChart = function () {
                     var s = d.name;
                     var loc = usStates[s];
 
-                    return _self.projection([loc.lon, loc.lat])[0];
+                    if (loc && loc.lon)
+                        return _self.projection([loc.lon, loc.lat])[0];
+
+                    return -10;
                 }).attr("cy", function (d, i) {
 
                     var s = d.name;
                     var loc = usStates[s];
 
-                    return _self.projection([loc.lon, loc.lat])[1];
+                    if (loc && loc.lat)
+                        return _self.projection([loc.lon, loc.lat])[1];
+
+                    return -10;
                 })
                 .attr("fill-opacity", 1)
                 .attr("stroke", "white")
@@ -350,13 +356,19 @@ Map.prototype.refreshChart = function () {
                 var s = d.name;
                 var loc = usStates[s];
 
-                return _self.projection([loc.lon, loc.lat])[0];
+                if (loc && loc.lon)
+                    return _self.projection([loc.lon, loc.lat])[0];
+
+                return -10;
             }).attr("cy", function (d, i) {
 
                 var s = d.name;
                 var loc = usStates[s];
 
-                return _self.projection([loc.lon, loc.lat])[1];
+                if (loc && loc.lat)
+                    return _self.projection([loc.lon, loc.lat])[1];
+
+                return -10;
             })
             .attr("fill-opacity", 1)
             .attr("stroke", "white")
@@ -370,19 +382,29 @@ Map.prototype.refreshChart = function () {
                 var s = d.name;
                 var loc = usStates[s];
 
-                return _self.projection([loc.lon, loc.lat])[0];
+                if (loc && loc.lon)
+                    return _self.projection([loc.lon, loc.lat])[0];
+
+                return -10;
             }).attr("cy", function (d, i) {
 
                 var s = d.name;
                 var loc = usStates[s];
 
-                return _self.projection([loc.lon, loc.lat])[1];
+                if (loc && loc.lat)
+                    return _self.projection([loc.lon, loc.lat])[1];
+
+                return -10;
             })
             .attr("fill-opacity", 1)
             .attr("stroke", "white")
             .attr("stroke-width", "0.5px")
             .attr("r", function (d) {
                 return d.type == source ? "3px" : "6px";
+            })
+            .attr("fill", function (d) {
+                //return _self.colors(d["_id"][destination]);
+                return d.type == source ? "#4292c6" : "#fb6a4a";
             });
 
 
@@ -715,8 +737,8 @@ Map.prototype.refreshMicroViz = function () {
             });
 
         _self.g.selectAll(".axis").remove();
-        
-         _self.g.append("g")
+
+        _self.g.append("g")
             .attr("class", "axis")
             .each(function (d) {
                 d3.select(this)
@@ -1018,13 +1040,19 @@ Map.prototype.refreshThumbnail = function () {
             var s = d.name;
             var loc = usStates[s];
 
-            return _self.projection([loc.lon, loc.lat])[0];
+            if (loc && loc.lon)
+                return _self.projection([loc.lon, loc.lat])[0];
+
+            return -10;
         }).attr("cy", function (d, i) {
 
             var s = d.name;
             var loc = usStates[s];
 
-            return _self.projection([loc.lon, loc.lat])[1];
+            if (loc && loc.lat)
+                return _self.projection([loc.lon, loc.lat])[1];
+
+            return -10;
         })
         .attr("fill-opacity", 1)
         .attr("stroke", "white")
@@ -1038,13 +1066,19 @@ Map.prototype.refreshThumbnail = function () {
             var s = d.name;
             var loc = usStates[s];
 
-            return _self.projection([loc.lon, loc.lat])[0];
+            if (loc && loc.lon)
+                return _self.projection([loc.lon, loc.lat])[0];
+
+            return -10;
         }).attr("cy", function (d, i) {
 
             var s = d.name;
             var loc = usStates[s];
 
-            return _self.projection([loc.lon, loc.lat])[1];
+            if (loc && loc.lat)
+                return _self.projection([loc.lon, loc.lat])[1];
+
+            return -10;
         })
         .attr("fill-opacity", 1)
         .attr("stroke", "white")

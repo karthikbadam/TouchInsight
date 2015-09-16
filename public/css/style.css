@@ -13,8 +13,13 @@ body {
 }
 
 line {
-    stroke-linecap: "round";   
+    stroke-linecap: round;   
 }
+
+path {
+    stroke-linecap: round;   
+}
+
 
 #button-panel {
     width: 100%;

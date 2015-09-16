@@ -43,24 +43,22 @@ function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
     
-    var prevQuery = historyQueryStack[historyQueryStack.length - 1];
+    var prevQuery = queryStack[queryStack.length - 1];
     
-    if (prevQuery && prevQuery.logic== "AND" && prevQuery.index == query.index) {
-        
-        query.logic = "OR";   
-        prevQuery.logic = "OR"; 
-        queryStack[queryStack.length -  1] = prevQuery.getQueryString();
-
-    }
-    
+//    if (prevQuery && prevQuery.logic== "AND" && prevQuery.index == query.index) {
+//        query.logic = "OR";   
+//        prevQuery.logic = "OR"; 
+//        queryStack[queryStack.length -  1] = prevQuery;
+//
+//    }
     
     queryStack.push(query.getQueryString());
 
     for (var i = queryStack.length - 1; i >= 0; i--) {
 
-        var query = queryStack[i];
+        var q = queryStack[i];
 
-        if (query.logic == "CLEAN") {
+        if (q.logic == "CLEAN") {
 
             queryStack = queryStack.slice(i);
             break;
