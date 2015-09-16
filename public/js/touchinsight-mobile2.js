@@ -12,6 +12,8 @@ var destPopulation = "DPopulation";
 
 var dataFile = "data/flights.csv";
 
+var THUMBNAIL_SCALE = 0.6;
+
 var GRID = [3, 3];
 
 var width = 0;
@@ -403,7 +405,7 @@ function getDimensions(mainVIndex, mainHIndex) {
     rightExists = right > 0 ? 1 : 0;
 
     var PROPORTIONSX = 7;
-    var PROPORTIONSY = 8;
+    var PROPORTIONSY = 5;
 
     var secondaryWidth = width / PROPORTIONSX;
     var secondaryHeight = height / PROPORTIONSY;

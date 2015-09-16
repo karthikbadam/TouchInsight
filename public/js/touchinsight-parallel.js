@@ -250,7 +250,8 @@ Parallel.prototype.refreshMicroViz = function () {
 
     }
 
-    if (d3.select("#micro" + _self.parentId).empty() || _self.svg.select(".parallel").empty()) {
+    if (d3.select("#micro" + _self.parentId).empty() || 
+        _self.svg.select(".parallel").empty()) {
 
         $("#" + _self.parentId).empty();
 
@@ -368,6 +369,7 @@ Parallel.prototype.refreshMicroViz = function () {
                 d3.select(this).call(_self.axis.scale(_self.y[d]));
             })
             .append("text")
+            .style("color", "black")
             .style("text-anchor", "end")
             .attr("x", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
@@ -445,8 +447,7 @@ Parallel.prototype.refreshMicroViz = function () {
 
         parallelLines.attr("d", path);
 
-        _self.g
-            .attr("transform", function (d, i) {
+        _self.g.attr("transform", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
                     return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
 
@@ -456,17 +457,22 @@ Parallel.prototype.refreshMicroViz = function () {
             });
 
         _self.g.selectAll(".axis")
+            .remove();
+        
+        _self.g.append("g")
+            .attr("class", "axis")
             .each(function (d) {
                 d3.select(this).call(_self.axis.scale(_self.y[d]));
             })
-            .select("text")
+            .append("text")
+            .style("color", "black")
             .style("text-anchor", "end")
             .attr("x", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
                     return _self.direction == "left" ? 40 : -30;
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return -40;
+                    return 40;
 
             })
             .attr("y", function (d, i) {
@@ -488,7 +494,7 @@ Parallel.prototype.refreshThumbnail = function () {
 
     var _self = this;
     
-    _self.thumbnailscale = 0.5;
+    _self.thumbnailscale = THUMBNAIL_SCALE;
     
     _self.thumbnailwidth = _self.width + _self.margin.left + _self.margin.right;
     _self.thumbnailheight = _self.height + _self.margin.top + _self.margin.bottom

@@ -48,7 +48,6 @@ Bar.prototype.refreshChart = function () {
             .text(_self.text)
             .style("font-size", "12px");
 
-
         _self.svg = d3.select("#" + _self.parentId).append("div")
             .style("overflow", "scroll")
             .style("width", _self.width + _self.margin.left + _self.margin.right)
@@ -60,7 +59,6 @@ Bar.prototype.refreshChart = function () {
             .append("g")
             .attr("transform", "translate(" + (_self.margin.left) + "," +
                 _self.margin.top + ")");
-
 
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.targetData, function (d) {
@@ -89,7 +87,19 @@ Bar.prototype.refreshChart = function () {
                 return _self.x(Math.pow(d[_self.target], 1));
             })
             .attr("height", _self.barH - 5)
-            .attr("fill", "#9ecae1");
+            .attr("fill", "#9ecae1")
+            .on("click", function () {
+
+                var query = new Query({
+                    index: source,
+                    value: d3.select(this)[0][0].__data__["_id"][source],
+                    operator: "equal",
+                    logic: currentLogic
+                });
+
+                setGlobalQuery(query, 1);
+
+            });
 
         _self.bars.append("text")
             .attr("x", function (d) {
@@ -101,7 +111,8 @@ Bar.prototype.refreshChart = function () {
             .attr("dy", ".35em")
             .text(function (d) {
                 return Math.round(d[_self.target]);
-            });
+            })
+            .style("pointer-events", "none");
 
         _self.svg.selectAll("text.name")
             .data(_self.targetData)
@@ -113,9 +124,23 @@ Bar.prototype.refreshChart = function () {
             .attr("fill", "#222")
             .attr("text-anchor", "end")
             .attr('class', 'name')
+            .style("cursor", "pointer")
             .text(function (d) {
                 return d["_id"][source];
+            })
+            .on("click", function () {
+                alert(d3.select(this)[0][0].__data__["_id"][source]);
+
+                var query = new Query({
+                    index: source,
+                    value: d3.select(this)[0][0].__data__["_id"][source],
+                    operator: "equal",
+                    logic: currentLogic
+                });
+
+                setGlobalQuery(query, 1);
             });
+
 
         if (device == 2 && _self.parentId != "div" + mainView[0] + "" + mainView[1]) {
 
@@ -146,7 +171,19 @@ Bar.prototype.refreshChart = function () {
                 return _self.x(Math.pow(d[_self.target], 1));
             })
             .attr("height", _self.barH - 5)
-            .attr("fill", "#9ecae1");
+            .attr("fill", "#9ecae1")
+            .style("cursor", "pointer")
+            .on("click", function () {
+                
+                var query = new Query({
+                    index: source,
+                    value: d3.select(this)[0][0].__data__["_id"][source],
+                    operator: "equal",
+                    logic: currentLogic
+                });
+
+                setGlobalQuery(query, 1);
+            });
 
         rects.append("text")
             .attr("x", function (d) {
@@ -158,7 +195,8 @@ Bar.prototype.refreshChart = function () {
             .attr("dy", ".35em")
             .text(function (d) {
                 return Math.round(d[_self.target]);
-            });
+            })
+            .style("pointer-events", "none");
 
         allBars.select("rect").attr("width", function (d) {
                 return _self.x(Math.pow(d[_self.target], 1));
@@ -208,7 +246,19 @@ Bar.prototype.refreshChart = function () {
             .attr('class', 'name')
             .text(function (d) {
                 return d["_id"][source];
-            });
+            })
+            .style("cursor", "pointer")
+            .on("click", function () {
+        
+                var query = new Query({
+                    index: source,
+                    value: d3.select(this)[0][0].__data__["_id"][source],
+                    operator: "equal",
+                    logic: currentLogic
+                });
+
+                setGlobalQuery(query, 1);
+            });;
 
     }
 
@@ -297,14 +347,14 @@ Bar.prototype.refreshMicroViz = function () {
             });
 
         _self.opacityScale1 = d3.scale.linear()
-            .range([0.2, 1]);
+            .range([0.4, 1]);
 
         _self.opacityScale1.domain([0, d3.max(data, function (d) {
             return d[_self.target];
         })]);
 
         _self.opacityScale2 = d3.scale.linear()
-            .range([1, 0.2]);
+            .range([1, 0.4]);
 
         _self.opacityScale2.domain([0, d3.max(data2, function (d) {
             return d[_self.target];
@@ -441,7 +491,7 @@ Bar.prototype.refreshMicroViz = function () {
             .attr("fill", "#222")
             .attr("font-size", "9px")
             .text(function (d) {
-                return d["_id"][source].substr(0, 8);
+                return d["_id"][source].substr(0, 8).trim();
             });
 
 
@@ -749,7 +799,7 @@ Bar.prototype.refreshMicroViz = function () {
             .attr("fill", "#222")
             .attr("font-size", "9px")
             .text(function (d) {
-                return d["_id"][source].substr(0, 8);
+                return d["_id"][source].substr(0, 8).trim();
             });
 
     }
@@ -765,7 +815,7 @@ Bar.prototype.refreshThumbnail = function () {
 
         $("#" + _self.parentId).empty();
 
-        _self.thumbnailscale = 0.5;
+        _self.thumbnailscale = THUMBNAIL_SCALE;
 
         d3.select("#" + _self.parentId).append("text")
             .text(_self.text)
@@ -774,7 +824,7 @@ Bar.prototype.refreshThumbnail = function () {
         _self.svg = d3.select("#" + _self.parentId).append("div")
             .style("overflow", "scroll")
             .style("width", _self.width + _self.margin.left + _self.margin.right)
-            .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom - 10*_self.thumbnailscale)
+            .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom - 10 * _self.thumbnailscale)
             .append("svg")
             .attr("id", _self.target + "bar")
             .attr("class", "thumbnail" + _self.target)
@@ -795,8 +845,8 @@ Bar.prototype.refreshThumbnail = function () {
 
             })
             .append("g")
-            .attr("transform", "translate(" + (_self.thumbnailscale*_self.margin.left) + "," +
-                _self.thumbnailscale*_self.margin.top + ")")
+            .attr("transform", "translate(" + (_self.thumbnailscale * _self.margin.left) + "," +
+                _self.thumbnailscale * _self.margin.top + ")")
             .style("pointer-events", "none")
             .style("font-size", 10 * _self.thumbnailscale + "px");
 
@@ -814,7 +864,7 @@ Bar.prototype.refreshThumbnail = function () {
             .rangeBands([0, _self.height]);
 
         //_self.barH = _self.height / _self.targetData.length;
-        _self.barH = 20* _self.thumbnailscale;
+        _self.barH = 20 * _self.thumbnailscale;
 
         _self.bars = _self.svg.selectAll("g")
             .data(_self.targetData)
@@ -827,12 +877,12 @@ Bar.prototype.refreshThumbnail = function () {
             .attr("width", function (d) {
                 return _self.x(Math.pow(d[_self.target], 1));
             })
-            .attr("height", _self.barH - 5* _self.thumbnailscale)
+            .attr("height", _self.barH - 5 * _self.thumbnailscale)
             .attr("fill", "#9ecae1");
 
         _self.bars.append("text")
             .attr("x", function (d) {
-                return 5* _self.thumbnailscale;
+                return 5 * _self.thumbnailscale;
             })
             .attr("y", _self.barH / 3)
             .attr("fill", "#222")
@@ -845,7 +895,7 @@ Bar.prototype.refreshThumbnail = function () {
         _self.svg.selectAll("text.name")
             .data(_self.targetData)
             .enter().append("text")
-            .attr("x", _self.margin.left - 5* _self.thumbnailscale)
+            .attr("x", _self.margin.left - 5 * _self.thumbnailscale)
             .attr("y", function (d, i) {
                 return i * _self.barH + _self.barH / 2;
             })
@@ -878,12 +928,12 @@ Bar.prototype.refreshThumbnail = function () {
             .attr("width", function (d) {
                 return _self.x(Math.pow(d[_self.target], 1));
             })
-            .attr("height", _self.barH - 5* _self.thumbnailscale)
+            .attr("height", _self.barH - 5 * _self.thumbnailscale)
             .attr("fill", "#9ecae1");
 
         rects.append("text")
             .attr("x", function (d) {
-                return 5* _self.thumbnailscale;
+                return 5 * _self.thumbnailscale;
             })
             .attr("y", _self.barH / 3)
             .attr("fill", "#222")
@@ -896,12 +946,12 @@ Bar.prototype.refreshThumbnail = function () {
         allBars.select("rect").attr("width", function (d) {
                 return _self.x(Math.pow(d[_self.target], 1));
             })
-            .attr("height", _self.barH - 5* _self.thumbnailscale)
+            .attr("height", _self.barH - 5 * _self.thumbnailscale)
             .attr("fill", "#9ecae1");
 
         allBars.select("text")
             .attr("x", function (d) {
-                return 5* _self.thumbnailscale;
+                return 5 * _self.thumbnailscale;
             })
             .attr("y", _self.barH / 3)
             .attr("fill", "#222")
@@ -922,7 +972,7 @@ Bar.prototype.refreshThumbnail = function () {
         allText.exit().remove();
 
         allText.enter().append("text")
-            .attr("x", _self.margin.left - 5* _self.thumbnailscale)
+            .attr("x", _self.margin.left - 5 * _self.thumbnailscale)
             .attr("y", function (d, i) {
                 return i * _self.barH + _self.barH / 2;
             })
@@ -932,7 +982,7 @@ Bar.prototype.refreshThumbnail = function () {
                 return d["_id"][source];
             });
 
-        allText.attr("x", _self.margin.left - 5* _self.thumbnailscale)
+        allText.attr("x", _self.margin.left - 5 * _self.thumbnailscale)
             .attr("y", function (d, i) {
                 return i * _self.barH + _self.barH / 2;
             })

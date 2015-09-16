@@ -33,7 +33,7 @@ var usStates = {};
 
 var buttons = ["OR", "AND", "NOT", "CLEAN"];
 
-var currentLogic = "CLEAN";
+var currentLogic = "AND";
 
 var queryStack = [];
 
@@ -42,12 +42,23 @@ var historyQueryStack = [];
 function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
+    
+    var prevQuery = historyQueryStack[historyQueryStack.length - 1];
+    
+    if (prevQuery && prevQuery.logic== "AND" && prevQuery.index == query.index) {
+        
+        query.logic = "OR";   
+        prevQuery.logic = "OR"; 
+        queryStack[queryStack.length -  1] = prevQuery.getQueryString();
 
+    }
+    
+    
     queryStack.push(query.getQueryString());
 
     for (var i = queryStack.length - 1; i >= 0; i--) {
 
-        var query = queryStack[i]
+        var query = queryStack[i];
 
         if (query.logic == "CLEAN") {
 

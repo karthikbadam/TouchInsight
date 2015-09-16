@@ -443,7 +443,7 @@ TimeChart.prototype.refreshThumbnail = function () {
 
         $("#" + _self.parentId).empty();
 
-        _self.thumbnailscale = 0.5;
+        _self.thumbnailscale = THUMBNAIL_SCALE;
 
         _self.svg = d3.select("#" + _self.parentId)
             .append("svg")

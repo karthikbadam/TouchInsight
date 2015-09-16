@@ -120,19 +120,20 @@ Map.prototype.refreshChart = function () {
                     logic: currentLogic
                 });
 
-                setGlobalQuery(query1, flag = selectedDestinations.length > 0 ? 0 : 1);
+                //setGlobalQuery(query1, flag = selectedDestinations.length > 0 ? 0 : 1);
+                setGlobalQuery(query1, flag = 1);
             }
 
-            if (selectedDestinations.length > 0) {
-                var query2 = new Query({
-                    index: destination,
-                    value: selectedDestinations,
-                    operator: "in",
-                    logic: selectedSources.length > 0 ? "AND" : currentLogic
-                });
-
-                setGlobalQuery(query2, 1);
-            }
+//            if (selectedDestinations.length > 0) {
+//                var query2 = new Query({
+//                    index: destination,
+//                    value: selectedDestinations,
+//                    operator: "in",
+//                    logic: selectedSources.length > 0 ? "AND" : currentLogic
+//                });
+//
+//                setGlobalQuery(query2, 1);
+//            }
 
             // Reset the style of the not selected dots
             _self.lasso.items().filter(function (d) {
@@ -713,9 +714,13 @@ Map.prototype.refreshMicroViz = function () {
 
             });
 
-        _self.g.selectAll(".axis")
+        _self.g.selectAll(".axis").remove();
+        
+         _self.g.append("g")
+            .attr("class", "axis")
             .each(function (d) {
-                d3.select(this).call(_self.axis.scale(_self.y[d]))
+                d3.select(this)
+                    .call(_self.axis.scale(_self.y[d]))
                     .selectAll("text")
                     .attr("transform", function (d, i) {
                         if (_self.direction == "top" || _self.direction == "bottom")
@@ -727,6 +732,27 @@ Map.prototype.refreshMicroViz = function () {
                         return _self.direction == "right" ? "end" : "start";
                     });
             })
+            .append("text")
+            .style("text-anchor", "end")
+            .attr("x", function (d, i) {
+                if (_self.direction == "left" || _self.direction == "right")
+                    return _self.direction == "left" ? 20 : -30;
+
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return 40;
+
+            })
+            .attr("y", function (d, i) {
+                if (_self.direction == "left" || _self.direction == "right")
+                    return 40;
+
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return _self.direction == "top" ? 70 : -70;
+
+            })
+            .text(function (d) {
+                return d;
+            });
 
         var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
             .data(_self.targetDataTemp);
@@ -780,7 +806,7 @@ Map.prototype.refreshThumbnail = function () {
 
             });
 
-        _self.thumbnailscale = 0.5;
+        _self.thumbnailscale = THUMBNAIL_SCALE;
 
         var scale = 55 * (_self.height + _self.margin.top + _self.margin.bottom) / Math.abs(bottom - top);
 
