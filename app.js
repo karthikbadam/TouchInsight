@@ -141,7 +141,7 @@ var indexFlights = function (db, callback) {
             "Date": 1,
             "SPopulation": -1,
             "Source": 1,
-            "Seats" : -1
+            "Seats": -1
         },
         null,
         function (err, results) {
@@ -152,12 +152,12 @@ var indexFlights = function (db, callback) {
 };
 
 if (createIndex) {
-    MongoClient.connect(mongourl, function(err, db) {
-      assert.equal(null, err);
-      indexFlights(db, function() {
-          db.close();
-      });
-    });   
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+        indexFlights(db, function () {
+            db.close();
+        });
+    });
 }
 
 
@@ -185,13 +185,27 @@ function queryFlightConnections(db, query, callback) {
                 }
         }
     ]);
+    
+//var data = db.collection("flights")
+//          .find(query);
 
-    data.toArray(function (err, docs) {
-        assert.equal(null, err);
+    //    data.toArray(function (err, docs) {
+    //        assert.equal(null, err);
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
+
+    var docs = [];
+
+    data.on('data', function (doc) {
+        docs.push(doc);
+        console.log(doc);
+    });
+
+    data.once('end', function () {
         console.log(docs.length);
         callback(docs);
     });
-
 
 }
 
@@ -240,8 +254,20 @@ function queryFlightsByTime(db, query, callback) {
             }
         ]);
 
-    data.toArray(function (err, docs) {
-        assert.equal(null, err);
+    //    data.toArray(function (err, docs) {
+    //        assert.equal(null, err);
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
+
+    var docs = [];
+
+    data.on('data', function (doc) {
+        docs.push(doc);
+        console.log(doc);
+    });
+
+    data.once('end', function () {
         console.log(docs.length);
         callback(docs);
     });
@@ -292,12 +318,23 @@ function queryPassengersByTime(db, query, callback) {
     }
     ]);
 
-    data.toArray(function (err, docs) {
-        assert.equal(null, err);
+    //    data.toArray(function (err, docs) {
+    //        assert.equal(null, err);
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
+
+    var docs = [];
+
+    data.on('data', function (doc) {
+        docs.push(doc);
+        console.log(doc);
+    });
+
+    data.once('end', function () {
         console.log(docs.length);
         callback(docs);
     });
-
 
 }
 
@@ -320,7 +357,7 @@ app.get('/getPassengersByTime', function (req, res, next) {
 });
 
 
-function queryFlightsBySource(db, query, callback) {
+function queryFlightsBySource(db, query, callback, callbackStream) {
 
     var data = db.collection("flights").aggregate([
         {
@@ -344,8 +381,21 @@ function queryFlightsBySource(db, query, callback) {
         }
                    ]);
 
-    data.toArray(function (err, docs) {
-        assert.equal(null, err);
+    //    data.toArray(function (err, docs) {
+    //        assert.equal(null, err);
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
+
+    var docs = [];
+
+    data.on('data', function (doc) {
+        docs.push(doc);
+        //callbackStream(docs);
+        console.log(doc);
+    });
+
+    data.once('end', function () {
         console.log(docs.length);
         callback(docs);
     });
@@ -367,6 +417,8 @@ app.get('/getFlightsBySource', function (req, res, next) {
             db.close();
             res.write(JSON.stringify(data));
             res.end();
+        }, function (data) {
+            res.write(JSON.stringify(data));
         });
     });
 
@@ -397,12 +449,23 @@ function queryPassengersBySource(db, query, callback) {
         }
                    ]);
 
-    data.toArray(function (err, docs) {
-        assert.equal(null, err);
+    //    data.toArray(function (err, docs) {
+    //        assert.equal(null, err);
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
+
+    var docs = [];
+
+    data.on('data', function (doc) {
+        docs.push(doc);
+        console.log(doc);
+    });
+
+    data.once('end', function () {
         console.log(docs.length);
         callback(docs);
     });
-
 
 }
 
@@ -470,12 +533,23 @@ function queryFlightDistances(db, query, callback) {
         }
                    ]);
 
-    data.toArray(function (err, docs) {
-        assert.equal(null, err);
+    //    data.toArray(function (err, docs) {
+    //        assert.equal(null, err);
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
+
+    var docs = [];
+
+    data.on('data', function (doc) {
+        docs.push(doc);
+        console.log(doc);
+    });
+
+    data.once('end', function () {
         console.log(docs.length);
         callback(docs);
     });
-
 
 }
 
@@ -553,12 +627,23 @@ function queryPassengerSeats(db, query, callback) {
 
     ]);
 
-    data.toArray(function (err, docs) {
-        assert.equal(null, err);
+    //    data.toArray(function (err, docs) {
+    //        assert.equal(null, err);
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
+
+    var docs = [];
+
+    data.on('data', function (doc) {
+        docs.push(doc);
+        console.log(doc);
+    });
+
+    data.once('end', function () {
         console.log(docs.length);
         callback(docs);
     });
-
 
 }
 
@@ -605,8 +690,20 @@ function queryDistanceBySource(db, query, callback) {
         }
                    ]);
 
-    data.toArray(function (err, docs) {
-        assert.equal(null, err);
+    //    data.toArray(function (err, docs) {
+    //        assert.equal(null, err);
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
+
+    var docs = [];
+
+    data.on('data', function (doc) {
+        docs.push(doc);
+        console.log(doc);
+    });
+
+    data.once('end', function () {
         console.log(docs.length);
         callback(docs);
     });
@@ -657,12 +754,23 @@ function queryPopulationBySource(db, query, callback) {
         }
                    ]);
 
-    data.toArray(function (err, docs) {
-        assert.equal(null, err);
+    //    data.toArray(function (err, docs) {
+    //        assert.equal(null, err);
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
+
+    var docs = [];
+
+    data.on('data', function (doc) {
+        docs.push(doc);
+        console.log(doc);
+    });
+
+    data.once('end', function () {
         console.log(docs.length);
         callback(docs);
     });
-
 
 }
 
