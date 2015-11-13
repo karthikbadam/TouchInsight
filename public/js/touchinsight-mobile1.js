@@ -24,7 +24,7 @@ var device = "MOBILE";
 
 var colorscale = d3.scale.category10();
 
-var parseDate = d3.time.format("%Y%m").parse;
+var parseDate = d3.time.format("%Y").parse;
 
 var geomap, timechart, passengerchart, flightsbar, passengersbar, flightdistance,
     passengerseats, distancebar, populationbar;
@@ -65,6 +65,8 @@ function setGlobalQuery(query, propagate) {
         }
     }
 
+    d3.select(".extent").remove();
+    
     historyQueryStack.push(query);
 
     // update all other visualizations
@@ -87,48 +89,32 @@ function setGlobalQuery(query, propagate) {
 
 $(document).ready(function () {
 
-    // creating the four buttons
-    for (var i = 0; i < buttons.length; i++) {
-        d3.select("#button-panel").append("div")
-            .attr("id", buttons[i])
-            .attr("class", "operator")
-            .style("width", (100 / buttons.length) + "%")
-            .style("height", "100%")
-            .style("color", "white")
-            .style("font-size", "2em")
-            .style("text-align", "center")
-            .style("vertical-align", "middle")
-            .style("cursor", "pointer")
-            .style("display", "inline-block")
-            .text(buttons[i])
-            .on("mousedown", function () {
+   //creating clear button
+    d3.select("#button-panel").append("div")
+        .attr("id", "clearButton")
+        .attr("class", "operator")
+        .text("CLEAR QUERIES")
+        .on("mousedown", function () {
+            if (queryStack.length == 0)
+                return;
+            
+            queryStack.length = 0;
 
-                console.log(this.textContent + " is clicked");
 
-                $(this).toggleClass('active').siblings().removeClass('active');
-
-                currentLogic = this.textContent;
-
-                if (currentLogic == "CLEAN") {
-
-                    queryStack.length = 0;
-                    
-                    var query = new Query({
-                        index: "Date",
-                        value: ["199001", "200912"],
-                        operator: "range",
-                        logic: "CLEAN"
-                    });
-
-                    setGlobalQuery(query, 1);
-                    
-                    $(this).toggleClass('active');
-
-                }
+            var query = new Query({
+                index: "Date",
+                value: ["1990", "2009"],
+                operator: "range",
+                logic: "CLEAN"
             });
-    }
 
-    //$("#" + buttons[3]).toggleClass('active');
+            setGlobalQuery(query, 1);
+
+            //$(this).toggleClass('active');
+
+        });
+    
+    $( "#clearButton" ).draggable();
 
     width = $("#content").width();
     height = $("#content").height();
