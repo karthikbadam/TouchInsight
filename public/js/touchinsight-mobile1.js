@@ -20,7 +20,7 @@ var height = 0;
 
 var PADDING = 7;
 
-var device = 1;
+var device = "MOBILE";
 
 var colorscale = d3.scale.category10();
 

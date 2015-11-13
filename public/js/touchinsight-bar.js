@@ -26,7 +26,7 @@ function Bar(options) {
 
     var query = new Query({
         index: "Date",
-        value: ["199001", "200912"],
+        value: ["1990", "2009"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -1018,14 +1018,14 @@ Bar.prototype.reDrawChart = function (flag, width, height) {
     } else {
 
 
-        device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
+        device == "MOBILE" ? _self.refreshMicroViz() : _self.refreshThumbnail();
 
     }
 
 
 }
 
-Bar.prototype.postUpdate = function () {
+Bar.prototype.postUpdate = function (cquery) {
 
     var _self = this;
 
@@ -1034,19 +1034,21 @@ Bar.prototype.postUpdate = function () {
         type: "GET",
         url: "/" + _self.link,
         data: {
-            data: queryStack
+            data: cquery? cquery: queryStack
         }
 
     }).done(function (data) {
 
+        console.log(data+"\n");
+        
         _self.targetData = JSON.parse(data);
 
-        if (device == 0) {
+        if (device == "DESKTOP") {
             _self.refreshChart();
             return;
         }
 
-        if (device == 1) {
+        if (device == "MOBILE") {
             if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
                 _self.refreshChart();
@@ -1057,7 +1059,7 @@ Bar.prototype.postUpdate = function () {
             }
         }
 
-        if (device == 2) {
+        if (device == "MOBILE2") {
             if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
                 _self.refreshChart();

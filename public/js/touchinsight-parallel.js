@@ -23,7 +23,7 @@ function Parallel(options) {
 
     var query = new Query({
         index: "Date",
-        value: ["199001", "200912"],
+        value: ["1990", "2009"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -47,8 +47,11 @@ Parallel.prototype.refreshChart = function () {
 
         _self.dragging = {};
 
-        _self.line = d3.svg.line();
-        _self.axis = d3.svg.axis().orient("left").tickFormat(d3.format("s")).ticks(_self.height / 20);
+        _self.line = d3.svg.line().interpolate("cardinal");
+
+        _self.axis = d3.svg.axis().orient("left")
+            .tickFormat(d3.format("s")).ticks(_self.height / 20);
+
         _self.background;
         _self.foreground;
 
@@ -73,7 +76,7 @@ Parallel.prototype.refreshChart = function () {
                 function (p) {
                     return +p[_self.target];
                 }))
-            .range([1, 20]);
+            .range([1, 10]);
 
         // Add blue foreground lines for focus.
         _self.parallel = _self.svg.append("g")
@@ -175,14 +178,49 @@ Parallel.prototype.refreshChart = function () {
 
     } else {
 
-        var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
+        var parallelLines = _self.svg.selectAll(".parallel")
+            .selectAll("path")
             .data(_self.targetData);
+
+        _self.x.domain(_self.dimensions = d3.keys(_self.targetData[0]["_id"])
+            .filter(function (d) {
+                return (
+                    _self.y[d] = d3.scale.linear()
+                    .domain([0, d3.max(_self.targetData, function (p) {
+                        return +p["_id"][d];
+                    })])
+                    .range([_self.height, 0])
+                );
+            }));
+
         
+        // Add an axis and title.
+        _self.g.selectAll(".axis")
+            .each(function (d) {
+                d3.select(this).call(_self.axis.scale(_self.y[d]));
+            })
+            .append("text")
+            .style("text-anchor", "middle")
+            .attr("y", -9)
+            .text(function (d) {
+                return d;
+            });
+        
+        _self.g.selectAll(".brush")
+            .each(function (d) {
+                d3.select(this).call(_self.y[d].brush = d3.svg.brush().y(_self.y[d])
+                    .on("brushstart", brushstart)
+                    .on("brushend", brush));
+            })
+            .selectAll("rect")
+            .attr("x", -8)
+            .attr("width", 16);
+
         _self.datadimension.domain(d3.extent(_self.targetData,
                 function (p) {
                     return +p[_self.target];
                 }))
-            .range([1, 20]);
+            .range([1, 10]);
 
         parallelLines.exit().remove();
 
@@ -250,7 +288,7 @@ Parallel.prototype.refreshMicroViz = function () {
 
     }
 
-    if (d3.select("#micro" + _self.parentId).empty() || 
+    if (d3.select("#micro" + _self.parentId).empty() ||
         _self.svg.select(".parallel").empty()) {
 
         $("#" + _self.parentId).empty();
@@ -273,13 +311,13 @@ Parallel.prototype.refreshMicroViz = function () {
                 return points.join("A 1,1 0 0 0 ");
 
         });
-        
+
         _self.datadimension = d3.scale.linear().domain(d3.extent(_self.targetData,
                 function (p) {
                     return +p[_self.target];
                 }))
             .range([1, 20]);
-        
+
         _self.axis = d3.svg.axis().orient(_self.axisDirection)
             .tickFormat(d3.format("s"));
 
@@ -398,7 +436,7 @@ Parallel.prototype.refreshMicroViz = function () {
                     return +p[_self.target];
                 }))
             .range([1, 20]);
-        
+
         _self.line.interpolate(function (points) {
 
             if (_self.direction == "right")
@@ -448,17 +486,17 @@ Parallel.prototype.refreshMicroViz = function () {
         parallelLines.attr("d", path);
 
         _self.g.attr("transform", function (d, i) {
-                if (_self.direction == "left" || _self.direction == "right")
-                    return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+            if (_self.direction == "left" || _self.direction == "right")
+                return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
 
-                if (_self.direction == "top" || _self.direction == "bottom")
-                    return "translate(" + +i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
+            if (_self.direction == "top" || _self.direction == "bottom")
+                return "translate(" + +i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
 
-            });
+        });
 
         _self.g.selectAll(".axis")
             .remove();
-        
+
         _self.g.append("g")
             .attr("class", "axis")
             .each(function (d) {
@@ -493,15 +531,15 @@ Parallel.prototype.refreshMicroViz = function () {
 Parallel.prototype.refreshThumbnail = function () {
 
     var _self = this;
-    
+
     _self.thumbnailscale = THUMBNAIL_SCALE;
-    
+
     _self.thumbnailwidth = _self.width + _self.margin.left + _self.margin.right;
     _self.thumbnailheight = _self.height + _self.margin.top + _self.margin.bottom
 
-    if (d3.select("#thumbnail"+_self.parentId).empty() ||
+    if (d3.select("#thumbnail" + _self.parentId).empty() ||
         _self.svg.select(".parallel").empty()) {
-        
+
         $("#" + _self.parentId).empty();
 
         _self.x = d3.scale.ordinal().rangePoints([0, _self.width], 1);
@@ -511,15 +549,15 @@ Parallel.prototype.refreshThumbnail = function () {
         _self.line = d3.svg.line();
         _self.axis = d3.svg.axis().orient("left")
             .tickFormat(d3.format("s")).ticks(_self.height / 20);
-        
+
         _self.datadimension = d3.scale.linear().domain(d3.extent(_self.targetData,
                 function (p) {
                     return +p[_self.target];
                 }))
-            .range([1*_self.thumbnailscale, 20*_self.thumbnailscale]);
+            .range([1 * _self.thumbnailscale, 20 * _self.thumbnailscale]);
 
         _self.svg = d3.select("#" + _self.parentId).append("svg")
-            .attr("id", "thumbnail"+_self.parentId)
+            .attr("id", "thumbnail" + _self.parentId)
             .attr("class", "thumbnail")
             .attr("width", _self.thumbnailwidth)
             .attr("height", _self.thumbnailheight)
@@ -537,10 +575,9 @@ Parallel.prototype.refreshThumbnail = function () {
 
             })
             .append("g")
-            .attr("transform", "translate(" + _self.margin.left*_self.thumbnailscale
-                  + "," + _self.margin.top + ")")
-            .style("pointer-events", "none")   
-            .style('font-size', 10*_self.thumbnailscale + "px");
+            .attr("transform", "translate(" + _self.margin.left * _self.thumbnailscale + "," + _self.margin.top + ")")
+            .style("pointer-events", "none")
+            .style('font-size', 10 * _self.thumbnailscale + "px");
 
         _self.x.domain(_self.dimensions = d3.keys(_self.targetData[0]["_id"])
             .filter(function (d) {
@@ -549,7 +586,7 @@ Parallel.prototype.refreshThumbnail = function () {
                     .domain([0, d3.max(_self.targetData, function (p) {
                         return +p["_id"][d];
                     })])
-                    .range([_self.thumbnailheight - _self.margin.top, 0]) : 
+                    .range([_self.thumbnailheight - _self.margin.top, 0]) :
                     _self.y[d].range([_self.thumbnailheight - _self.margin.top, 0])
                 );
             }));
@@ -603,7 +640,7 @@ Parallel.prototype.refreshThumbnail = function () {
         }
 
     } else {
-        
+
         _self.datadimension.domain(d3.extent(_self.targetData,
                 function (p) {
                     return +p[_self.target];
@@ -650,13 +687,14 @@ Parallel.prototype.reDrawChart = function (flag, width, height) {
 
         //_self.svg = null;
 
-        device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
+        device == "MOBILE" ? _self.refreshMicroViz() :
+        _self.refreshThumbnail();
 
     }
 
 }
 
-Parallel.prototype.postUpdate = function () {
+Parallel.prototype.postUpdate = function (cquery) {
 
     var _self = this;
 
@@ -665,19 +703,19 @@ Parallel.prototype.postUpdate = function () {
         type: "GET",
         url: "/" + _self.link,
         data: {
-            data: queryStack
+            data: cquery? cquery: queryStack
         }
 
     }).done(function (data) {
 
         _self.targetData = JSON.parse(data);
 
-        if (device == 0) {
+        if (device == "DESKTOP") {
             _self.refreshChart();
             return;
         }
 
-        if (device == 1) {
+        if (device == "MOBILE") {
             if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
                 _self.refreshChart();
@@ -688,7 +726,7 @@ Parallel.prototype.postUpdate = function () {
             }
         }
 
-        if (device == 2) {
+        if (device == "MOBILE2") {
             if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
                 _self.refreshChart();

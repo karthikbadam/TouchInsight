@@ -24,7 +24,7 @@ var PADDING = 10;
 
 var PADDING_Y = 30;
 
-var device = 2;
+var device = "MOBILE2";
 
 var colorscale = d3.scale.category10();
 

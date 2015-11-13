@@ -22,9 +22,12 @@ var height = 0;
 
 var PADDING = 5;
 
+var device = "DESKTOP";
+
 var colorscale = d3.scale.category10();
 
-var parseDate = d3.time.format("%Y%m").parse;
+//var parseDate = d3.time.format("%Y%m").parse;
+var parseDate = d3.time.format("%Y").parse;
 
 var geomap, timechart, passengerchart, flightsbar, passengersbar, flightdistance,
     passengerseats, distancebar, populationbar;
@@ -258,8 +261,8 @@ function createLayout() {
             d3.select("#content").append("div")
                 .attr("id", "div" + i + j)
                 .attr("class", "panel")
-                .style("width", xWeights[j] * width - PADDING / 2)
-                .style("height", yWeights[i] * height - PADDING / 2)
+                .style("width", xWeights[j] * width)
+                .style("height", yWeights[i] * height)
                 .style("background-color",
                     "white")
                 .style("border", "1px solid #AAA")

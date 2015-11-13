@@ -23,11 +23,11 @@ function TimeChart(options) {
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
 
-    var parseDate = d3.time.format("%Y%m").parse;
+    var parseDate = d3.time.format("%Y").parse;
 
     var query = new Query({
         index: "Date",
-        value: ["199001", "200912"],
+        value: ["1990", "2009"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -68,7 +68,7 @@ TimeChart.prototype.refreshChart = function () {
             .scale(x)
             .orient("bottom")
             .tickFormat(function (d) {
-                return d3.time.format('%b %y')(new Date(d));
+                return d3.time.format('%Y')(new Date(d));
             })
             .innerTickSize(-_self.height)
             .outerTickSize(0)
@@ -103,7 +103,7 @@ TimeChart.prototype.refreshChart = function () {
             return parseDate(d["_id"][date]);
         }));
 
-        x.domain([parseDate("199001"), parseDate("200912")]);
+        x.domain([parseDate("1990"), parseDate("2009")]);
 
         y.domain(d3.extent(_self.targetData, function (d) {
             return d[_self.target];
@@ -155,12 +155,14 @@ TimeChart.prototype.refreshChart = function () {
             var leftYear = left.getFullYear().toString();
             var leftMonth = left.getMonth() < 10 ? "0" + left.getMonth().toString() : left.getMonth().toString();
 
-            left = leftYear + leftMonth;
-
+            //left = leftYear + leftMonth;
+            left = leftYear;
+            
             var rightYear = right.getFullYear().toString();
             var rightMonth = right.getMonth() < 10 ? "0" + right.getMonth().toString() : right.getMonth().toString();
 
-            right = rightYear + rightMonth;
+            //right = rightYear + rightMonth;
+            right = rightYear;
 
             console.log(left + ", " + right);
 
@@ -501,7 +503,7 @@ TimeChart.prototype.refreshThumbnail = function () {
             return parseDate(d["_id"][date]);
         }));
 
-        x.domain([parseDate("199001"), parseDate("200912")]);
+        x.domain([parseDate("1990"), parseDate("2009")]);
 
         y.domain(d3.extent(_self.targetData, function (d) {
             return d[_self.target];
@@ -590,14 +592,14 @@ TimeChart.prototype.reDrawChart = function (flag, width, height) {
 
     } else {
 
-        device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
+        device == "MOBILE" ? _self.refreshMicroViz() : _self.refreshThumbnail();
 
     }
 
 
 }
 
-TimeChart.prototype.postUpdate = function () {
+TimeChart.prototype.postUpdate = function (cquery) {
 
     var _self = this;
 
@@ -606,19 +608,19 @@ TimeChart.prototype.postUpdate = function () {
         type: "GET",
         url: "/" + _self.link,
         data: {
-            data: queryStack
+            data: cquery? cquery: queryStack
         }
 
     }).done(function (data) {
 
         _self.targetData = JSON.parse(data);
 
-        if (device == 0) {
+        if (device == "DESKTOP") {
             _self.refreshChart();
             return;
         }
 
-        if (device == 1) {
+        if (device == "MOBILE") {
             if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
                 _self.refreshChart();
@@ -629,7 +631,7 @@ TimeChart.prototype.postUpdate = function () {
             }
         }
 
-        if (device == 2) {
+        if (device == "MOBILE2") {
             if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
                 _self.refreshChart();

@@ -21,7 +21,7 @@ function Map(options) {
 
     var query = new Query({
         index: "Date",
-        value: ["199001", "200912"],
+        value: ["1990", "2009"],
         operator: "range",
         logic: "CLEAN"
     });
@@ -58,6 +58,10 @@ Map.prototype.refreshChart = function () {
             .attr("id", "choropleth")
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom);
+        
+        var div = _self.div = d3.select("#" + _self.parentId).append("div")	
+            .attr("class", "tooltip")				
+            .style("opacity", 0);
 
         // Create the area where the lasso event can be triggered
         var lasso_area = _self.svg.append("rect")
@@ -143,10 +147,7 @@ Map.prototype.refreshChart = function () {
                     "not_possible": false,
                     "possible": false
                 })
-                .attr("r", function (d) {
-                    //return _self.colors(d["_id"][destination]);
-                    return d.type == source ? "3px" : "6px";
-                });
+                .attr("r", "3px");
 
         };
 
@@ -213,10 +214,6 @@ Map.prototype.refreshChart = function () {
                 .enter().append("circle")
                 .attr("class", "city")
                 .style("pointer-events", "none")
-                .attr("fill", function (d) {
-                    //return _self.colors(d["_id"][destination]);
-                    return d.type == source ? "#4292c6" : "#fb6a4a";
-                })
                 .attr("cx", function (d, i) {
 
                     var s = d.name;
@@ -236,12 +233,32 @@ Map.prototype.refreshChart = function () {
 
                     return -10;
                 })
-                .attr("fill-opacity", 1)
-                .attr("stroke", "white")
-                .attr("stroke-width", "0.5px")
-                .attr("r", function (d) {
+                .attr("fill", function (d) {
                     //return _self.colors(d["_id"][destination]);
-                    return d.type == source ? "3px" : "6px";
+                    return d.type == source ? "#4292c6" : "transparent";
+                })
+                .attr("fill-opacity", 0.7)
+                .attr("stroke", function (d) {
+                    //return _self.colors(d["_id"][destination]);
+                    return d.type == source ? "transparent" : "#222";
+                })
+                .attr("stroke-opacity", 0.7)
+                .attr("stroke-width", "1px")
+                .attr("r", "3px")
+                .on("mouseover", function (d) {
+                    _self.div.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    
+                    _self.div.html(d.name)
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) +
+                               "px");
+                })
+                .on("mouseout", function (d) {
+                    div.transition()
+                        .duration(500)
+                        .style("opacity", 0);
                 });
 
 
@@ -347,10 +364,6 @@ Map.prototype.refreshChart = function () {
             .transition().delay(1000)
             .attr("class", "city")
             .style("pointer-events", "none")
-            .attr("fill", function (d) {
-                //return _self.colors(d["_id"][destination]);
-                return d.type == source ? "#4292c6" : "#fb6a4a";
-            })
             .attr("cx", function (d, i) {
 
                 var s = d.name;
@@ -370,12 +383,18 @@ Map.prototype.refreshChart = function () {
 
                 return -10;
             })
-            .attr("fill-opacity", 1)
-            .attr("stroke", "white")
-            .attr("stroke-width", "0.5px")
-            .attr("r", function (d) {
-                return d.type == source ? "3px" : "6px";
-            });
+            .attr("fill", function (d) {
+                //return _self.colors(d["_id"][destination]);
+                return d.type == source ? "#4292c6" : "transparent";
+            })
+            .attr("fill-opacity", 0.7)
+            .attr("stroke", function (d) {
+                //return _self.colors(d["_id"][destination]);
+                return d.type == source ? "transparent" : "#222";
+            })
+            .attr("stroke-opacity", 0.7)
+            .attr("stroke-width", "1px")
+            .attr("r", "3px");
 
         cityCircles.attr("cx", function (d, i) {
 
@@ -396,16 +415,18 @@ Map.prototype.refreshChart = function () {
 
                 return -10;
             })
-            .attr("fill-opacity", 1)
-            .attr("stroke", "white")
-            .attr("stroke-width", "0.5px")
-            .attr("r", function (d) {
-                return d.type == source ? "3px" : "6px";
-            })
             .attr("fill", function (d) {
                 //return _self.colors(d["_id"][destination]);
-                return d.type == source ? "#4292c6" : "#fb6a4a";
-            });
+                return d.type == source ? "#4292c6" : "transparent";
+            })
+            .attr("fill-opacity", 0.7)
+            .attr("stroke", function (d) {
+                //return _self.colors(d["_id"][destination]);
+                return d.type == source ? "transparent" : "#222";
+            })
+            .attr("stroke-opacity", 0.7)
+            .attr("stroke-width", "1px")
+            .attr("r", "3px");
 
 
         _self.lasso.items(d3.selectAll("circle"));
@@ -1201,14 +1222,14 @@ Map.prototype.reDrawChart = function (flag, width, height) {
 
         //_self.svg = null;
 
-        device == 1 ? _self.refreshMicroViz() : _self.refreshThumbnail();
+        device == "MOBILE" ? _self.refreshMicroViz() : _self.refreshThumbnail();
 
     }
 
 
 }
 
-Map.prototype.postUpdate = function () {
+Map.prototype.postUpdate = function (cquery) {
 
     var _self = this;
 
@@ -1217,18 +1238,18 @@ Map.prototype.postUpdate = function () {
         type: "GET",
         url: "/getFlightCounts",
         data: {
-            data: queryStack
+            data: cquery ? cquery : queryStack
         }
     }).done(function (data) {
 
         _self.targetData = JSON.parse(data);
 
-        if (device == 0) {
+        if (device == "DESKTOP") {
             _self.refreshChart();
             return;
         }
 
-        if (device == 1) {
+        if (device == "MOBILE") {
             if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
                 _self.refreshChart();
@@ -1239,7 +1260,7 @@ Map.prototype.postUpdate = function () {
             }
         }
 
-        if (device == 2) {
+        if (device == "MOBILE2") {
             if (_self.parentId == "div" + mainView[0] + "" + mainView[1]) {
 
                 _self.refreshChart();
