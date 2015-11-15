@@ -58,9 +58,9 @@ Map.prototype.refreshChart = function () {
             .attr("id", "choropleth")
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom);
-        
-        var div = _self.div = d3.select("#" + _self.parentId).append("div")	
-            .attr("class", "tooltip")				
+
+        var div = _self.div = d3.select("#" + _self.parentId).append("div")
+            .attr("class", "tooltip")
             .style("opacity", 0);
 
         // Create the area where the lasso event can be triggered
@@ -249,11 +249,11 @@ Map.prototype.refreshChart = function () {
                     _self.div.transition()
                         .duration(200)
                         .style("opacity", .9);
-                    
+
                     _self.div.html(d.name)
                         .style("left", (d3.event.pageX) + "px")
                         .style("top", (d3.event.pageY - 28) +
-                               "px");
+                            "px");
                 })
                 .on("mouseout", function (d) {
                     div.transition()
@@ -317,9 +317,13 @@ Map.prototype.refreshChart = function () {
                 });
 
             _self.svg.append("text")
+                .attr("id", "clearButton")
                 .attr("transform", "translate(" + (_self.width - 100) + "," + (_self.height + _self.margin.top) + ")")
-                .text("Flights across US")
-                .style("font-size", "14px");
+                .text("Show all flights")
+                .style("font-size", "14px")
+                .on("click", function () {
+                    clearAllQueries();
+                });
 
             _self.svg.call(_self.lasso);
 

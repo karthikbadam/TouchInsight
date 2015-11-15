@@ -87,8 +87,25 @@ function setGlobalQuery(query, propagate) {
 
 }
 
-$(document).ready(function () {
 
+function clearAllQueries() {
+    if (queryStack.length == 0)
+        return;
+
+    queryStack.length = 0;
+
+
+    var query = new Query({
+        index: "Date",
+        value: ["1990", "2009"],
+        operator: "range",
+        logic: "CLEAN"
+    });
+
+    setGlobalQuery(query, 1);
+}
+
+$(document).ready(function () {
 
     //creating clear button
     d3.select("#button-panel").append("div")
@@ -96,27 +113,11 @@ $(document).ready(function () {
         .attr("class", "operator")
         .text("CLEAR QUERIES")
         .on("mousedown", function () {
-            if (queryStack.length == 0)
-                return;
-            
-            queryStack.length = 0;
-
-
-            var query = new Query({
-                index: "Date",
-                value: ["1990", "2009"],
-                operator: "range",
-                logic: "CLEAN"
-            });
-
-            setGlobalQuery(query, 1);
-
-            //$(this).toggleClass('active');
-
+            clearAllQueries();
         });
 
-    $( "#clearButton" ).draggable();
-    
+    $("#clearButton").draggable();
+
     // creating the four buttons
     //    for (var i = 0; i < buttons.length; i++) {
     //        d3.select("#button-panel").append("div")
@@ -197,7 +198,7 @@ function onDataLoaded() {
         width: $("#div11").width(),
         height: $("#div11").height(),
     });
-
+    
     timechart = new TimeChart({
         parentId: "div21",
         cols: [source, destination],
@@ -302,6 +303,9 @@ function createLayout() {
         }
     }
 
+    d3.select("#button-panel").style("top", $("#div11").position().top + 10);
+
+    
 }
 
 function getWeights(size) {

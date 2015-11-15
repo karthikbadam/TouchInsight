@@ -87,35 +87,37 @@ function setGlobalQuery(query, propagate) {
     }
 }
 
-$(document).ready(function () {
+function clearAllQueries() {
+    if (queryStack.length == 0)
+        return;
 
-   //creating clear button
+    queryStack.length = 0;
+
+
+    var query = new Query({
+        index: "Date",
+        value: ["1990", "2009"],
+        operator: "range",
+        logic: "CLEAN"
+    });
+
+    setGlobalQuery(query, 1);
+}
+
+$(document).ready(function () {
+    
+    
+    //creating clear button
     d3.select("#button-panel").append("div")
         .attr("id", "clearButton")
         .attr("class", "operator")
         .text("CLEAR QUERIES")
         .on("mousedown", function () {
-            if (queryStack.length == 0)
-                return;
-            
-            queryStack.length = 0;
-
-
-            var query = new Query({
-                index: "Date",
-                value: ["1990", "2009"],
-                operator: "range",
-                logic: "CLEAN"
-            });
-
-            setGlobalQuery(query, 1);
-
-            //$(this).toggleClass('active');
-
+            clearAllQueries();
         });
-    
-    $( "#clearButton" ).draggable();
 
+    $("#clearButton").draggable();
+    
     width = $("#content").width();
     height = $("#content").height();
 
@@ -336,6 +338,8 @@ function createLayout() {
 
         }
     }
+    
+    d3.select("#button-panel").style("top", $("#div11").position().top + 10);
 
 }
 
