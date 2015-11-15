@@ -23,26 +23,15 @@ path {
 #button-panel {
     width: 100%;
     height: 3%;
-}
-
-.operator {
-    width: 25%;
-    background-color: #6baed6;
-}
-
-.operator:hover {
-    width: 25%;
-    background-color: #3182bd;
-}
-
-.operator.active {
-    width: 25%;
-    background-color: #3182bd;
+    position: absolute;
+    background-color: transparent;
+    text-align: center;
+    top: 24%;
 }
 
 #content {
     width: 100%;
-    height: 97%;
+    height: 100%;
 }
 
 .panel {
@@ -71,6 +60,7 @@ svg {
 
 .tick text {
     fill: #666;
+    
 }
 
 .tick line {
@@ -151,4 +141,28 @@ div.tooltip {
     border: 0px;
     border-radius: 8px;
     pointer-events: none;
+}
+
+#clearButton {
+    padding-top: 1px;
+    border-radius: 3px;
+    box-shadow: 0px 0px 2px #9b9b9b;
+    background-image: linear-gradient(to left, rgba(190, 190, 190, 0.3) 0%, rgba(190, 190, 190, 0.4) 20%, rgba(190, 190, 190, 0.4) 80%, rgba(190, 190, 190, 0.3) 100%);
+    z-index: 6;
+    width: 10%;
+    height: auto;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    vertical-align: bottom;
+    cursor: pointer;
+    text-align:center;
+    
+}
+
+#clearButton:hover {
+    background-color: #deebf7;
+    
 }
