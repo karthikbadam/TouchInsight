@@ -152,7 +152,7 @@ function reDrawInterface() {
     var prevL = l;
 
     l = getDimensions(mainView[0], mainView[1]);
-
+    
     for (var i = 0; i < GRID[1]; i++) {
 
         for (var j = 0; j < GRID[0]; j++) {
@@ -192,6 +192,9 @@ function reDrawInterface() {
             }
         }
     }
+    
+    d3.select("#button-panel").style("top", $("#div"+mainView[0]+mainView[1]).position().top + 20);
+
 
 
 }
@@ -339,7 +342,7 @@ function createLayout() {
         }
     }
     
-    d3.select("#button-panel").style("top", $("#div11").position().top + 10);
+    d3.select("#button-panel").style("top", $("#div11").position().top + 20);
 
 }
 

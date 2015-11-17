@@ -322,7 +322,7 @@ Bar.prototype.refreshMicroViz = function () {
 
         var size = _self.majorDimension / barSize;
 
-        var data = _self.targetData.slice(0, Math.ceil(size / 2));
+        var data = _self.targetData.slice(Math.ceil(size / 2));
 
         var data2 = _self.targetData.slice(
             _self.targetData.length - 1 - Math.ceil(size / 2),
@@ -415,7 +415,7 @@ Bar.prototype.refreshMicroViz = function () {
             })
             .attr("y", function (d, i) {
                 if (direction == "left" || direction == "right")
-                    return i * barSize - 5;
+                    return (i + 1) * barSize - 5;
 
                 if (direction == "top" || direction == "bottom")
                     return _self.minorDimension - 5;
@@ -482,7 +482,7 @@ Bar.prototype.refreshMicroViz = function () {
             })
             .attr("y", function (d, i) {
                 if (direction == "left" || direction == "right")
-                    return data.length * barSize + i * barSize - 5;
+                    return data.length * barSize + (i + 1) * barSize - 5;
 
                 if (direction == "top" || direction == "bottom")
                     return _self.minorDimension - 5;
@@ -632,7 +632,7 @@ Bar.prototype.refreshMicroViz = function () {
             })
             .attr("y", function (d, i) {
                 if (direction == "left" || direction == "right")
-                    return i * barSize - 5;
+                    return (i+1) *  barSize - 5;
 
                 if (direction == "top" || direction == "bottom")
                     return _self.minorDimension - 5;
@@ -654,7 +654,7 @@ Bar.prototype.refreshMicroViz = function () {
             })
             .attr("y", function (d, i) {
                 if (direction == "left" || direction == "right")
-                    return i * barSize - 5;
+                    return (i+1) * barSize - 5;
 
                 if (direction == "top" || direction == "bottom")
                     return _self.minorDimension - 5;
@@ -768,7 +768,7 @@ Bar.prototype.refreshMicroViz = function () {
             })
             .attr("y", function (d, i) {
                 if (direction == "left" || direction == "right")
-                    return data.length * barSize + i * barSize - 5;
+                    return data.length * barSize + (i+1) *  barSize - 5;
 
                 if (direction == "top" || direction == "bottom")
                     return _self.minorDimension - 5;
@@ -790,7 +790,7 @@ Bar.prototype.refreshMicroViz = function () {
             })
             .attr("y", function (d, i) {
                 if (direction == "left" || direction == "right")
-                    return data.length * barSize + i * barSize - 5;
+                    return data.length * barSize + (i+1) *  barSize - 5;
 
                 if (direction == "top" || direction == "bottom")
                     return _self.minorDimension - 5;

@@ -254,6 +254,8 @@ TimeChart.prototype.refreshMicroViz = function () {
         _self.minorDimension = _self.horizonHeight;
 
     }
+    
+    d3.select("#horizon-" + _self.target).remove(); 
 
     if (d3.select("#horizon-" + _self.target).empty() || _self.svg.select("path").empty()) {
 
@@ -270,7 +272,7 @@ TimeChart.prototype.refreshMicroViz = function () {
             _self.chart = d3.horizon()
                 .width(_self.majorDimension)
                 .height(_self.minorDimension)
-                .bands(3)
+                .bands(2)
                 .mode("mirror")
                 .interpolate("basis");
 
@@ -438,7 +440,7 @@ TimeChart.prototype.refreshMicroViz = function () {
 
 
         _self.svg.select("text")
-            .attr("transform", "translate(" + 10 + "," + 15 + ")")
+            .attr("transform", "translate(" + 10 + "," + 15 + ")");
     }
 }
 

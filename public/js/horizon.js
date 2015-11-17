@@ -101,7 +101,7 @@
             .style("fill", color)
             .attr("transform", t1)
             .attr("d", d1);
-
+          
         d3.transition(path.exit())
             .attr("transform", t1)
             .attr("d", d1)
