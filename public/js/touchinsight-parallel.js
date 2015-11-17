@@ -373,15 +373,16 @@ Parallel.prototype.refreshMicroViz = function () {
         function path(d) {
             return _self.line(_self.dimensions.map(function (p, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return [_self.direction == "left" ? 0 : _self.minorDimension,
-                        i * _self.majorDimension / _self.dimensions.length
+                    return [_self.direction == "left" ? 2 : _self.minorDimension - 2,
+                        5 + i * _self.majorDimension / _self.dimensions.length
                         + _self.y[p](d["_id"][p])];
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return [i * _self.majorDimension / _self.dimensions.length
-                        + _self.y[p](d["_id"][p]), _self.direction == "top" ? 0 :
-                            _self.minorDimension,
+                    return [4 + i * _self.majorDimension / _self.dimensions.length
+                        + _self.y[p](d["_id"][p]), _self.direction == "top" ? 15 :
+                            _self.minorDimension - 15,
                         ];
+
 
             }));
         }
@@ -391,11 +392,11 @@ Parallel.prototype.refreshMicroViz = function () {
             .enter().append("g")
             .attr("class", "dimension")
             .attr("transform", function (d, i) {
-                if (_self.direction == "left" || _self.direction == "right")
-                    return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+                 if (_self.direction == "left" || _self.direction == "right")
+                    return "translate(" + (_self.direction == "left" ? 2 : _self.minorDimension - 2) + "," + ( 5 + i * _self.majorDimension / _self.dimensions.length) + ")";
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return "translate(" + +i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
+                    return "translate(" + (4 + i *_self.majorDimension / _self.dimensions.length) + "," + (_self.direction == "top" ? 15 : _self.minorDimension - 15) + ")";
 
             });
 
@@ -404,29 +405,62 @@ Parallel.prototype.refreshMicroViz = function () {
         g.append("g")
             .attr("class", "axis")
             .each(function (d) {
-                d3.select(this).call(_self.axis.scale(_self.y[d]));
+                d3.select(this)
+                    .call(_self.axis.scale(_self.y[d]))
+                    .selectAll("text")
+                    .attr("transform", function (d, i) {
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? "rotate(90)" : "rotate(-90)";
+
+                        return "rotate(0)";
+                    })
+                    .style("text-anchor", function () {
+                        return _self.direction == "right" ? "end" : "start";
+                    })
+                    .attr("x", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return _self.direction == "left" ? 6 : -3;
+
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? 7 : 7;
+
+                    })
+                    .attr("y", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return 0;
+
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? -2 : 3;
+
+                    });
             })
             .append("text")
             .style("color", "black")
             .style("text-anchor", "end")
+            .text(function (d) {
+                return d;
+            })
+            .attr("transform", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return _self.direction == "left" ? "rotate(90)" : "rotate(-90)";
+
+                        return "rotate(0)";
+                    })
             .attr("x", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return _self.direction == "left" ? 40 : -30;
+                    return _self.direction == "left" ? 50 : -30;
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return 40;
+                    return _self.direction == "top" ? 50 : 50;
 
             })
             .attr("y", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return 60;
-
+                    return -50;
+            
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return _self.direction == "top" ? 60 : -60;
+                    return _self.direction == "top" ? -3 : 11;
 
-            })
-            .text(function (d) {
-                return d;
             });
 
     } else {
@@ -486,13 +520,14 @@ Parallel.prototype.refreshMicroViz = function () {
         parallelLines.attr("d", path);
 
         _self.g.attr("transform", function (d, i) {
-            if (_self.direction == "left" || _self.direction == "right")
-                return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+                 if (_self.direction == "left" || _self.direction == "right")
+                    return "translate(" + (_self.direction == "left" ? 2 : _self.minorDimension - 2) + "," + ( 5 + i * _self.majorDimension / _self.dimensions.length) + ")";
 
-            if (_self.direction == "top" || _self.direction == "bottom")
-                return "translate(" + +i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return "translate(" + (4 + i *_self.majorDimension / _self.dimensions.length) + "," + (_self.direction == "top" ? 15 : _self.minorDimension - 15) + ")";
 
-        });
+            });
+
 
         _self.g.selectAll(".axis")
             .remove();
@@ -500,29 +535,62 @@ Parallel.prototype.refreshMicroViz = function () {
         _self.g.append("g")
             .attr("class", "axis")
             .each(function (d) {
-                d3.select(this).call(_self.axis.scale(_self.y[d]));
+                d3.select(this)
+                    .call(_self.axis.scale(_self.y[d]))
+                    .selectAll("text")
+                    .attr("transform", function (d, i) {
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? "rotate(90)" : "rotate(-90)";
+
+                        return "rotate(0)";
+                    })
+                    .style("text-anchor", function () {
+                        return _self.direction == "right" ? "end" : "start";
+                    })
+                    .attr("x", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return _self.direction == "left" ? 6 : -3;
+
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? 7 : 7;
+
+                    })
+                    .attr("y", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return 0;
+
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? -2 : 3;
+
+                    });
             })
             .append("text")
             .style("color", "black")
             .style("text-anchor", "end")
+            .text(function (d) {
+                return d;
+            })
+            .attr("transform", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return _self.direction == "left" ? "rotate(90)" : "rotate(-90)";
+
+                        return "rotate(0)";
+                    })
             .attr("x", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return _self.direction == "left" ? 40 : -30;
+                    return _self.direction == "left" ? 50 : -30;
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return 40;
+                    return _self.direction == "top" ? 50 : 50;
 
             })
             .attr("y", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return 60;
-
+                    return -50;
+            
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return _self.direction == "top" ? 60 : -60;
+                    return _self.direction == "top" ? -3 : 11;
 
-            })
-            .text(function (d) {
-                return d;
             });
     }
 
