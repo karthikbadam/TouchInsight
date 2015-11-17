@@ -646,10 +646,10 @@ Map.prototype.refreshMicroViz = function () {
             .enter().append("path")
             .attr("d", path)
             .attr("stroke", "#9ecae1")
-            .attr("stroke-opacity", 0.1)
+            .style("stroke-opacity", 0.5)
             .attr("stroke-width", "0.5px")
             .attr("stroke-width", function (d, i) {
-                return "1px";
+                return "3px";
                 return (Math.log(d["Flights"] + 0.5)) + "px";
             });
 
@@ -676,10 +676,10 @@ Map.prototype.refreshMicroViz = function () {
             .attr("class", "dimension")
             .attr("transform", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+                    return "translate(" + (_self.direction == "left" ? 2 : _self.minorDimension) + "," + ( 5 + i * _self.majorDimension / _self.dimensions.length) + ")";
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return "translate(" + i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
+                    return "translate(" + (4 + i *_self.majorDimension / _self.dimensions.length) + "," + (_self.direction == "top" ? 1 : _self.minorDimension) + ")";
 
             });
 
@@ -699,28 +699,50 @@ Map.prototype.refreshMicroViz = function () {
                     })
                     .style("text-anchor", function () {
                         return _self.direction == "right" ? "end" : "start";
+                    })
+                    .attr("x", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return _self.direction == "left" ? 6 : -3;
+
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? 7 : -7;
+
+                    })
+                    .attr("y", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return 0;
+
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return 0;
+
                     });
             })
             .append("text")
+            .text(function (d) {
+                return d;
+            })
+            .attr("transform", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return _self.direction == "top" ? "rotate(-90)" : "rotate(-90)";
+
+                        return "rotate(0)";
+                    })
             .style("text-anchor", "end")
             .attr("x", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return _self.direction == "left" ? 40 : -30;
-
-                if (_self.direction == "top" || _self.direction == "bottom")
-                    return 40;
-
-            })
-            .attr("y", function (d, i) {
-                if (_self.direction == "left" || _self.direction == "right")
-                    return 40;
+                    return _self.direction == "left" ? 100 : -70;
 
                 if (_self.direction == "top" || _self.direction == "bottom")
                     return _self.direction == "top" ? 70 : -70;
 
             })
-            .text(function (d) {
-                return d;
+            .attr("y", function (d, i) {
+                if (_self.direction == "left" || _self.direction == "right")
+                    return -100;
+            
+                if (_self.direction == "top" || _self.direction == "bottom")
+                    return 0;
+
             });
 
     } else {

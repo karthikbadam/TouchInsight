@@ -346,7 +346,9 @@ TimeChart.prototype.refreshMicroViz = function () {
             .tickFormat(function (d) {
                 return d3.time.format('%Y')(new Date(d));
             });
-
+        
+        //_self.xAxis.ticks(d3.time.years, 1);
+        
         _self.svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + (_self.minorDimension - _self.margin.bottom) + ")")
@@ -354,6 +356,9 @@ TimeChart.prototype.refreshMicroViz = function () {
 
         _self.svg.select(".x.axis").select("path")
             .style("display", "none");
+            
+        _self.svg.selectAll(".tick text")
+            .style("font-size", "8px");
 
         _self.svg.append("text")
             .attr("transform", "translate(" + 10 + "," + 15 + ")")
@@ -481,7 +486,7 @@ TimeChart.prototype.refreshThumbnail = function () {
             .scale(x)
             .orient("bottom")
             .tickFormat(function (d) {
-                return d3.time.format('%b %y')(new Date(d));
+                return d3.time.format('%Y')(new Date(d));
             });
 
         _self.xAxis.ticks(d3.time.years, 6 / _self.thumbnailscale);

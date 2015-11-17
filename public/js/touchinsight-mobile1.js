@@ -370,7 +370,7 @@ function getDimensions(mainVIndex, mainHIndex) {
     right = GRID[0] - 1 - mainHIndex;
     rightExists = right > 0 ? 1 : 0;
 
-    var PROPORTIONS = 15;
+    var PROPORTIONS = 10;
 
     //assigning the dimensions to the main view
     layOut[mainVIndex][mainHIndex] = {
