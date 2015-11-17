@@ -322,7 +322,7 @@ Bar.prototype.refreshMicroViz = function () {
 
         var size = _self.majorDimension / barSize;
 
-        var data = _self.targetData.slice(Math.ceil(size / 2));
+        var data = _self.targetData.slice(0, Math.ceil(size / 2));
 
         var data2 = _self.targetData.slice(
             _self.targetData.length - 1 - Math.ceil(size / 2),
@@ -347,14 +347,14 @@ Bar.prototype.refreshMicroViz = function () {
             });
 
         _self.opacityScale1 = d3.scale.linear()
-            .range([0.4, 1]);
+            .range([0.1, 1]);
 
         _self.opacityScale1.domain([0, d3.max(data, function (d) {
             return d[_self.target];
         })]);
 
         _self.opacityScale2 = d3.scale.linear()
-            .range([1, 0.4]);
+            .range([1, 0.1]);
 
         _self.opacityScale2.domain([0, d3.max(data2, function (d) {
             return d[_self.target];
@@ -517,14 +517,14 @@ Bar.prototype.refreshMicroViz = function () {
             _self.targetData.length - 1);
 
         _self.opacityScale1 = d3.scale.linear()
-            .range([0.2, 1]);
+            .range([0.1, 1]);
 
         _self.opacityScale1.domain([0, d3.max(data, function (d) {
             return d[_self.target];
         })]);
 
         _self.opacityScale2 = d3.scale.linear()
-            .range([1, 0.2]);
+            .range([1, 0.1]);
 
         _self.opacityScale2.domain([0, d3.max(data2, function (d) {
             return d[_self.target];
