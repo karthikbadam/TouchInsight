@@ -616,7 +616,7 @@ Map.prototype.refreshMicroViz = function () {
 
         _self.dimensions = [source, destination];
 
-        var top = _self.top = 35;
+        var top = _self.top = 10;
 
         _self.targetDataTemp = _self.targetData.slice(0, _self.top - 1);
 
@@ -657,14 +657,14 @@ Map.prototype.refreshMicroViz = function () {
         function path(d) {
             return _self.line(_self.dimensions.map(function (p, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return [_self.direction == "left" ? 0 : _self.minorDimension,
-                        i * _self.majorDimension / _self.dimensions.length
+                    return [_self.direction == "left" ? 2 : _self.minorDimension - 2,
+                        5 + i * _self.majorDimension / _self.dimensions.length
                         + _self.y[p](d["_id"][p])];
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return [i * _self.majorDimension / _self.dimensions.length
-                        + _self.y[p](d["_id"][p]), _self.direction == "top" ? 0 :
-                            _self.minorDimension,
+                    return [4 + i * _self.majorDimension / _self.dimensions.length
+                        + _self.y[p](d["_id"][p]), _self.direction == "top" ? 15 :
+                            _self.minorDimension - 15,
                         ];
 
             }));
@@ -676,10 +676,10 @@ Map.prototype.refreshMicroViz = function () {
             .attr("class", "dimension")
             .attr("transform", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return "translate(" + (_self.direction == "left" ? 2 : _self.minorDimension) + "," + ( 5 + i * _self.majorDimension / _self.dimensions.length) + ")";
+                    return "translate(" + (_self.direction == "left" ? 2 : _self.minorDimension - 2) + "," + ( 5 + i * _self.majorDimension / _self.dimensions.length) + ")";
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return "translate(" + (4 + i *_self.majorDimension / _self.dimensions.length) + "," + (_self.direction == "top" ? 1 : _self.minorDimension) + ")";
+                    return "translate(" + (4 + i *_self.majorDimension / _self.dimensions.length) + "," + (_self.direction == "top" ? 15 : _self.minorDimension - 15) + ")";
 
             });
 
@@ -705,7 +705,7 @@ Map.prototype.refreshMicroViz = function () {
                             return _self.direction == "left" ? 6 : -3;
 
                         if (_self.direction == "top" || _self.direction == "bottom")
-                            return _self.direction == "top" ? 7 : -7;
+                            return _self.direction == "top" ? 7 : 7;
 
                     })
                     .attr("y", function (d, i) {
@@ -713,7 +713,7 @@ Map.prototype.refreshMicroViz = function () {
                             return 0;
 
                         if (_self.direction == "top" || _self.direction == "bottom")
-                            return 0;
+                            return _self.direction == "top" ? -2 : 3;
 
                     });
             })
@@ -723,7 +723,7 @@ Map.prototype.refreshMicroViz = function () {
             })
             .attr("transform", function (d, i) {
                         if (_self.direction == "left" || _self.direction == "right")
-                            return _self.direction == "top" ? "rotate(-90)" : "rotate(-90)";
+                            return _self.direction == "left" ? "rotate(90)" : "rotate(-90)";
 
                         return "rotate(0)";
                     })
@@ -733,7 +733,7 @@ Map.prototype.refreshMicroViz = function () {
                     return _self.direction == "left" ? 100 : -70;
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return _self.direction == "top" ? 70 : -70;
+                    return _self.direction == "top" ? 70 : 70;
 
             })
             .attr("y", function (d, i) {
@@ -741,7 +741,7 @@ Map.prototype.refreshMicroViz = function () {
                     return -100;
             
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return 0;
+                    return _self.direction == "top" ? -3 : 11;
 
             });
 
@@ -776,10 +776,10 @@ Map.prototype.refreshMicroViz = function () {
             .attr("class", "dimension")
             .attr("transform", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return "translate(" + (_self.direction == "left" ? 0 : _self.minorDimension) + "," + i * _self.majorDimension / _self.dimensions.length + ")";
+                    return "translate(" + (_self.direction == "left" ? 2 : _self.minorDimension - 2) + "," + ( 5 + i * _self.majorDimension / _self.dimensions.length) + ")";
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return "translate(" + i * _self.majorDimension / _self.dimensions.length + "," + (_self.direction == "top" ? 0 : _self.minorDimension) + ")";
+                    return "translate(" + (4 + i *_self.majorDimension / _self.dimensions.length) + "," + (_self.direction == "top" ? 15 : _self.minorDimension - 15) + ")";
 
             });
 
@@ -799,28 +799,50 @@ Map.prototype.refreshMicroViz = function () {
                     })
                     .style("text-anchor", function () {
                         return _self.direction == "right" ? "end" : "start";
+                    })
+                    .attr("x", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return _self.direction == "left" ? 6 : -3;
+
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? 7 : 7;
+
+                    })
+                    .attr("y", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return 0;
+
+                        if (_self.direction == "top" || _self.direction == "bottom")
+                            return _self.direction == "top" ? -2 : 3;
+
                     });
             })
             .append("text")
+            .text(function (d) {
+                return d;
+            })
+            .attr("transform", function (d, i) {
+                        if (_self.direction == "left" || _self.direction == "right")
+                            return _self.direction == "left" ? "rotate(90)" : "rotate(-90)";
+
+                        return "rotate(0)";
+                    })
             .style("text-anchor", "end")
             .attr("x", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return _self.direction == "left" ? 20 : -30;
+                    return _self.direction == "left" ? 100 : -70;
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return 40;
+                    return _self.direction == "top" ? 70 : 70;
 
             })
             .attr("y", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return 40;
-
+                    return -100;
+            
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return _self.direction == "top" ? 70 : -70;
+                    return _self.direction == "top" ? -3 : 11;
 
-            })
-            .text(function (d) {
-                return d;
             });
 
         var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
