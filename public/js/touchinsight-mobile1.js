@@ -377,8 +377,6 @@ function createLayout() {
                     .text(GRID[1] * i + j + 1)
                     .style("display", "table-cell")
                     .style("vertical-align", "middle");
-
-
             }
 
         }

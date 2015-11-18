@@ -66,20 +66,20 @@ function setGlobalQuery(query, propagate) {
             break;
         }
     }
-    
+
     d3.select(".extent").remove();
 
     historyQueryStack.push(query);
 
     // update all other visualizations
     if (propagate) {
-        
+
         for (var i = 0; i < GRID[1]; i++) {
 
             for (var j = 0; j < GRID[0]; j++) {
 
                 if (l[i][j] != 0) {
-                    
+
                     svgs[i][j].postUpdate();
                 }
             }
@@ -109,7 +109,7 @@ function clearAllQueries() {
 $(document).ready(function () {
 
     d3.select("body").style("background-color", "white");
-    
+
     //creating clear button
     d3.select("#button-panel").append("div")
         .attr("id", "clearButton")
@@ -151,7 +151,7 @@ $(document).ready(function () {
 
 
 function reDrawInterface() {
-    
+
     var prevL = l;
 
     l = getDimensions(mainView[0], mainView[1]);
@@ -161,7 +161,7 @@ function reDrawInterface() {
         for (var j = 0; j < GRID[0]; j++) {
 
             if (l[i][j] != 0) {
-                
+
                 var classname = "secondarypanel";
 
                 if (mainView[0] == i && mainView[1] == j) {
@@ -172,9 +172,9 @@ function reDrawInterface() {
                     .attr("class", classname)
                     .style("width", l[i][j]["width"])
                     .style("height", l[i][j]["height"]);
-                
+
                 d3.select("#div" + i + j)
-                    .transition().delay(500)
+                    //.transition().delay(500)
                     .style("left", l[i][j]["left"])
                     .style("top", PADDING_Y + l[i][j]["top"])
                     .style("background-color",
@@ -184,17 +184,17 @@ function reDrawInterface() {
                     .style("margin", PADDING / 2 - 4)
                     .style("overflow", "hidden")
                     .style("display", "block");
-                
+
                 if (i == mainView[0] && j == mainView[1]) {
 
-                    svgs[i][j].reDrawChart(1, $("#div" + i + j).width(), 
-                                           $("#div" + i + j).height());
+                    svgs[i][j].reDrawChart(1, $("#div" + i + j).width(),
+                        $("#div" + i + j).height());
 
                 } else {
-                   if (prevL[i][j] == 0)
+                    if (prevL[i][j] == 0)
                         svgs[i][j].postUpdate();
-                    svgs[i][j].reDrawChart(0, $("#div" + i + j).width(), 
-                                           $("#div" + i + j).height());
+                    svgs[i][j].reDrawChart(0, $("#div" + i + j).width(),
+                        $("#div" + i + j).height());
 
                 }
 
@@ -206,6 +206,39 @@ function reDrawInterface() {
             }
         }
     }
+
+    for (var i = 0; i < GRID[1]; i++) {
+
+        for (var j = 0; j < GRID[0]; j++) {
+
+            if (l[i][j] != 0) {
+
+
+                d3.select("#label" + i + j)
+                    .style("left", $("#div" + i + j).position().left +
+                        $("#div" + i + j).width() - 30)
+                    .style("top", $("#div" + i + j).position().top + 2)
+                    .style("display", "table");
+
+
+
+            } else {
+
+
+                d3.select("#label" + i + j)
+                    .style("display", "none");
+
+            }
+
+
+        }
+        
+    }
+    
+    d3.select("#label" + mainView[0] + mainView[1])
+                    .style("display", "none");
+
+
 
 
 }
@@ -325,7 +358,7 @@ function createLayout() {
     //GRID[1] = GRID[0];
 
     l = getDimensions(mainView[0], mainView[1]);
-    
+
     svgs = new Array(GRID[1]);
 
     for (var i = 0; i < GRID[1]; i++) {
@@ -356,10 +389,25 @@ function createLayout() {
                     .style("margin", PADDING / 2 - 4)
                     .style("overflow", "hidden");
 
+
+                d3.select("#content").append("div")
+                    .attr("id", "label" + i + j)
+                    .attr("class", "label")
+                    .style("left", $("#div" + i + j).position().left +
+                        $("#div" + i + j).width() - 30)
+                    .style("top", $("#div" + i + j).position().top + 2)
+                    .style("display", "table")
+                    .append("p")
+                    .text(GRID[1] * i + j + 1)
+                    .style("display", "table-cell")
+                    .style("vertical-align", "middle");
             }
         }
     }
     
+     d3.select("#label" + mainView[0] + mainView[1])
+                    .style("display", "none");
+
     d3.select("#button-panel").style("top", $("#div11").position().top + 10);
 
 }
