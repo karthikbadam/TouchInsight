@@ -18,7 +18,7 @@ var width = 0;
 
 var height = 0;
 
-var PADDING = 7;
+var PADDING = 10;
 
 var device = "MOBILE";
 
@@ -106,6 +106,7 @@ function clearAllQueries() {
 
 $(document).ready(function () {
     
+    d3.select("body").style("background-color", "white");
     
     //creating clear button
     d3.select("#button-panel").append("div")
@@ -194,8 +195,6 @@ function reDrawInterface() {
     }
     
     d3.select("#button-panel").style("top", $("#div"+mainView[0]+mainView[1]).position().top + 20);
-
-
 
 }
 
