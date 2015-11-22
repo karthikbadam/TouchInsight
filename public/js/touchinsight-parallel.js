@@ -350,6 +350,8 @@ Parallel.prototype.refreshMicroViz = function () {
                     mainView = [y, x];
                     reDrawInterface();
                 }
+            
+                $("#" + _self.parentId).toggleClass( "highlight" );
 
             });
 
