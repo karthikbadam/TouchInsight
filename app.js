@@ -24,7 +24,7 @@ var FIRST_TIME_EXECUTED = false;
 
 // connect to the flights database in mongodb
 //var mongourl = 'mongodb://127.0.0.1:27017/flights';
-var mongourl = 'mongodb://127.0.0.1:27017/flightsSmall';
+var mongourl = 'mongodb://127.0.0.1:27017/flightsSmaller';
 
 var app = express();
 
@@ -68,7 +68,7 @@ app.get('/survey', function (req, res, next) {
 
 //start with stock list
 //var stream = fs.createReadStream("public/data/flight_edges.tsv");
-var stream = fs.createReadStream("public/data/flight-yearly.tsv");
+var stream = fs.createReadStream("public/data/flight-yearlySampled.tsv");
 
 //db.flights.createIndex( { "Source": 1, "Passengers": -1 , "Flights": -1, "Date": 1, "sourcePopulation": -1} )
 
@@ -185,7 +185,11 @@ function queryFlightConnections(db, query, callback) {
                 $sort: {
                     Flights: -1
                 }
+        },
+        {
+            $limit: 300
         }
+            
     ]);
     
 

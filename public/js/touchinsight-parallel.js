@@ -191,7 +191,7 @@ Parallel.prototype.refreshChart = function () {
         _self.x.domain(_self.dimensions = d3.keys(_self.targetData[0]["_id"])
             .filter(function (d) {
 
-               return (_self.y[d] = d3.scale.linear()
+                return (_self.y[d] = d3.scale.linear()
                     .domain(d3.extent(_self.targetData, function (p) {
                         return +p["_id"][d];
                     })).range([_self.height, 0]));
@@ -248,7 +248,12 @@ Parallel.prototype.refreshChart = function () {
 
         parallelLines.attr("d", path);
     }
+    
+    if ($("#" + _self.parentId).is(".highlight")) {
+        $("#" + _self.parentId).toggleClass("highlight");
+    } 
 }
+
 
 Parallel.prototype.refreshMicroViz = function () {
 
@@ -346,12 +351,12 @@ Parallel.prototype.refreshMicroViz = function () {
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
 
+                $("#" + _self.parentId).toggleClass("highlight");
+            
                 if (y != mainView[0] || x != mainView[1]) {
                     mainView = [y, x];
                     reDrawInterface();
                 }
-            
-                $("#" + _self.parentId).toggleClass( "highlight" );
 
             });
 
@@ -391,7 +396,7 @@ Parallel.prototype.refreshMicroViz = function () {
             .attr("stroke-width", function (d) {
                 return _self.datadimension(d[_self.target]) + "px";
             });
-        
+
 
         // Returns the path for a given data point.
         function path(d) {
@@ -621,6 +626,10 @@ Parallel.prototype.refreshMicroViz = function () {
             });
     }
 
+    if ($("#" + _self.parentId).is(".highlight")) {
+        $("#" + _self.parentId).toggleClass("highlight");
+    } 
+    
 }
 
 Parallel.prototype.refreshThumbnail = function () {
@@ -777,11 +786,13 @@ Parallel.prototype.refreshThumbnail = function () {
 
         parallelLines.attr("d", path);
     }
+    
+   
 }
 
 Parallel.prototype.reDrawChart = function (flag, width, height) {
 
-    var _self = this;
+    var _self = this; 
 
     _self.width = width - _self.margin.left - _self.margin.right;
 
@@ -809,7 +820,8 @@ Parallel.prototype.reDrawChart = function (flag, width, height) {
 Parallel.prototype.postUpdate = function (cquery) {
 
     var _self = this;
-
+    
+    
     $.ajax({
 
         type: "GET",
