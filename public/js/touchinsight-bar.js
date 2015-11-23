@@ -338,6 +338,10 @@ Bar.prototype.refreshMicroViz = function () {
                 divId = divId.replace("div", "");
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
+            
+                d3.selectAll(".panel").style("background-color", "orange");
+            
+                $('#'+_self.parentId).delay(0).fadeOut(100).fadeIn('slow');
 
                 if (y != mainView[0] || x != mainView[1]) {
                     mainView = [y, x];
@@ -1005,8 +1009,6 @@ Bar.prototype.reDrawChart = function (flag, width, height) {
 
     _self.actualheight = height - _self.margin.top - _self.margin.bottom;
 
-
-
     if (flag) {
 
         _self.svg = null;
@@ -1022,6 +1024,7 @@ Bar.prototype.reDrawChart = function (flag, width, height) {
 
     }
 
+    d3.select("#"+_self.parentId).style("background-color", "white");
 
 }
 
@@ -1042,6 +1045,8 @@ Bar.prototype.postUpdate = function (cquery) {
         console.log(data+"\n");
         
         _self.targetData = JSON.parse(data);
+        
+        d3.select("#"+_self.parentId).style("background-color", "white");
 
         if (device == "DESKTOP") {
             _self.refreshChart();

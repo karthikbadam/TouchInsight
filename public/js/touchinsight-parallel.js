@@ -249,9 +249,6 @@ Parallel.prototype.refreshChart = function () {
         parallelLines.attr("d", path);
     }
     
-    if ($("#" + _self.parentId).is(".highlight")) {
-        $("#" + _self.parentId).toggleClass("highlight");
-    } 
 }
 
 
@@ -351,7 +348,7 @@ Parallel.prototype.refreshMicroViz = function () {
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
 
-                $("#" + _self.parentId).toggleClass("highlight");
+                d3.selectAll(".panel").style("background-color", "orange");
             
                 if (y != mainView[0] || x != mainView[1]) {
                     mainView = [y, x];
@@ -626,10 +623,6 @@ Parallel.prototype.refreshMicroViz = function () {
             });
     }
 
-    if ($("#" + _self.parentId).is(".highlight")) {
-        $("#" + _self.parentId).toggleClass("highlight");
-    } 
-    
 }
 
 Parallel.prototype.refreshThumbnail = function () {
@@ -797,7 +790,7 @@ Parallel.prototype.reDrawChart = function (flag, width, height) {
     _self.width = width - _self.margin.left - _self.margin.right;
 
     _self.height = height - _self.margin.top - _self.margin.bottom;
-
+    
     if (flag) {
 
         _self.svg = null;
@@ -814,6 +807,8 @@ Parallel.prototype.reDrawChart = function (flag, width, height) {
             _self.refreshThumbnail();
 
     }
+    
+    d3.select("#"+_self.parentId).style("background-color", "white");
 
 }
 
@@ -833,6 +828,8 @@ Parallel.prototype.postUpdate = function (cquery) {
     }).done(function (data) {
 
         _self.targetData = JSON.parse(data);
+        
+        d3.select("#"+_self.parentId).style("background-color", "white");
 
         if (device == "DESKTOP") {
             _self.refreshChart();
