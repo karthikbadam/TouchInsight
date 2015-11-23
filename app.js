@@ -187,7 +187,7 @@ function queryFlightConnections(db, query, callback) {
                 }
         },
         {
-            $limit: 300
+            $limit: 500
         }
             
     ]);

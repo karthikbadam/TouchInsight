@@ -37,6 +37,7 @@ path {
 
 .panel {
     display: inline-block;
+    -webkit-tap-highlight-color: orange;
 }
 
 .land {

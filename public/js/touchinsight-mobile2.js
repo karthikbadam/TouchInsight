@@ -67,7 +67,7 @@ function setGlobalQuery(query, propagate) {
         }
     }
 
-    d3.select(".extent").remove();
+    d3.select(".extent").attr("width", 0).attr("x", 0);
 
     historyQueryStack.push(query);
 

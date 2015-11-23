@@ -111,6 +111,7 @@ Parallel.prototype.refreshChart = function () {
             .each(function (d) {
                 d3.select(this).call(_self.axis.scale(_self.y[d]));
             })
+            .attr("stroke-width", "3px")
             .append("text")
             .style("text-anchor", "middle")
             .attr("y", -9)
@@ -211,6 +212,7 @@ Parallel.prototype.refreshChart = function () {
             .each(function (d) {
                 d3.select(this).call(_self.axis.scale(_self.y[d]));
             })
+            .attr("stroke-width", "3px")
             .append("text")
             .style("text-anchor", "middle")
             .attr("y", -9)
@@ -348,12 +350,16 @@ Parallel.prototype.refreshMicroViz = function () {
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
 
-                d3.selectAll(".panel").style("background-color", "orange");
-            
-                if (y != mainView[0] || x != mainView[1]) {
-                    mainView = [y, x];
-                    reDrawInterface();
-                }
+                d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
+
+                var delay = 10;
+
+                setTimeout(function () {
+                    if (y != mainView[0] || x != mainView[1]) {
+                        mainView = [y, x];
+                        reDrawInterface();
+                    }
+                }, delay);
 
             });
 

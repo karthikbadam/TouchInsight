@@ -46,7 +46,6 @@ var svgs = [];
 
 var l;
 
-
 function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
@@ -65,7 +64,7 @@ function setGlobalQuery(query, propagate) {
         }
     }
 
-    d3.select(".extent").remove();
+    d3.select(".extent").attr("width", 0).attr("x", 0);
 
     historyQueryStack.push(query);
 
@@ -362,17 +361,36 @@ function createLayout() {
                     .style("margin", PADDING / 2 - 4)
                     .style("overflow", "hidden");
 
-                d3.select("#content").append("div")
-                    .attr("id", "label" + i + j)
-                    .attr("class", "label")
-                    .style("left", $("#div" + i + j).position().left +  
-                           $("#div" + i + j).width() - 30)
-                    .style("top", $("#div" + i + j).position().top + 2)
-                    .style("display", "table")
-                    .append("p")
-                    .text(GRID[1] * i + j + 1)
-                    .style("display", "table-cell")
-                    .style("vertical-align", "middle");
+                if (GRID[1] * i + j + 1 == 5){
+                    
+                    d3.select("#content").append("div")
+                        .attr("id", "label" + i + j)
+                        .attr("class", "label")
+                        .style("left", $("#div" + i + j).position().left +  
+                               $("#div" + i + j).width() - 30)
+                        .style("top", $("#div" + i + j).position().top + 2)
+                        .style("display", "table")
+                        .style("width", "30px")
+                        .append("p")
+                        .text((GRID[1] * i + j + 1)+ " C")
+                        .style("display", "table-cell")
+                        .style("vertical-align", "middle");
+                    
+                } else {
+                
+                    d3.select("#content").append("div")
+                        .attr("id", "label" + i + j)
+                        .attr("class", "label")
+                        .style("left", $("#div" + i + j).position().left +  
+                               $("#div" + i + j).width() - 30)
+                        .style("top", $("#div" + i + j).position().top + 2)
+                        .style("display", "table")
+                        .append("p")
+                        .text(GRID[1] * i + j + 1)
+                        .style("display", "table-cell")
+                        .style("vertical-align", "middle");
+                    
+                }
             }
 
         }

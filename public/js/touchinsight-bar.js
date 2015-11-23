@@ -318,7 +318,7 @@ Bar.prototype.refreshMicroViz = function () {
 
         console.log("horizon" + _self.horizonHeight);
 
-        var barSize = 45;
+        var barSize = 40;
 
         var size = _self.majorDimension / barSize;
 
@@ -339,14 +339,16 @@ Bar.prototype.refreshMicroViz = function () {
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
             
-                d3.selectAll(".panel").style("background-color", "orange");
-            
-                $('#'+_self.parentId).delay(0).fadeOut(100).fadeIn('slow');
+                d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
 
-                if (y != mainView[0] || x != mainView[1]) {
-                    mainView = [y, x];
-                    reDrawInterface();
-                }
+                var delay = 10;
+
+                setTimeout(function () {
+                    if (y != mainView[0] || x != mainView[1]) {
+                        mainView = [y, x];
+                        reDrawInterface();
+                    }
+                }, delay);
 
             });
 
@@ -510,7 +512,7 @@ Bar.prototype.refreshMicroViz = function () {
             .attr("width", _self.horizonWidth)
             .attr("height", _self.horizonHeight)
 
-        var barSize = 45;
+        var barSize = 40;
 
         var size = _self.majorDimension / barSize;
 
