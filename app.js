@@ -497,7 +497,7 @@ function queryFlightDistances(db, query, callback) {
                 },
                 FlightsLowerBound: {
                     $subtract: ["$Flights", {
-                        $mod: ["$Flights", 50]
+                        $mod: ["$Flights", 1000]
                     }]
                 },
                 Passengers: "$Passengers"
@@ -575,7 +575,7 @@ function queryPassengerSeats(db, query, callback) {
                 PassLowerBound: {
                     $add: [5000, {
                         $subtract: ["$Passengers", {
-                            $mod: ["$Passengers", 10000]
+                            $mod: ["$Passengers", 20000]
                         }]
                     }]
                 },
