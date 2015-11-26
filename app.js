@@ -20,11 +20,17 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 
+
+
 var FIRST_TIME_EXECUTED = false;
+
+
 
 // connect to the flights database in mongodb
 //var mongourl = 'mongodb://127.0.0.1:27017/flights';
 var mongourl = 'mongodb://127.0.0.1:27017/flightsSmaller';
+
+
 
 var app = express();
 
