@@ -86,6 +86,36 @@ function setGlobalQuery(query, propagate) {
     }
 }
 
+function clearRecentQuery() {
+    if (queryStack.length == 0)
+        return;
+    
+    if (queryStack.length == 1)
+        clearAllQueries();
+
+    queryStack.pop();
+    historyQueryStack.pop();
+
+    var query = new Query({
+        index: "Date",
+        value: ["1990", "2009"],
+        operator: "range",
+        logic: "CLEAN"
+    });
+
+    // update all other visualizations
+    geomap.postUpdate();
+    timechart.postUpdate();
+    passengerchart.postUpdate();
+    flightsbar.postUpdate();
+    passengersbar.postUpdate();
+    flightdistance.postUpdate();
+    passengerseats.postUpdate();
+    distancebar.postUpdate();
+    populationbar.postUpdate();
+
+}
+
 function clearAllQueries() {
     if (queryStack.length == 0)
         return;
@@ -105,18 +135,30 @@ function clearAllQueries() {
 
 $(document).ready(function () {
 
-    d3.select("body").style("background-color", "white");
-
     //creating clear button
+
+    d3.select("#button-panel").append("div")
+        .attr("id", "undoButton")
+        .attr("class", "operator")
+        .text("UNDO")
+        .style("font-size", "18px")
+        .on("mousedown", function () {
+            clearRecentQuery();
+        });
+
     d3.select("#button-panel").append("div")
         .attr("id", "clearButton")
         .attr("class", "operator")
-        .text("CLEAR QUERIES")
+        .text("CLEAR ALL")
+        .style("font-size", "18px")
         .on("mousedown", function () {
             clearAllQueries();
         });
 
+    d3.select("body").style("background-color", "white");
+
     $("#clearButton").draggable();
+    $("#undoButton").draggable();
 
     width = $("#content").width();
     height = $("#content").height();
@@ -372,7 +414,7 @@ function createLayout() {
                         .style("display", "table")
                         .style("width", "30px")
                         .append("p")
-                        .text((GRID[1] * i + j + 1)+ " C")
+                        .html((GRID[1] * i + j + 1)+ "&#9733;")
                         .style("display", "table-cell")
                         .style("vertical-align", "middle");
                     

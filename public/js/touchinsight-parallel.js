@@ -111,7 +111,7 @@ Parallel.prototype.refreshChart = function () {
             .each(function (d) {
                 d3.select(this).call(_self.axis.scale(_self.y[d]));
             })
-            .attr("stroke-width", "3px")
+            .attr("stroke-width", "2px")
             .append("text")
             .style("text-anchor", "middle")
             .attr("y", -9)
@@ -212,7 +212,7 @@ Parallel.prototype.refreshChart = function () {
             .each(function (d) {
                 d3.select(this).call(_self.axis.scale(_self.y[d]));
             })
-            .attr("stroke-width", "3px")
+            .attr("stroke-width", "2px")
             .append("text")
             .style("text-anchor", "middle")
             .attr("y", -9)
@@ -651,7 +651,7 @@ Parallel.prototype.refreshThumbnail = function () {
 
         _self.line = d3.svg.line();
         _self.axis = d3.svg.axis().orient("left")
-            .tickFormat(d3.format("s")).ticks(_self.height / 20);
+            .tickFormat(d3.format("s")).ticks(_self.height / 10);
 
         _self.datadimension = d3.scale.linear().domain(d3.extent(_self.targetData,
                 function (p) {
@@ -689,7 +689,7 @@ Parallel.prototype.refreshThumbnail = function () {
                     .domain(d3.extent(_self.targetData, function (p) {
                         return +p["_id"][d];
                     }))
-                    .range([_self.thumbnailheight - _self.margin.top, 0]);
+                    .range([_self.thumbnailheight - _self.margin.top - 5, 0]);
 
                 return (
                     _self.y[d] = !_self.y[d] ? d3.scale.linear()

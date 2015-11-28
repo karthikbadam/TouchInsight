@@ -12,7 +12,7 @@ var destPopulation = "DPopulation";
 
 var dataFile = "data/flights.csv";
 
-var THUMBNAIL_SCALE = 0.6;
+var THUMBNAIL_SCALE = 0.4;
 
 var GRID = [3, 3];
 
@@ -20,9 +20,9 @@ var width = 0;
 
 var height = 0;
 
-var PADDING = 10;
+var PADDING = 5;
 
-var PADDING_Y = 10;
+var PADDING_Y = 2;
 
 var device = "MOBILE2";
 
@@ -106,20 +106,62 @@ function clearAllQueries() {
     setGlobalQuery(query, 1);
 }
 
+function clearRecentQuery() {
+    if (queryStack.length == 0)
+        return;
+    
+    if (queryStack.length == 1)
+        clearAllQueries();
+
+    queryStack.pop();
+    historyQueryStack.pop();
+
+    var query = new Query({
+        index: "Date",
+        value: ["1990", "2009"],
+        operator: "range",
+        logic: "CLEAN"
+    });
+
+    // update all other visualizations
+    geomap.postUpdate();
+    timechart.postUpdate();
+    passengerchart.postUpdate();
+    flightsbar.postUpdate();
+    passengersbar.postUpdate();
+    flightdistance.postUpdate();
+    passengerseats.postUpdate();
+    distancebar.postUpdate();
+    populationbar.postUpdate();
+
+}
+
 $(document).ready(function () {
 
-    d3.select("body").style("background-color", "white");
-
     //creating clear button
+
+    d3.select("#button-panel").append("div")
+        .attr("id", "undoButton")
+        .attr("class", "operator")
+        .text("UNDO")
+        .style("font-size", "18px")
+        .on("mousedown", function () {
+            clearRecentQuery();
+        });
+
     d3.select("#button-panel").append("div")
         .attr("id", "clearButton")
         .attr("class", "operator")
-        .text("CLEAR QUERIES")
+        .text("CLEAR ALL")
+        .style("font-size", "18px")
         .on("mousedown", function () {
             clearAllQueries();
         });
 
+    d3.select("body").style("background-color", "white");
+
     $("#clearButton").draggable();
+    $("#undoButton").draggable();
 
     width = $("#content").width();
     height = $("#content").height();
@@ -237,9 +279,6 @@ function reDrawInterface() {
     
     d3.select("#label" + mainView[0] + mainView[1])
                     .style("display", "none");
-
-
-
 
 }
 
@@ -405,7 +444,7 @@ function createLayout() {
         }
     }
     
-     d3.select("#label" + mainView[0] + mainView[1])
+    d3.select("#label" + mainView[0] + mainView[1])
                     .style("display", "none");
 
     d3.select("#button-panel").style("top", $("#div11").position().top + 10);

@@ -136,7 +136,7 @@ TimeChart.prototype.refreshChart = function () {
             .attr("class", "flightsTime")
             .attr("d", area)
             .attr("fill", "#9ecae1")
-            .attr("fill-opacity", 0.5)
+            .attr("fill-opacity", 0.8)
             .attr("stroke", "#9ecae1")
             .attr("stroke-width", "1.5px");
 
@@ -199,7 +199,7 @@ TimeChart.prototype.refreshChart = function () {
             .datum(_self.targetData)
             .attr("d", _self.area)
             .attr("fill", "#9ecae1")
-            .attr("fill-opacity", 0.5)
+            .attr("fill-opacity", 0.8)
             .attr("stroke", "#9ecae1")
             .attr("stroke-width", "1.5px");
 
@@ -497,7 +497,7 @@ TimeChart.prototype.refreshThumbnail = function () {
                 return d3.time.format('%Y')(new Date(d));
             });
 
-        _self.xAxis.ticks(d3.time.years, 6 / _self.thumbnailscale);
+        _self.xAxis.ticks(d3.time.years, 3);
 
         var yAxis = _self.yAxis = d3.svg.axis()
             .scale(y)

@@ -14,9 +14,9 @@ function Bar(options) {
 
     _self.margin = {
         top: 5,
-        right: 20,
+        right: 30,
         bottom: 30,
-        left: 40
+        left: 50
     };
 
 
@@ -45,8 +45,9 @@ Bar.prototype.refreshChart = function () {
         _self.height = 10000;
 
         d3.select("#" + _self.parentId).append("text")
+            .style("padding-left", "10px")
             .text(_self.text)
-            .style("font-size", "12px");
+            .style("font-size", "14px");
 
         _self.svg = d3.select("#" + _self.parentId).append("div")
             .style("overflow", "scroll")
@@ -129,8 +130,7 @@ Bar.prototype.refreshChart = function () {
                 return d["_id"][source];
             })
             .on("click", function () {
-                alert(d3.select(this)[0][0].__data__["_id"][source]);
-
+                
                 var query = new Query({
                     index: source,
                     value: d3.select(this)[0][0].__data__["_id"][source],
@@ -814,7 +814,7 @@ Bar.prototype.refreshMicroViz = function () {
 Bar.prototype.refreshThumbnail = function () {
 
     var _self = this;
-
+    
     if (d3.select("#thumbnail" + _self.target).empty() || _self.svg.select("rect").empty()) {
 
         _self.height = 10000;
@@ -851,7 +851,7 @@ Bar.prototype.refreshThumbnail = function () {
 
             })
             .append("g")
-            .attr("transform", "translate(" + (_self.thumbnailscale * _self.margin.left) + "," +
+            .attr("transform", "translate(" + 0 + "," +
                 _self.thumbnailscale * _self.margin.top + ")")
             .style("pointer-events", "none")
             .style("font-size", 10 * _self.thumbnailscale + "px");
@@ -861,13 +861,13 @@ Bar.prototype.refreshThumbnail = function () {
             .domain([0, d3.max(_self.targetData, function (d) {
                 return Math.pow(d[_self.target], 1);
             })])
-            .range([0, _self.width]);
+            .range([0, _self.width + _self.margin.left - _self.thumbnailscale * _self.margin.left]);
 
         _self.y = d3.scale.ordinal()
             .domain(_self.targetData.map(function (d) {
                 return d["_id"][source];
             }))
-            .rangeBands([0, _self.height]);
+            .rangeBands([0, _self.height + _self.margin.top]);
 
         //_self.barH = _self.height / _self.targetData.length;
         _self.barH = 20 * _self.thumbnailscale;
@@ -876,7 +876,7 @@ Bar.prototype.refreshThumbnail = function () {
             .data(_self.targetData)
             .enter().append("g")
             .attr("transform", function (d, i) {
-                return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
+                return "translate(" + (10 + _self.margin.left - _self.thumbnailscale * _self.margin.left)+ "," + i * _self.barH + ")";
             });
 
         _self.bars.append("rect")
@@ -901,7 +901,7 @@ Bar.prototype.refreshThumbnail = function () {
         _self.svg.selectAll("text.name")
             .data(_self.targetData)
             .enter().append("text")
-            .attr("x", _self.margin.left - 5 * _self.thumbnailscale)
+            .attr("x", 5 + _self.margin.left - _self.thumbnailscale * _self.margin.left)
             .attr("y", function (d, i) {
                 return i * _self.barH + _self.barH / 2;
             })
@@ -978,7 +978,7 @@ Bar.prototype.refreshThumbnail = function () {
         allText.exit().remove();
 
         allText.enter().append("text")
-            .attr("x", _self.margin.left - 5 * _self.thumbnailscale)
+            .attr("x", 5 + _self.margin.left - _self.thumbnailscale * _self.margin.left)
             .attr("y", function (d, i) {
                 return i * _self.barH + _self.barH / 2;
             })
@@ -988,7 +988,7 @@ Bar.prototype.refreshThumbnail = function () {
                 return d["_id"][source];
             });
 
-        allText.attr("x", _self.margin.left - 5 * _self.thumbnailscale)
+        allText.attr("x", 5 + _self.margin.left - _self.thumbnailscale * _self.margin.left)
             .attr("y", function (d, i) {
                 return i * _self.barH + _self.barH / 2;
             })

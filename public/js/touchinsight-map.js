@@ -124,20 +124,20 @@ Map.prototype.refreshChart = function () {
                     logic: currentLogic
                 });
 
-                setGlobalQuery(query1, flag = selectedDestinations.length > 0 ? 0 : 1);
-                //setGlobalQuery(query1, flag = 1);
+                //setGlobalQuery(query1, flag = selectedDestinations.length > 0 ? 0 : 1);
+                setGlobalQuery(query1, flag = 1);
             }
 
-            if (selectedDestinations.length > 0) {
-                var query2 = new Query({
-                    index: destination,
-                    value: selectedDestinations,
-                    operator: "in",
-                    logic: selectedSources.length > 0 ? "AND" : currentLogic
-                });
-
-                setGlobalQuery(query2, 1);
-            }
+//            if (selectedDestinations.length > 0) {
+//                var query2 = new Query({
+//                    index: destination,
+//                    value: selectedDestinations,
+//                    operator: "in",
+//                    logic: selectedSources.length > 0 ? "AND" : currentLogic
+//                });
+//
+//                setGlobalQuery(query2, 1);
+//            }
 
             // Reset the style of the not selected dots
             _self.lasso.items().filter(function (d) {

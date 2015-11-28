@@ -65,6 +65,8 @@ app.get('/mobile2', function (req, res, next) {
     res.render('mobile2.html', {});
 });
 
+
+
 app.get('/survey', function (req, res, next) {
     res.render('data.html', {});
 });
@@ -195,12 +197,12 @@ function queryFlightConnections(db, query, callback) {
                     Flights: -1
                 }
         },
-        {
-            $limit: 500
+            {
+                $limit: 500
         }
-            
+
     ]);
-    
+
 
     data.toArray(function (err, docs) {
         assert.equal(null, err);
@@ -261,17 +263,17 @@ function queryFlightsByTime(db, query, callback) {
         callback(docs);
     });
 
-//    var docs = [];
-//
-//    data.on('data', function (doc) {
-//        docs.push(doc);
-//        console.log(doc);
-//    });
-//
-//    data.once('end', function () {
-//        console.log(docs.length);
-//        callback(docs);
-//    });
+    //    var docs = [];
+    //
+    //    data.on('data', function (doc) {
+    //        docs.push(doc);
+    //        console.log(doc);
+    //    });
+    //
+    //    data.once('end', function () {
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
 
 
 }
@@ -325,17 +327,17 @@ function queryPassengersByTime(db, query, callback) {
         callback(docs);
     });
 
-//    var docs = [];
-//
-//    data.on('data', function (doc) {
-//        docs.push(doc);
-//        console.log(doc);
-//    });
-//
-//    data.once('end', function () {
-//        console.log(docs.length);
-//        callback(docs);
-//    });
+    //    var docs = [];
+    //
+    //    data.on('data', function (doc) {
+    //        docs.push(doc);
+    //        console.log(doc);
+    //    });
+    //
+    //    data.once('end', function () {
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
 
 }
 
@@ -388,18 +390,18 @@ function queryFlightsBySource(db, query, callback, callbackStream) {
         callback(docs);
     });
 
-//    var docs = [];
-//
-//    data.on('data', function (doc) {
-//        docs.push(doc);
-//        //callbackStream(docs);
-//        console.log(doc);
-//    });
-//
-//    data.once('end', function () {
-//        console.log(docs.length);
-//        callback(docs);
-//    });
+    //    var docs = [];
+    //
+    //    data.on('data', function (doc) {
+    //        docs.push(doc);
+    //        //callbackStream(docs);
+    //        console.log(doc);
+    //    });
+    //
+    //    data.once('end', function () {
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
 
 
 }
@@ -456,17 +458,17 @@ function queryPassengersBySource(db, query, callback) {
         callback(docs);
     });
 
-//    var docs = [];
-//
-//    data.on('data', function (doc) {
-//        docs.push(doc);
-//        console.log(doc);
-//    });
-//
-//    data.once('end', function () {
-//        console.log(docs.length);
-//        callback(docs);
-//    });
+    //    var docs = [];
+    //
+    //    data.on('data', function (doc) {
+    //        docs.push(doc);
+    //        console.log(doc);
+    //    });
+    //
+    //    data.once('end', function () {
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
 
 }
 
@@ -540,17 +542,17 @@ function queryFlightDistances(db, query, callback) {
         callback(docs);
     });
 
-//    var docs = [];
-//
-//    data.on('data', function (doc) {
-//        docs.push(doc);
-//        console.log(doc);
-//    });
-//
-//    data.once('end', function () {
-//        console.log(docs.length);
-//        callback(docs);
-//    });
+    //    var docs = [];
+    //
+    //    data.on('data', function (doc) {
+    //        docs.push(doc);
+    //        console.log(doc);
+    //    });
+    //
+    //    data.once('end', function () {
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
 
 }
 
@@ -634,17 +636,17 @@ function queryPassengerSeats(db, query, callback) {
         callback(docs);
     });
 
-//    var docs = [];
-//
-//    data.on('data', function (doc) {
-//        docs.push(doc);
-//        console.log(doc);
-//    });
-//
-//    data.once('end', function () {
-//        console.log(docs.length);
-//        callback(docs);
-//    });
+    //    var docs = [];
+    //
+    //    data.on('data', function (doc) {
+    //        docs.push(doc);
+    //        console.log(doc);
+    //    });
+    //
+    //    data.once('end', function () {
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
 
 }
 
@@ -697,17 +699,17 @@ function queryDistanceBySource(db, query, callback) {
         callback(docs);
     });
 
-//    var docs = [];
-//
-//    data.on('data', function (doc) {
-//        docs.push(doc);
-//        console.log(doc);
-//    });
-//
-//    data.once('end', function () {
-//        console.log(docs.length);
-//        callback(docs);
-//    });
+    //    var docs = [];
+    //
+    //    data.on('data', function (doc) {
+    //        docs.push(doc);
+    //        console.log(doc);
+    //    });
+    //
+    //    data.once('end', function () {
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
 
 
 }
@@ -761,17 +763,17 @@ function queryPopulationBySource(db, query, callback) {
         callback(docs);
     });
 
-//    var docs = [];
-//
-//    data.on('data', function (doc) {
-//        docs.push(doc);
-//        console.log(doc);
-//    });
-//
-//    data.once('end', function () {
-//        console.log(docs.length);
-//        callback(docs);
-//    });
+    //    var docs = [];
+    //
+    //    data.on('data', function (doc) {
+    //        docs.push(doc);
+    //        console.log(doc);
+    //    });
+    //
+    //    data.once('end', function () {
+    //        console.log(docs.length);
+    //        callback(docs);
+    //    });
 
 }
 
