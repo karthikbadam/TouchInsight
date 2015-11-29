@@ -42,6 +42,8 @@ var queryStack = [];
 
 var historyQueryStack = [];
 
+var touchSync;
+
 function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
@@ -68,6 +70,8 @@ function setGlobalQuery(query, propagate) {
         }
     }
 
+    touchSync.push(currQuery);
+    
     d3.select(".extent").attr("width", 0).attr("x", 0);
 
     historyQueryStack.push(query);
@@ -138,6 +142,16 @@ function clearRecentQuery() {
 $(document).ready(function () {
 
     //creating clear button
+    
+    var options = {};
+
+    options.callback = function (data) {
+        
+        console.log(data);
+        
+    }
+    
+    touchSync = new Sync(options);
 
     d3.select("#button-panel").append("div")
         .attr("id", "undoButton")

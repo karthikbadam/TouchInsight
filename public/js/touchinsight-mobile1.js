@@ -46,6 +46,8 @@ var svgs = [];
 
 var l;
 
+var touchSync;
+
 function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
@@ -54,20 +56,22 @@ function setGlobalQuery(query, propagate) {
 
     for (var i = queryStack.length - 1; i >= 0; i--) {
 
-        var query = queryStack[i]
+        var q = queryStack[i]
 
-        if (query.logic == "CLEAN") {
+        if (q.logic == "CLEAN") {
 
             queryStack = queryStack.slice(i);
 
             break;
         }
     }
+    
+    touchSync.push(currQuery);
 
     d3.select(".extent").attr("width", 0).attr("x", 0);
 
     historyQueryStack.push(query);
-
+    
     // update all other visualizations
     if (propagate) {
 
@@ -134,7 +138,17 @@ function clearAllQueries() {
 }
 
 $(document).ready(function () {
+    
+    var options = {};
 
+    options.callback = function (data) {
+        
+        console.log(data);
+        
+    }
+    
+    touchSync = new Sync(options);
+    
     //creating clear button
 
     d3.select("#button-panel").append("div")

@@ -47,6 +47,8 @@ var svgs = [];
 
 var l;
 
+var touchSync; 
+
 // represents which visualization is the main one and others are micro visualizations
 var mainView = [1, 1];
 
@@ -58,9 +60,9 @@ function setGlobalQuery(query, propagate) {
 
     for (var i = queryStack.length - 1; i >= 0; i--) {
 
-        var query = queryStack[i]
+        var q = queryStack[i]
 
-        if (query.logic == "CLEAN") {
+        if (q.logic == "CLEAN") {
 
             queryStack = queryStack.slice(i);
             break;
@@ -70,7 +72,9 @@ function setGlobalQuery(query, propagate) {
     d3.select(".extent").attr("width", 0).attr("x", 0);
 
     historyQueryStack.push(query);
-
+    
+    touchSync.push(currQuery);
+    
     // update all other visualizations
     if (propagate) {
 
@@ -137,6 +141,16 @@ function clearRecentQuery() {
 }
 
 $(document).ready(function () {
+    
+    var options = {};
+
+    options.callback = function (data) {
+        
+        console.log(data);
+        
+    }
+    
+    touchSync = new Sync(options);
 
     //creating clear button
 
