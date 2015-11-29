@@ -31,17 +31,13 @@ $(document).ready(function () {
 
     // creating the four buttons
     for (var i = 0; i < buttons.length; i++) {
-        d3.select("#button-panel").append("div")
+        d3.select("#buttonpanel-data").append("div")
             .attr("id", buttons[i])
             .attr("class", "operator")
             .style("width", (100 / buttons.length) + "%")
-            .style("height", "100%")
-            .style("color", "white")
-            .style("font-size", "2em")
             .style("text-align", "center")
             .style("vertical-align", "middle")
             .style("cursor", "pointer")
-            .style("display", "inline-block")
             .text(buttons[i])
             .on("mousedown", function () {
 

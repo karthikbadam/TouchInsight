@@ -56,17 +56,17 @@ svg {
 .axis path,
 .axis line {
     fill: none;
-    stroke: #666;
+    stroke: #888;
     shape-rendering: crispEdges;
 }
 
 .tick text {
-    fill: #666;
+    fill: #888;
     
 }
 
 .tick line {
-    opacity: 0.3;
+    opacity: 0.5;
 }
 
 .parallel path {
@@ -169,6 +169,30 @@ div.tooltip {
     
 }
 
+#undoButton {
+    padding-top: 1px;
+    border-radius: 3px;
+    box-shadow: 0px 0px 2px #9b9b9b;
+    background-image: linear-gradient(to left, rgba(190, 190, 190, 0.3) 0%, rgba(190, 190, 190, 0.4) 20%, rgba(190, 190, 190, 0.4) 80%, rgba(190, 190, 190, 0.3) 100%);
+    z-index: 6;
+    width: 15%;
+    height: auto;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    vertical-align: bottom;
+    cursor: pointer;
+    text-align:center;
+    pointer-events: all;
+}
+
+#undoButton:hover {
+    background-color: #deebf7;
+    
+}
+
 .label {
     position: absolute;
     font-size: 16px;
@@ -185,4 +209,38 @@ div.tooltip {
 
 .highlight {
     background-color: yellow;
+}
+
+#buttonpanel-data {
+    width: 100%;
+    vertical-align: middle;
+    text-align: center;
+    height: auto;
+}
+
+.operator {
+    vertical-align: middle;
+    text-align: center;
+    padding-top: 1px;
+    border-radius: 3px;
+    box-shadow: 0px 0px 2px #9b9b9b;
+    background-image: linear-gradient(to left, rgba(190, 190, 190, 0.3) 0%, rgba(190, 190, 190, 0.4) 20%, rgba(190, 190, 190, 0.4) 80%, rgba(190, 190, 190, 0.3) 100%);
+    z-index: 6;
+    width: 15%;
+    height: 30px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 25px;
+    vertical-align: bottom;
+    cursor: pointer;
+    text-align:center;
+    pointer-events: all;
+    color: white;
+}
+
+.operator:hover {
+    background-color: #deebf7; 
+    color: black;
 }
