@@ -9,7 +9,10 @@
 
     <script src="js/d3.v3.min.js"></script>
     <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/touchinsight-firebase.js"></script>
     <script src="js/touchinsight-datacollection.js"></script>
+    
     
     <div id="buttonpanel-data">
 
@@ -29,12 +32,15 @@
         
         <div id = "answer" > 
         
-            <input type="radio" id="ctrue" name="ans" value="true" > true
+            <input type="radio" id="ctrue" name="ans" value="true" > 
+            <div id= "divTrue" class="bool">true</div>
             <br>
-            <input type="radio" id="cfalse" name="ans"  value="false" checked> false
-            
+            <input type="radio" id="cfalse" name="ans"  value="false" checked>    
+            <div id= "divFalse" class="bool">false</div>
+            </input>
         </div>
         
+<!--
         <div id = "switches" > 
         Enter the number of times the visualizations are changed <br/>
             <br/>
@@ -44,6 +50,7 @@
       rows = "1" cols="80" required="required"></textarea>
             
         </div>
+-->
 
     </div>
 

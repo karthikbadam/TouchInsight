@@ -244,3 +244,11 @@ div.tooltip {
     background-color: #deebf7; 
     color: black;
 }
+
+.bool {
+    font-size: 24px;
+    padding: 20px;
+    width: 80px;
+    display: inline-block;
+    cursor: pointer;
+}

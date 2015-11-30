@@ -15,7 +15,7 @@ var type = "type";
 var answer = "answer";
 var points = "points";
 
-var buttons = ["PREVIOUS", "NEXT", "DOWNLOAD"];
+var buttons = ["PREVIOUS", "REFRESH", "NEXT", "DOWNLOAD"];
 
 var allQuestions = {};
 
@@ -31,6 +31,13 @@ var device = "DATA_COLLECTOR";
 
 var touchSync;
 
+function blink(selector) {
+    $(selector).fadeOut('fast', function () {
+        $(this).fadeIn('fast', function () {
+        });
+    });
+}
+
 $(document).ready(function () {
 
     var options = {};
@@ -45,7 +52,7 @@ $(document).ready(function () {
 
     // creating the four buttons
     for (var i = 0; i < buttons.length; i++) {
-        
+
         d3.select("#buttonpanel-data").append("div")
             .attr("id", buttons[i])
             .attr("class", "operator")
@@ -67,19 +74,30 @@ $(document).ready(function () {
                     currentObject.time = Date.now() - time1;
 
                     //currentObject.switches = $("#switch-textbox").val();
+                    
+                    blink('#question');
 
                     log.push(currentObject);
-                    
+
                     //pushing the current log object
                     touchSync.push(currentObject);
 
                     currentObject = {};
-                    
+
                     next(counter++);
 
                     //start timer
                     time1 = Date.now();
-
+                    
+                    $('#cfalse').prop('checked', true);
+                    
+                    blink('#answer');
+                }
+            
+                if (currentLogic == "REFRESH") {
+                     
+                    //start timer
+                    time1 = Date.now();
                 }
 
                 if (currentLogic == "DOWNLOAD") {
@@ -96,16 +114,30 @@ $(document).ready(function () {
 
                 if (currentLogic == "PREVIOUS") {
 
-                    if (counter >= 0) {
+                    if (counter > 1) {
 
                         next(counter--);
+                        
                         time1 = Date.now();
+                        
+                        blink('#question');
 
-                    }
+                    } else {
+                        
+                        alert("Beginning!")
+                    }   
                 }
 
             });
     }
+    
+    d3.select("#divTrue").on('click', function () {
+        $('#ctrue').prop('checked', true);    
+    });
+    
+    d3.select("#divFalse").on('click', function () {
+        $('#cfalse').prop('checked', true);    
+    });
 
     d3.csv(questionsFile, function (data) {
 
@@ -193,14 +225,14 @@ function next(counter) {
         .text(qObject.question)
         .style("color", "white")
         .style("margin", "50px")
-        .style("font-size", "20px");
+        .style("font-size", "28px");
 
     d3.select("#answer").style("color", "white")
         .style("margin-left", "100px")
         .style("font-size", "20px");
 
-    d3.select("#switches").style("color", "white")
-        .style("margin-left", "100px")
-        .style("margin-top", "30px")
-        .style("font-size", "20px")
+    //    d3.select("#switches").style("color", "white")
+    //        .style("margin-left", "100px")
+    //        .style("margin-top", "30px")
+    //        .style("font-size", "20px")
 }
