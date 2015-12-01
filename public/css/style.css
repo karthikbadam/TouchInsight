@@ -7,7 +7,7 @@ body {
     height: 100%;
     overflow: hidden;
     margin: 0px;
-    font-family: Helvetica-Light;
+    font-family: "Helvetica Neue", "Segoe UI", Helvetica-Light, Arial, sans-serif;
     font-size: 10px;
     background-color: #222;
 }
@@ -162,6 +162,7 @@ div.tooltip {
     cursor: pointer;
     text-align:center;
     pointer-events: all;
+    color: black;
 }
 
 #clearButton:hover {
@@ -186,6 +187,7 @@ div.tooltip {
     cursor: pointer;
     text-align:center;
     pointer-events: all;
+    color: black;
 }
 
 #undoButton:hover {

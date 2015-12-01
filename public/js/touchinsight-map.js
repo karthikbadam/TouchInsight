@@ -128,16 +128,16 @@ Map.prototype.refreshChart = function () {
                 setGlobalQuery(query1, flag = 1);
             }
 
-//            if (selectedDestinations.length > 0) {
-//                var query2 = new Query({
-//                    index: destination,
-//                    value: selectedDestinations,
-//                    operator: "in",
-//                    logic: selectedSources.length > 0 ? "AND" : currentLogic
-//                });
-//
-//                setGlobalQuery(query2, 1);
-//            }
+            //            if (selectedDestinations.length > 0) {
+            //                var query2 = new Query({
+            //                    index: destination,
+            //                    value: selectedDestinations,
+            //                    operator: "in",
+            //                    logic: selectedSources.length > 0 ? "AND" : currentLogic
+            //                });
+            //
+            //                setGlobalQuery(query2, 1);
+            //            }
 
             // Reset the style of the not selected dots
             _self.lasso.items().filter(function (d) {
@@ -316,14 +316,14 @@ Map.prototype.refreshChart = function () {
 
                 });
 
-            _self.svg.append("text")
-                .attr("id", "clearButton")
-                .attr("transform", "translate(" + (_self.width - 100) + "," + (_self.height + _self.margin.top) + ")")
-                .text("Show all flights")
-                .style("font-size", "14px")
-                .on("click", function () {
-                    clearAllQueries();
-                });
+//            _self.svg.append("text")
+//                .attr("id", "clearButton")
+//                .attr("transform", "translate(" + (_self.width - 100) + "," + (_self.height + _self.margin.top) + ")")
+//                .text("Show all flights")
+//                .style("font-size", "14px")
+//                .on("click", function () {
+//                    clearAllQueries();
+//                });
 
             _self.svg.call(_self.lasso);
 
@@ -606,7 +606,7 @@ Map.prototype.refreshMicroViz = function () {
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
 
-                d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
+                d3.selectAll("#" + _self.parentId).style("background-color", "darkgray");
 
                 var delay = 10;
 
@@ -1131,12 +1131,18 @@ Map.prototype.refreshThumbnail = function () {
 
             return -10;
         })
-        .attr("fill-opacity", 1)
-        .attr("stroke", "white")
-        .attr("stroke-width", "0.5px")
-        .attr("r", function (d, i) {
-            return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
-        });
+        .attr("fill", function (d) {
+            //return _self.colors(d["_id"][destination]);
+            return d.type == source ? "#4292c6" : "transparent";
+        })
+        .attr("fill-opacity", 0.7)
+        .attr("stroke", function (d) {
+            //return _self.colors(d["_id"][destination]);
+            return d.type == source ? "transparent" : "#222";
+        })
+        .attr("stroke-opacity", 0.7)
+        .attr("stroke-width", "1px")
+        .attr("r", "3px");
 
     cityCircles.attr("cx", function (d, i) {
 
@@ -1157,12 +1163,18 @@ Map.prototype.refreshThumbnail = function () {
 
             return -10;
         })
-        .attr("fill-opacity", 1)
-        .attr("stroke", "white")
-        .attr("stroke-width", "0.5px")
-        .attr("r", function (d, i) {
-            return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
-        });
+        .attr("fill", function (d) {
+            //return _self.colors(d["_id"][destination]);
+            return d.type == source ? "#4292c6" : "transparent";
+        })
+        .attr("fill-opacity", 0.7)
+        .attr("stroke", function (d) {
+            //return _self.colors(d["_id"][destination]);
+            return d.type == source ? "transparent" : "#222";
+        })
+        .attr("stroke-opacity", 0.7)
+        .attr("stroke-width", "1px")
+        .attr("r", "3px");
 
     var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData.slice(0, 100));
 

@@ -67,7 +67,7 @@ app.get('/mobile2', function (req, res, next) {
 
 
 
-app.get('/survey', function (req, res, next) {
+app.get('/study', function (req, res, next) {
     res.render('data.html', {});
 });
 

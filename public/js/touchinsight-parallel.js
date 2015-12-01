@@ -116,7 +116,11 @@ Parallel.prototype.refreshChart = function () {
             .style("text-anchor", "middle")
             .attr("y", -9)
             .text(function (d) {
-                return d;
+                if (d == "SPopulation")
+                    return "Population"
+                if (d == "Distance")
+                    return "Distance"
+                return d+" / year";
             });
 
         g.append("g")
@@ -212,13 +216,15 @@ Parallel.prototype.refreshChart = function () {
             .each(function (d) {
                 d3.select(this).call(_self.axis.scale(_self.y[d]));
             })
-            .attr("stroke-width", "2px")
-            .append("text")
-            .style("text-anchor", "middle")
-            .attr("y", -9)
-            .text(function (d) {
-                return d;
-            });
+            .attr("stroke-width", "2px");
+//            .append("text")
+//            .style("text-anchor", "middle")
+//            .attr("y", -9)
+//            .text(function (d) {
+//                if (d == "SPopulation")
+//                    return "Population / year"
+//                return d+" / year";
+//            });
 
         _self.g.selectAll(".brush")
             .each(function (d) {
@@ -470,7 +476,11 @@ Parallel.prototype.refreshMicroViz = function () {
             .style("color", "black")
             .style("text-anchor", "end")
             .text(function (d) {
-                return d;
+                if (d == "SPopulation")
+                    return "Population"
+                if (d == "Distance")
+                    return "Distance"
+                return d+" / year";
             })
             .attr("transform", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
@@ -480,10 +490,10 @@ Parallel.prototype.refreshMicroViz = function () {
             })
             .attr("x", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return _self.direction == "left" ? 50 : -30;
+                    return _self.direction == "left" ? 75 : -30;
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return _self.direction == "top" ? 50 : 50;
+                    return _self.direction == "top" ? 75 : 75;
 
             })
             .attr("y", function (d, i) {
@@ -603,7 +613,11 @@ Parallel.prototype.refreshMicroViz = function () {
             .style("color", "black")
             .style("text-anchor", "end")
             .text(function (d) {
-                return d;
+                if (d == "SPopulation")
+                    return "Population"
+                if (d == "Distance")
+                    return "Distance"
+                return d+" / year";
             })
             .attr("transform", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
@@ -613,10 +627,10 @@ Parallel.prototype.refreshMicroViz = function () {
             })
             .attr("x", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
-                    return _self.direction == "left" ? 50 : -30;
+                    return _self.direction == "left" ? 75 : -30;
 
                 if (_self.direction == "top" || _self.direction == "bottom")
-                    return _self.direction == "top" ? 50 : 50;
+                    return _self.direction == "top" ? 75 : 75;
 
             })
             .attr("y", function (d, i) {
@@ -734,7 +748,11 @@ Parallel.prototype.refreshThumbnail = function () {
             .style("text-anchor", "middle")
             .attr("y", -9)
             .text(function (d) {
-                return d;
+                if (d == "SPopulation")
+                    return "Population"
+                if (d == "Distance")
+                    return "Distance"
+                return d+" / year";
             });
 
 

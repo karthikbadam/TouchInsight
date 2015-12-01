@@ -47,7 +47,7 @@ var svgs = [];
 
 var l;
 
-var touchSync; 
+var touchSync;
 
 // represents which visualization is the main one and others are micro visualizations
 var mainView = [1, 1];
@@ -72,9 +72,9 @@ function setGlobalQuery(query, propagate) {
     d3.select(".extent").attr("width", 0).attr("x", 0);
 
     historyQueryStack.push(query);
-    
+
     touchSync.push(currQuery);
-    
+
     // update all other visualizations
     if (propagate) {
 
@@ -113,7 +113,7 @@ function clearAllQueries() {
 function clearRecentQuery() {
     if (queryStack.length == 0)
         return;
-    
+
     if (queryStack.length == 1)
         clearAllQueries();
 
@@ -141,15 +141,15 @@ function clearRecentQuery() {
 }
 
 $(document).ready(function () {
-    
+
     var options = {};
 
     options.callback = function (data) {
-        
+
         console.log(data);
-        
+
     }
-    
+
     touchSync = new Sync(options);
 
     //creating clear button
@@ -288,11 +288,11 @@ function reDrawInterface() {
 
 
         }
-        
+
     }
-    
+
     d3.select("#label" + mainView[0] + mainView[1])
-                    .style("display", "none");
+        .style("display", "none");
 
 }
 
@@ -443,23 +443,41 @@ function createLayout() {
                     .style("overflow", "hidden");
 
 
-                d3.select("#content").append("div")
-                    .attr("id", "label" + i + j)
-                    .attr("class", "label")
-                    .style("left", $("#div" + i + j).position().left +
-                        $("#div" + i + j).width() - 30)
-                    .style("top", $("#div" + i + j).position().top + 2)
-                    .style("display", "table")
-                    .append("p")
-                    .text(GRID[1] * i + j + 1)
-                    .style("display", "table-cell")
-                    .style("vertical-align", "middle");
+                if (GRID[1] * i + j + 1 == 5) {
+
+                    d3.select("#content").append("div")
+                        .attr("id", "label" + i + j)
+                        .attr("class", "label")
+                        .style("left", $("#div" + i + j).position().left +
+                            $("#div" + i + j).width() - 30)
+                        .style("top", $("#div" + i + j).position().top + 2)
+                        .style("display", "table")
+                        .append("p")
+                        .html((GRID[1] * i + j + 1)+ "&#9733;")
+                        .style("display", "table-cell")
+                        .style("vertical-align", "middle");
+
+                } else {
+
+                    d3.select("#content").append("div")
+                        .attr("id", "label" + i + j)
+                        .attr("class", "label")
+                        .style("left", $("#div" + i + j).position().left +
+                            $("#div" + i + j).width() - 30)
+                        .style("top", $("#div" + i + j).position().top + 2)
+                        .style("display", "table")
+                        .append("p")
+                        .html(GRID[1] * i + j + 1)
+                        .style("display", "table-cell")
+                        .style("vertical-align", "middle");
+
+                }
             }
         }
     }
-    
+
     d3.select("#label" + mainView[0] + mainView[1])
-                    .style("display", "none");
+        .style("display", "none");
 
     d3.select("#button-panel").style("top", $("#div11").position().top + 10);
 

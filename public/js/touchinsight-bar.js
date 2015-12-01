@@ -34,6 +34,8 @@ function Bar(options) {
     setGlobalQuery(query);
 
     _self.postUpdate();
+    
+    _self.myFormat = d3.format(',');
 }
 
 Bar.prototype.refreshChart = function () {
@@ -111,7 +113,7 @@ Bar.prototype.refreshChart = function () {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return Math.round(d[_self.target]);
+                return _self.myFormat(Math.round(d[_self.target]));
             })
             .style("pointer-events", "none");
 
@@ -194,7 +196,7 @@ Bar.prototype.refreshChart = function () {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return Math.round(d[_self.target]);
+                return  _self.myFormat(Math.round(d[_self.target]));
             })
             .style("pointer-events", "none");
 
@@ -213,7 +215,7 @@ Bar.prototype.refreshChart = function () {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return Math.round(d[_self.target]);
+                return _self.myFormat(Math.round(d[_self.target]));
             });
 
         _self.y = d3.scale.ordinal()
@@ -895,7 +897,7 @@ Bar.prototype.refreshThumbnail = function () {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return Math.round(d[_self.target]);
+                return  _self.myFormat(Math.round(d[_self.target]));
             });
 
         _self.svg.selectAll("text.name")
@@ -946,7 +948,7 @@ Bar.prototype.refreshThumbnail = function () {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return Math.round(d[_self.target]);
+                return  _self.myFormat(Math.round(d[_self.target]));
             });
 
         allBars.select("rect").attr("width", function (d) {
@@ -964,7 +966,7 @@ Bar.prototype.refreshThumbnail = function () {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return Math.round(d[_self.target]);
+                return  _self.myFormat(Math.round(d[_self.target]));
             });
 
         _self.y = d3.scale.ordinal()

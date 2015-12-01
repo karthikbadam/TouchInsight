@@ -1,12 +1,12 @@
-var sequence = ["Baseline", "Micro Viz", "Thumbnail"];
+var sequence = ["Micro Viz", "Large Display", "Thumbnail"];
 
-var participantID = "P1";
+var participantID = "P2";
 
-var NUMBER_OF_QUESTIONS = 9;
+var NUMBER_OF_QUESTIONS = 6;
 
 var questionsFile = "data/statements.csv";
 
-var distribution = [3, 3, 3];
+var distribution = [2, 2, 2];
 
 var id = "ID";
 var level = "level"
@@ -68,8 +68,10 @@ $(document).ready(function () {
                 if (currentLogic == "NEXT") {
 
                     var answer = $("input[name=ans]:checked").val();
-
-                    currentObject.isCorrect = answer == currentObject.answer ? 1 : 0;
+                    
+                    currentObject.isCorrect = ((answer==true) == (+currentObject.answer > 0) ? 1 : 0);
+                    
+                    currentObject.givenAns = answer;
 
                     currentObject.time = Date.now() - time1;
 
@@ -81,8 +83,6 @@ $(document).ready(function () {
 
                     //pushing the current log object
                     touchSync.push(currentObject);
-
-                    currentObject = {};
 
                     next(counter++);
 
@@ -182,12 +182,12 @@ function next(counter) {
         return;
     }
 
-    d3.select("#title").text("Condition: " + sequence[seqIndex] + " (" + participantID + ")")
+    var questionIndex = counter % NUMBER_OF_QUESTIONS;
+    
+     d3.select("#title").text(sequence[seqIndex] + " (" + participantID + "): " + (questionIndex + 1) + "/"+NUMBER_OF_QUESTIONS)
         .style("font-size", "30px")
         .style("color", "white")
         .style("margin", "50px");
-
-    var questionIndex = counter % NUMBER_OF_QUESTIONS;
 
     var sum = 0;
 
@@ -225,7 +225,7 @@ function next(counter) {
         .text(qObject.question)
         .style("color", "white")
         .style("margin", "50px")
-        .style("font-size", "28px");
+        .style("font-size", "40px");
 
     d3.select("#answer").style("color", "white")
         .style("margin-left", "100px")

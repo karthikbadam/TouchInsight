@@ -118,10 +118,10 @@ TimeChart.prototype.refreshChart = function () {
             .attr("class", "y axis")
             .call(yAxis)
             .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", ".71em")
-            .style("text-anchor", "end")
+            .attr("x", 10)
+            .attr("dy", "1em")
+            .style("text-anchor", "start")
+            .style("font-size", "14px")
             .text(_self.text);
 
         _self.targetData.sort(function (a, b) {
@@ -535,7 +535,7 @@ TimeChart.prototype.refreshThumbnail = function () {
             .attr("y", 6 * _self.thumbnailscale)
             .attr("dy", ".31em")
             .style("text-anchor", "end")
-            .text("Flights");
+            .text(_self.text);
 
         _self.targetData.sort(function (a, b) {
             if (parseDate(b["_id"][date]).getTime() <
