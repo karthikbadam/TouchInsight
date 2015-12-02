@@ -41,6 +41,8 @@ function Bar(options) {
 Bar.prototype.refreshChart = function () {
 
     var _self = this;
+    
+    d3.select("#" + _self.parentId).style("overflow", "hidden");
 
     if (!_self.svg || _self.svg.select("rect").empty()) {
 
@@ -325,10 +327,19 @@ Bar.prototype.refreshMicroViz = function () {
         var size = _self.majorDimension / barSize;
 
         var data = _self.targetData.slice(0, Math.ceil(size / 2));
-
+        
         var data2 = _self.targetData.slice(
-            _self.targetData.length - 1 - Math.ceil(size / 2),
-            _self.targetData.length - 1);
+            _self.targetData.length - Math.floor(size / 2),
+            _self.targetData.length);
+        
+        if (size > _self.targetData.length) {
+            
+            data = _self.targetData.slice(0, Math.ceil(_self.targetData.length / 2));
+        
+            data2 = _self.targetData.slice(
+                _self.targetData.length - Math.floor(_self.targetData.length / 2),
+                _self.targetData.length);
+        }
 
         _self.svg = d3.select("#" + _self.parentId).append("svg")
             .attr("id", "micro" + _self.parentId)
@@ -519,10 +530,18 @@ Bar.prototype.refreshMicroViz = function () {
         var size = _self.majorDimension / barSize;
 
         var data = _self.targetData.slice(0, Math.ceil(size / 2));
-
+        
         var data2 = _self.targetData.slice(
-            _self.targetData.length - 1 - Math.ceil(size / 2),
-            _self.targetData.length - 1);
+            _self.targetData.length - Math.floor(size / 2),
+            _self.targetData.length);
+        
+        if (size > _self.targetData.length) {
+            data = _self.targetData.slice(0, Math.ceil(_self.targetData.length / 2));
+        
+            data2 = _self.targetData.slice(
+                _self.targetData.length - Math.floor(_self.targetData.length / 2),
+                _self.targetData.length);
+        }
 
         _self.opacityScale1 = d3.scale.linear()
             .range([0.1, 1]);
@@ -830,7 +849,7 @@ Bar.prototype.refreshThumbnail = function () {
             .style("font-size", 10 * _self.thumbnailscale + "px");
 
         _self.svg = d3.select("#" + _self.parentId).append("div")
-            .style("overflow", "scroll")
+            .style("overflow", "hidden")
             .style("width", _self.width + _self.margin.left + _self.margin.right)
             .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom - 10 * _self.thumbnailscale)
             .append("svg")
@@ -846,10 +865,16 @@ Bar.prototype.refreshThumbnail = function () {
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
 
-                if (y != mainView[0] || x != mainView[1]) {
-                    mainView = [y, x];
-                    reDrawInterface();
-                }
+                d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
+
+                var delay = 10;
+
+                setTimeout(function () {
+                    if (y != mainView[0] || x != mainView[1]) {
+                        mainView = [y, x];
+                        reDrawInterface();
+                    }
+                }, delay);
 
             })
             .append("g")
@@ -875,7 +900,7 @@ Bar.prototype.refreshThumbnail = function () {
         _self.barH = 20 * _self.thumbnailscale;
 
         _self.bars = _self.svg.selectAll("g")
-            .data(_self.targetData)
+            .data(_self.targetData.slice(0, 21))
             .enter().append("g")
             .attr("transform", function (d, i) {
                 return "translate(" + (10 + _self.margin.left - _self.thumbnailscale * _self.margin.left)+ "," + i * _self.barH + ")";
@@ -901,7 +926,7 @@ Bar.prototype.refreshThumbnail = function () {
             });
 
         _self.svg.selectAll("text.name")
-            .data(_self.targetData)
+            .data(_self.targetData.slice(0, 21))
             .enter().append("text")
             .attr("x", 5 + _self.margin.left - _self.thumbnailscale * _self.margin.left)
             .attr("y", function (d, i) {
@@ -917,7 +942,7 @@ Bar.prototype.refreshThumbnail = function () {
 
     } else {
 
-        var allBars = _self.svg.selectAll("g").data(_self.targetData);
+        var allBars = _self.svg.selectAll("g").data(_self.targetData.slice(0, 21));
 
         allBars.exit().remove();
 
@@ -975,7 +1000,7 @@ Bar.prototype.refreshThumbnail = function () {
             }))
             .rangeBands([0, _self.height]);
 
-        var allText = _self.svg.selectAll("text.name").data(_self.targetData);
+        var allText = _self.svg.selectAll("text.name").data(_self.targetData.slice(0, 21));
 
         allText.exit().remove();
 

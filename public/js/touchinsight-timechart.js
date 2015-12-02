@@ -298,7 +298,7 @@ TimeChart.prototype.refreshMicroViz = function () {
                 
                 d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
 
-                var delay = 50;
+                var delay = 10;
 
                 setTimeout(function () {
                     if (y != mainView[0] || x != mainView[1]) {
@@ -347,6 +347,10 @@ TimeChart.prototype.refreshMicroViz = function () {
         _self.svg.data([data]).call(chart);
 
         _self.x = _self.svg[0][0].__chart__.x;
+        
+        _self.x = d3.time.scale().range([0, _self.majorDimension]);
+
+        _self.x.domain([parseDate("1990"), parseDate("2009")]);
 
         var xAxis = _self.xAxis = d3.svg.axis()
             .scale(_self.x)
@@ -355,7 +359,7 @@ TimeChart.prototype.refreshMicroViz = function () {
                 return d3.time.format('%Y')(new Date(d));
             });
         
-        //_self.xAxis.ticks(d3.time.years, 1);
+        _self.xAxis.ticks(d3.time.years, 2);
         
         _self.svg.append("g")
             .attr("class", "x axis")
@@ -427,7 +431,9 @@ TimeChart.prototype.refreshMicroViz = function () {
 
         _self.svg.data([data]).call(chart);
 
-        _self.x = _self.svg[0][0].__chart__.x;
+         _self.x = d3.time.scale().range([0, _self.majorDimension]);
+
+        _self.x.domain([parseDate("1990"), parseDate("2009")]);
 
         var xAxis = _self.xAxis = d3.svg.axis()
             .scale(_self.x)
@@ -435,11 +441,12 @@ TimeChart.prototype.refreshMicroViz = function () {
             .tickFormat(function (d) {
                 return d3.time.format('%Y')(new Date(d));
             });
+        
+        _self.xAxis.ticks(d3.time.years, 2);
 
         _self.svg.select(".x.axis")
             .attr("transform", "translate(0," + (_self.minorDimension - _self.margin.bottom) + ")")
-
-        .call(xAxis);
+            .call(xAxis);
 
         _self.svg.select(".x.axis").select("path")
             .style("display", "none");
@@ -472,11 +479,17 @@ TimeChart.prototype.refreshThumbnail = function () {
                 divId = divId.replace("div", "");
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
+            
+                d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
 
-                if (y != mainView[0] || x != mainView[1]) {
-                    mainView = [y, x];
-                    reDrawInterface();
-                }
+                var delay = 10;
+
+                setTimeout(function () {
+                    if (y != mainView[0] || x != mainView[1]) {
+                        mainView = [y, x];
+                        reDrawInterface();
+                    }
+                }, delay);
 
             })
             .append("g")

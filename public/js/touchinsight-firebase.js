@@ -26,6 +26,8 @@ Sync.prototype.push = function (content) {
 
     data.device = device;
     
+    //data.pID = participantID;
+    
     data.timeStamp = Date.now();
 
     _self.queryRef.push(data);

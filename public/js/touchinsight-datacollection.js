@@ -67,9 +67,9 @@ $(document).ready(function () {
 
                 if (currentLogic == "NEXT") {
 
-                    var answer = $("input[name=ans]:checked").val();
+                    var answer = (""+$("input[name=ans]:checked").val() == "true")? 1: 0;
                     
-                    currentObject.isCorrect = ((answer==true) == (+currentObject.answer > 0) ? 1 : 0);
+                    currentObject.isCorrect = (answer == +currentObject.answer ? 1 : 0);
                     
                     currentObject.givenAns = answer;
 
@@ -215,6 +215,8 @@ function next(counter) {
     var qObject = allQuestions[levelIndex][qIndex * sequence.length + seqIndex];
 
     currentObject = qObject;
+    
+    currentObject.answer = +currentObject.answer;
 
     currentObject.condition = sequence[seqIndex];
 

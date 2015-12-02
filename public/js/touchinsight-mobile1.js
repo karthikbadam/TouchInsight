@@ -204,7 +204,13 @@ $(document).ready(function () {
 });
 
 function reDrawInterface() {
-
+    
+    // context switched
+    var content = {};
+    content.action = "switch";
+    content.mainview = mainView;
+    touchSync.push(content);
+    
     var prevL = l;
 
     l = getDimensions(mainView[0], mainView[1]);

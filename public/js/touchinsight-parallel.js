@@ -120,7 +120,7 @@ Parallel.prototype.refreshChart = function () {
                     return "Population"
                 if (d == "Distance")
                     return "Distance"
-                return d+" / year";
+                return d+"/year";
             });
 
         g.append("g")
@@ -222,8 +222,8 @@ Parallel.prototype.refreshChart = function () {
 //            .attr("y", -9)
 //            .text(function (d) {
 //                if (d == "SPopulation")
-//                    return "Population / year"
-//                return d+" / year";
+//                    return "Population/year"
+//                return d+"/year";
 //            });
 
         _self.g.selectAll(".brush")
@@ -480,7 +480,7 @@ Parallel.prototype.refreshMicroViz = function () {
                     return "Population"
                 if (d == "Distance")
                     return "Distance"
-                return d+" / year";
+                return d+"/year";
             })
             .attr("transform", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
@@ -617,7 +617,7 @@ Parallel.prototype.refreshMicroViz = function () {
                     return "Population"
                 if (d == "Distance")
                     return "Distance"
-                return d+" / year";
+                return d+"/year";
             })
             .attr("transform", function (d, i) {
                 if (_self.direction == "left" || _self.direction == "right")
@@ -685,10 +685,16 @@ Parallel.prototype.refreshThumbnail = function () {
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
 
-                if (y != mainView[0] || x != mainView[1]) {
-                    mainView = [y, x];
-                    reDrawInterface();
-                }
+                d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
+
+                var delay = 10;
+
+                setTimeout(function () {
+                    if (y != mainView[0] || x != mainView[1]) {
+                        mainView = [y, x];
+                        reDrawInterface();
+                    }
+                }, delay);
 
             })
             .append("g")
@@ -752,7 +758,7 @@ Parallel.prototype.refreshThumbnail = function () {
                     return "Population"
                 if (d == "Distance")
                     return "Distance"
-                return d+" / year";
+                return d+"/year";
             });
 
 

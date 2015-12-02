@@ -207,6 +207,12 @@ $(document).ready(function () {
 
 
 function reDrawInterface() {
+    
+    // context switched
+    var content = {};
+    content.action = "switch";
+    content.mainview = mainView;
+    touchSync.push(content);
 
     var prevL = l;
 
@@ -519,10 +525,10 @@ function getDimensions(mainVIndex, mainHIndex) {
 
     //assigning the dimensions to the main view
     layOut[mainVIndex][mainHIndex] = {
-        width: width - 10 * PADDING,
-        height: height - 10 * PADDING - PADDING_Y / 2,
-        left: 5 * PADDING,
-        top: 5 * PADDING
+        width: width - 20 * PADDING,
+        height: height - 20 * PADDING - PADDING_Y / 2,
+        left: 10 * PADDING,
+        top: 10 * PADDING
     };
 
     //assigning the top or bottom

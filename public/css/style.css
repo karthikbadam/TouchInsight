@@ -56,12 +56,12 @@ svg {
 .axis path,
 .axis line {
     fill: none;
-    stroke: #888;
+    stroke: #666;
     shape-rendering: crispEdges;
 }
 
 .tick text {
-    fill: #888;
+    fill: #222;
     
 }
 
@@ -97,13 +97,17 @@ svg {
     border: 1px solid #222;
 }
 
+/*
 .thumbnail {
     background-color: white;
 }
+*/
 
+/*
 .thumbnail:hover {
     background-color: #deebf7;
 }
+*/
 
 .lasso path {
     stroke: rgb(80, 80, 80);
