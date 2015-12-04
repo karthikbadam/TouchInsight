@@ -91,12 +91,6 @@ svg {
     position: absolute;
 }
 
-.secondarypanel {
-    z-index: 5;
-    position: absolute;
-    border: 1px solid #222;
-}
-
 /*
 .thumbnail {
     background-color: white;
@@ -257,4 +251,15 @@ div.tooltip {
     width: 80px;
     display: inline-block;
     cursor: pointer;
+}
+
+#overview {
+    width: 32%;
+    height: 41%;
+    position: absolute;
+    left: 68%;
+    top: 57%;
+    border: 1px solid none;
+    background-color: white;
+    z-index: 100;
 }

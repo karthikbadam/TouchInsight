@@ -28,8 +28,15 @@ function Parallel(options) {
         logic: "CLEAN"
     });
 
-    setGlobalQuery(query);
-
+    if ("post" in options && options.post == 0) {
+        
+        
+    } else {
+        
+        setGlobalQuery(query);
+        
+    }   
+    
     _self.postUpdate();
 
 }
@@ -652,10 +659,11 @@ Parallel.prototype.refreshThumbnail = function () {
     _self.thumbnailscale = THUMBNAIL_SCALE;
 
     _self.thumbnailwidth = _self.width + _self.margin.left + _self.margin.right;
-    _self.thumbnailheight = _self.height + _self.margin.top + _self.margin.bottom
+    _self.thumbnailheight = _self.height + _self.margin.top + _self.margin.bottom;
+    
 
     if (d3.select("#thumbnail" + _self.parentId).empty() ||
-        _self.svg.select(".parallel").empty()) {
+        _self.tsvg.select(".parallel").empty()) {
 
         $("#" + _self.parentId).empty();
 
@@ -673,7 +681,7 @@ Parallel.prototype.refreshThumbnail = function () {
                 }))
             .range([1 * _self.thumbnailscale, 20 * _self.thumbnailscale]);
 
-        _self.svg = d3.select("#" + _self.parentId).append("svg")
+        _self.tsvg = d3.select("#" + _self.parentId).append("svg")
             .attr("id", "thumbnail" + _self.parentId)
             .attr("class", "thumbnail")
             .attr("width", _self.thumbnailwidth)
@@ -681,19 +689,24 @@ Parallel.prototype.refreshThumbnail = function () {
             .on("click", function () {
                 var divId = _self.parentId;
 
+                divId = divId.replace("thumb", "");
                 divId = divId.replace("div", "");
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
 
+                d3.selectAll(".secondarypanel").style("background-color", "white");
+            
                 d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
 
-                var delay = 10;
+                var delay = 40;
 
                 setTimeout(function () {
                     if (y != mainView[0] || x != mainView[1]) {
                         mainView = [y, x];
                         reDrawInterface();
                     }
+                    
+                    
                 }, delay);
 
             })
@@ -722,7 +735,7 @@ Parallel.prototype.refreshThumbnail = function () {
             }));
 
         // Add blue foreground lines for focus.
-        _self.parallel = _self.svg.append("g")
+        _self.parallel = _self.tsvg.append("g")
             .attr("class", "parallel")
             .selectAll("path")
             .data(_self.targetData)
@@ -736,7 +749,7 @@ Parallel.prototype.refreshThumbnail = function () {
             .style("pointer-events", "none");
 
         // Add a group element for each dimension.
-        var g = _self.g = _self.svg.selectAll(".dimension")
+        var g = _self.g = _self.tsvg.selectAll(".dimension")
             .data(_self.dimensions)
             .enter().append("g")
             .attr("class", "dimension")
@@ -791,7 +804,7 @@ Parallel.prototype.refreshThumbnail = function () {
 
         });
 
-        var parallelLines = _self.svg.selectAll(".parallel").selectAll("path")
+        var parallelLines = _self.tsvg.selectAll(".parallel").selectAll("path")
             .data(_self.targetData);
 
         parallelLines.exit().remove();
@@ -859,7 +872,7 @@ Parallel.prototype.postUpdate = function (cquery) {
 
         _self.targetData = JSON.parse(data);
         
-        d3.select("#"+_self.parentId).style("background-color", "white");
+        //d3.select("#"+_self.parentId).style("background-color", "white");
 
         if (device == "DESKTOP") {
             _self.refreshChart();

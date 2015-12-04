@@ -32,8 +32,15 @@ function TimeChart(options) {
         logic: "CLEAN"
     });
 
-    setGlobalQuery(query);
-
+    if ("post" in options && options.post == 0) {
+        
+        
+    } else {
+        
+        setGlobalQuery(query);
+        
+    }   
+    
     _self.postUpdate();
 
 }
@@ -73,8 +80,14 @@ TimeChart.prototype.refreshChart = function () {
             .innerTickSize(-_self.height)
             .outerTickSize(0)
             .tickPadding(10);
-
+        
         _self.xAxis.ticks(d3.time.years, 1);
+
+        if (device == "MOBILE2") {
+            _self.xAxis.ticks(d3.time.years, 2);
+        }
+        
+        
 
         if (_self.width < 400) {
 
@@ -460,14 +473,15 @@ TimeChart.prototype.refreshMicroViz = function () {
 TimeChart.prototype.refreshThumbnail = function () {
 
     var _self = this;
-
-    if (d3.select("#thumbnail" + _self.target).empty() || _self.svg.select("path").empty()) {
+    
+    
+    if (d3.select("#thumbnail" + _self.target).empty() || _self.tsvg.select("path").empty()) {
 
         $("#" + _self.parentId).empty();
 
         _self.thumbnailscale = THUMBNAIL_SCALE;
 
-        _self.svg = d3.select("#" + _self.parentId)
+        _self.tsvg = d3.select("#" + _self.parentId)
             .append("svg")
             .attr("class", "thumbnail" + _self.target)
             .attr("id", "timechart")
@@ -476,32 +490,38 @@ TimeChart.prototype.refreshThumbnail = function () {
             .on("click", function () {
                 var divId = _self.parentId;
 
+                divId = divId.replace("thumb", "");
                 divId = divId.replace("div", "");
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
             
+                d3.selectAll(".secondarypanel").style("background-color", "white");
+            
                 d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
 
-                var delay = 10;
+                var delay = 40;
 
                 setTimeout(function () {
                     if (y != mainView[0] || x != mainView[1]) {
                         mainView = [y, x];
                         reDrawInterface();
                     }
+                    
+                    
                 }, delay);
 
             })
             .append("g")
-            .attr("transform", "translate(" + (_self.margin.left * _self.thumbnailscale + 5) + "," + 1 + ")")
+            .attr("transform", "translate(" + 
+                  (_self.margin.left * _self.thumbnailscale + 5) + "," + 1 + ")")
             .style("pointer-events", "none")
             .style("font-size", 10 * _self.thumbnailscale + "px");
 
         var x = _self.x = d3.time.scale()
-            .range([0, _self.width + _self.margin.left * _self.thumbnailscale]);
+            .range([0, _self.width  + _self.margin.right + _self.margin.left * _self.thumbnailscale]);
 
         var y = _self.y = d3.scale.linear()
-            .range([_self.height + _self.margin.bottom * _self.thumbnailscale, 0]);
+            .range([_self.height + _self.margin.bottom * 2 * _self.thumbnailscale, 0]);
 
         var xAxis = _self.xAxis = d3.svg.axis()
             .scale(x)
@@ -514,13 +534,13 @@ TimeChart.prototype.refreshThumbnail = function () {
 
         var yAxis = _self.yAxis = d3.svg.axis()
             .scale(y)
-            .orient("left").tickFormat(d3.format("s"));
+            .orient("left").tickFormat(d3.format("s")).ticks(5) ;
 
         var area = _self.area = d3.svg.area()
             .x(function (d) {
                 return x(parseDate(d["_id"][date]));
             })
-            .y0(_self.height + _self.margin.bottom * _self.thumbnailscale)
+            .y0(_self.height + _self.margin.bottom * 2 * _self.thumbnailscale)
             .y1(function (d) {
                 return y(d[_self.target]);
             });
@@ -535,12 +555,12 @@ TimeChart.prototype.refreshThumbnail = function () {
             return d[_self.target];
         }));
 
-        _self.svg.append("g")
+        _self.tsvg.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + (_self.height + _self.margin.bottom * _self.thumbnailscale) + ")")
+            .attr("transform", "translate(0," + (_self.height + _self.margin.bottom * 2 * _self.thumbnailscale) + ")")
             .call(xAxis);
 
-        _self.svg.append("g")
+        _self.tsvg.append("g")
             .attr("class", "y axis")
             .call(yAxis)
             .append("text")
@@ -556,7 +576,7 @@ TimeChart.prototype.refreshThumbnail = function () {
             return -1;
         });
 
-        _self.svg.append("path")
+        _self.tsvg.append("path")
             .datum(_self.targetData)
             .attr("id", "time")
             .attr("class", "flightsTime")
@@ -583,10 +603,10 @@ TimeChart.prototype.refreshThumbnail = function () {
 
         _self.yAxis.scale(_self.y);
 
-        _self.svg.select(".y.axis")
+        _self.tsvg.select(".y.axis")
             .call(_self.yAxis);
 
-        _self.svg.select("#time")
+        _self.tsvg.select("#time")
             .datum(_self.targetData)
             .transition().duration(500)
             .attr("d", _self.area)
@@ -643,7 +663,7 @@ TimeChart.prototype.postUpdate = function (cquery) {
 
         _self.targetData = JSON.parse(data);
         
-        d3.select("#"+_self.parentId).style("background-color", "white");
+        //d3.select("#"+_self.parentId).style("background-color", "white");
 
         if (device == "DESKTOP") {
             _self.refreshChart();

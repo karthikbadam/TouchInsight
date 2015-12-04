@@ -97,7 +97,12 @@ function clearAllQueries() {
         return;
 
     queryStack.length = 0;
-
+    
+    // context switched
+    var content = {};
+    content.action = "CLEAR";
+    //content.mainview = mainView;
+    touchSync.push(content);
 
     var query = new Query({
         index: "Date",
@@ -119,12 +124,11 @@ function clearRecentQuery() {
     queryStack.pop();
     historyQueryStack.pop();
 
-    var query = new Query({
-        index: "Date",
-        value: ["1990", "2009"],
-        operator: "range",
-        logic: "CLEAN"
-    });
+    // context switched
+    var content = {};
+    content.action = "UNDO";
+    //content.mainview = mainView;
+    touchSync.push(content);
 
     // update all other visualizations
     geomap.postUpdate();

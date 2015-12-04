@@ -25,17 +25,33 @@ function Map(options) {
         operator: "range",
         logic: "CLEAN"
     });
-
-    setGlobalQuery(query);
-
+    
+    if ("post" in options && options.post == 0) {
+        
+        
+    } else {
+        
+        setGlobalQuery(query);
+        
+    }   
+    
     _self.postUpdate();
+
+    
+}
+
+Map.prototype.changeParent = function (parent) {
+    
+    var _self = this; 
+    
+    _self.parentId = parent;
 }
 
 Map.prototype.refreshChart = function () {
 
     var _self = this;
 
-    if (d3.select("#map").empty()) {
+    if (!_self.svg || _self.svg.select("#map").empty()) {
 
         var top = 49.3457868;
         var left = -124.7844079;
@@ -53,7 +69,7 @@ Map.prototype.refreshChart = function () {
         _self.path = d3.geo.path()
             .projection(_self.projection);
 
-        _self.svg = d3.select("#" + _self.parentId)
+        _self.svg = d3.select("#" + _self.parentId.replace("thumb", ""))
             .append("svg")
             .attr("id", "choropleth")
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
@@ -884,7 +900,7 @@ Map.prototype.refreshThumbnail = function () {
         var right = -66.9513812;
         var bottom = 24.7433195;
 
-        _self.svg
+        _self.tsvg = d3.select("#" + _self.parentId).append("svg")
             .attr("id", "thumbnail-choropleth")
             .attr("class", "thumbnail")
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
@@ -892,19 +908,24 @@ Map.prototype.refreshThumbnail = function () {
             .on("click", function () {
                 var divId = _self.parentId;
 
+                divId = divId.replace("thumb", "");    
                 divId = divId.replace("div", "");
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
+                
+                d3.selectAll(".secondarypanel").style("background-color", "white");
+            
+                d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
 
-                d3.selectAll("#" + _self.parentId).style("background-color", "darkgray");
-
-                var delay = 10;
+                var delay = 40;
 
                 setTimeout(function () {
                     if (y != mainView[0] || x != mainView[1]) {
                         mainView = [y, x];
                         reDrawInterface();
                     }
+                    
+                    
                 }, delay);
 
             });
@@ -920,36 +941,20 @@ Map.prototype.refreshThumbnail = function () {
         _self.path = d3.geo.path()
             .projection(_self.projection);
 
-        //        _self.svg = d3.select("#" + _self.parentId)
-        //            .append("svg")
-        //            .attr("id", "thumbnail-choropleth")
-        //            .attr("class", "thumbnail")
-        //            .attr("width", _self.width + _self.margin.left + _self.margin.right)
-        //            .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
-        //            .on("click", function () {
-        //                var divId = _self.parentId;
-        //
-        //                divId = divId.replace("div", "");
-        //                var y = parseInt(divId[0]);
-        //                var x = parseInt(divId[1]);
-        //
-        //                if (y != mainView[0] || x != mainView[1]) {
-        //                    mainView = [y, x];
-        //                    reDrawInterface();
-        //                }
-        //
-        //            });
 
         // draw map
         d3.json("data/us.json", function (error, us) {
 
-            _self.svg.select("#map")
+            _self.tsvg.append("path")
+                .attr("id", "map")
                 .datum(topojson.feature(us, us.objects.land))
                 .attr("class", "land")
                 .attr("d", _self.path)
-                .style("pointer-events", "none");
+                .style("pointer-events", "none")
+                .style("z-index", 0)
+                .attr("opacity", 0.2);
 
-            _self.svg.select("#boundary")
+            _self.tsvg.append("path")
                 .attr("id", "boundary")
                 .datum(
                     topojson.mesh(us,
@@ -959,120 +964,11 @@ Map.prototype.refreshThumbnail = function () {
                         }))
                 .attr("class", "state-boundary")
                 .attr("d", _self.path)
-                .style("pointer-events", "none");
+                .style("pointer-events", "none")
+                .style("z-index", 0)
+                .attr("opacity", 0.2);
 
         });
-        //
-        //            var cities = [];
-        //            var sourceCities = [];
-        //            var destinationCities = [];
-        //
-        //            for (var i = 0; i < _self.targetData.length; i++) {
-        //
-        //                var d = _self.targetData[i];
-        //                var sourceCity = d["_id"][source];
-        //                var destinationCity = d["_id"][destination];
-        //
-        //                if (sourceCities.indexOf(sourceCity) < 0) {
-        //                    cities.push({
-        //                        name: sourceCity,
-        //                        type: source
-        //                    });
-        //                    sourceCities.push(sourceCity);
-        //                }
-        //
-        //                if (destinationCities.indexOf(destinationCity) < 0) {
-        //                    cities.push({
-        //                        name: destinationCity,
-        //                        type: destination
-        //                    });
-        //                    destinationCities.push(destinationCity);
-        //                }
-        //            }
-        //
-        //            _self.svg
-        //                .selectAll(".city")
-        //                .data(cities)
-        //                .enter().append("circle")
-        //                .attr("class", "city")
-        //                .style("pointer-events", "none")
-        //                .attr("fill", function (d) {
-        //                    //return _self.colors(d["_id"][destination]);
-        //                    return d.type == source ? "#4292c6" : "#fb6a4a";
-        //                })
-        //                .attr("cx", function (d, i) {
-        //
-        //                    var s = d.name;
-        //                    var loc = usStates[s];
-        //
-        //                    return _self.projection([loc.lon, loc.lat])[0];
-        //                }).attr("cy", function (d, i) {
-        //
-        //                    var s = d.name;
-        //                    var loc = usStates[s];
-        //
-        //                    return _self.projection([loc.lon, loc.lat])[1];
-        //                })
-        //                .attr("fill-opacity", 1)
-        //                .attr("stroke", "white")
-        //                .attr("stroke-width", "0.5px")
-        //                .attr("r", function (d, i) {
-        //                    return d.type == source ? 3 * _self.thumbnailscale + "px" : 6 * _self.thumbnailscale + "px";
-        //                });
-        //
-        //            _self.svg.append("g")
-        //                .style("pointer-events", "none")
-        //                .attr("class", "links")
-        //                .selectAll("line")
-        //                .data(_self.targetData.slice(0, 100))
-        //                .enter().append("line")
-        //                .attr("class", "link")
-        //                .style("pointer-events", "none")
-        //                .attr("stroke", function (d) {
-        //                    return "#9ecae1";
-        //                    //return _self.colors(d["_id"][destination]);
-        //                })
-        //                .attr("stroke-width", function (d, i) {
-        //                    return (Math.log(d["Flights"] + 0.5)) * _self.thumbnailscale + "px";
-        //                })
-        //                .attr("stroke-opacity", 0.1)
-        //                .attr("x1", function (d, i) {
-        //
-        //                    var s = d["_id"][source];
-        //                    var loc = usStates[s];
-        //                    var c = _self.projection([loc.lon, loc.lat])
-        //
-        //                    return c[0];
-        //                })
-        //                .attr("y1", function (d, i) {
-        //
-        //                    var s = d["_id"][source];
-        //                    var loc = usStates[s];
-        //                    var c = _self.projection([loc.lon, loc.lat])
-        //
-        //                    return c[1];
-        //
-        //                })
-        //                .attr("x2", function (d, i) {
-        //
-        //                    var s = d["_id"][destination];
-        //                    var loc = usStates[s];
-        //                    var c = _self.projection([loc.lon, loc.lat])
-        //
-        //                    return c[0];
-        //
-        //                })
-        //                .attr("y2", function (d, i) {
-        //
-        //                    var s = d["_id"][destination];
-        //                    var loc = usStates[s];
-        //                    var c = _self.projection([loc.lon, loc.lat])
-        //
-        //                    return c[1];
-        //
-        //                });
-        //
-        //        });
 
     }
 
@@ -1102,7 +998,7 @@ Map.prototype.refreshThumbnail = function () {
         }
     }
 
-    var cityCircles = _self.svg
+    var cityCircles = _self.tsvg
         .selectAll(".city")
         .data(cities);
 
@@ -1145,8 +1041,8 @@ Map.prototype.refreshThumbnail = function () {
             return d.type == source ? "transparent" : "#222";
         })
         .attr("stroke-opacity", 0.7)
-        .attr("stroke-width", "1px")
-        .attr("r", "3px");
+        .attr("stroke-width", 0.5+"px")
+        .attr("r", 4*THUMBNAIL_SCALE+"px");
 
     cityCircles.attr("cx", function (d, i) {
 
@@ -1177,10 +1073,10 @@ Map.prototype.refreshThumbnail = function () {
             return d.type == source ? "transparent" : "#222";
         })
         .attr("stroke-opacity", 0.7)
-        .attr("stroke-width", "1px")
-        .attr("r", "3px");
+        .attr("stroke-width", 0.5+"px")
+        .attr("r", 4*THUMBNAIL_SCALE+"px");
 
-    var cityLinks = _self.svg.selectAll(".links").selectAll("line").data(_self.targetData.slice(0, 100));
+    var cityLinks = _self.tsvg.selectAll(".links").selectAll("line").data(_self.targetData.slice(0, 100));
 
     cityLinks.exit().remove();
 
@@ -1318,7 +1214,7 @@ Map.prototype.postUpdate = function (cquery) {
         _self.targetData = JSON.parse(data);
 
 
-        d3.select("#" + _self.parentId).style("background-color", "white");
+        //d3.select("#" + _self.parentId).style("background-color", "white");
 
         if (device == "DESKTOP") {
             _self.refreshChart();

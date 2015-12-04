@@ -65,6 +65,10 @@ app.get('/mobile2', function (req, res, next) {
     res.render('mobile2.html', {});
 });
 
+app.get('/mobile3', function (req, res, next) {
+    res.render('mobile3.html', {});
+});
+
 
 
 app.get('/study', function (req, res, next) {

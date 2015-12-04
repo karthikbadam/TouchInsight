@@ -100,12 +100,11 @@ function clearRecentQuery() {
     queryStack.pop();
     historyQueryStack.pop();
 
-    var query = new Query({
-        index: "Date",
-        value: ["1990", "2009"],
-        operator: "range",
-        logic: "CLEAN"
-    });
+    // context switched
+    var content = {};
+    content.action = "UNDO";
+    content.mainview = mainView;
+    touchSync.push(content);
 
     // update all other visualizations
     geomap.postUpdate();
@@ -133,6 +132,12 @@ function clearAllQueries() {
         operator: "range",
         logic: "CLEAN"
     });
+    
+    // context switched
+    var content = {};
+    content.action = "CLEAR";
+    content.mainview = mainView;
+    touchSync.push(content);
 
     setGlobalQuery(query, 1);
 }

@@ -31,8 +31,15 @@ function Bar(options) {
         logic: "CLEAN"
     });
 
-    setGlobalQuery(query);
-
+    if ("post" in options && options.post == 0) {
+        
+        
+    } else {
+        
+        setGlobalQuery(query);
+        
+    }   
+    
     _self.postUpdate();
     
     _self.myFormat = d3.format(',');
@@ -836,7 +843,9 @@ Bar.prototype.refreshThumbnail = function () {
 
     var _self = this;
     
-    if (d3.select("#thumbnail" + _self.target).empty() || _self.svg.select("rect").empty()) {
+    
+    
+    if (d3.select("#thumbnail" + _self.target).empty() || _self.tsvg.select("rect").empty()) {
 
         _self.height = 10000;
 
@@ -844,11 +853,9 @@ Bar.prototype.refreshThumbnail = function () {
 
         _self.thumbnailscale = THUMBNAIL_SCALE;
 
-        d3.select("#" + _self.parentId).append("text")
-            .text(_self.text)
-            .style("font-size", 10 * _self.thumbnailscale + "px");
 
-        _self.svg = d3.select("#" + _self.parentId).append("div")
+        _self.tsvg = d3.select("#" + _self.parentId)
+            .append("div")
             .style("overflow", "hidden")
             .style("width", _self.width + _self.margin.left + _self.margin.right)
             .style("height", _self.actualheight + _self.margin.top + _self.margin.bottom - 10 * _self.thumbnailscale)
@@ -861,19 +868,24 @@ Bar.prototype.refreshThumbnail = function () {
             .on("click", function () {
                 var divId = _self.parentId;
 
+                divId = divId.replace("thumb", "");
                 divId = divId.replace("div", "");
                 var y = parseInt(divId[0]);
                 var x = parseInt(divId[1]);
 
+                d3.selectAll(".secondarypanel").style("background-color", "white");
+            
                 d3.selectAll("#"+_self.parentId).style("background-color", "darkgray");
 
-                var delay = 10;
+                var delay = 40;
 
                 setTimeout(function () {
                     if (y != mainView[0] || x != mainView[1]) {
                         mainView = [y, x];
                         reDrawInterface();
                     }
+                    
+                    
                 }, delay);
 
             })
@@ -888,7 +900,7 @@ Bar.prototype.refreshThumbnail = function () {
             .domain([0, d3.max(_self.targetData, function (d) {
                 return Math.pow(d[_self.target], 1);
             })])
-            .range([0, _self.width + _self.margin.left - _self.thumbnailscale * _self.margin.left]);
+            .range([0, _self.width + _self.margin.left]);
 
         _self.y = d3.scale.ordinal()
             .domain(_self.targetData.map(function (d) {
@@ -899,11 +911,11 @@ Bar.prototype.refreshThumbnail = function () {
         //_self.barH = _self.height / _self.targetData.length;
         _self.barH = 20 * _self.thumbnailscale;
 
-        _self.bars = _self.svg.selectAll("g")
+        _self.bars = _self.tsvg.selectAll("g")
             .data(_self.targetData.slice(0, 21))
             .enter().append("g")
             .attr("transform", function (d, i) {
-                return "translate(" + (10 + _self.margin.left - _self.thumbnailscale * _self.margin.left)+ "," + i * _self.barH + ")";
+                return "translate(" + (10 + _self.thumbnailscale * _self.margin.left)+ "," + i * _self.barH + ")";
             });
 
         _self.bars.append("rect")
@@ -925,10 +937,10 @@ Bar.prototype.refreshThumbnail = function () {
                 return  _self.myFormat(Math.round(d[_self.target]));
             });
 
-        _self.svg.selectAll("text.name")
+        _self.tsvg.selectAll("text.name")
             .data(_self.targetData.slice(0, 21))
             .enter().append("text")
-            .attr("x", 5 + _self.margin.left - _self.thumbnailscale * _self.margin.left)
+            .attr("x", 5 + _self.thumbnailscale * _self.margin.left)
             .attr("y", function (d, i) {
                 return i * _self.barH + _self.barH / 2;
             })
@@ -942,7 +954,7 @@ Bar.prototype.refreshThumbnail = function () {
 
     } else {
 
-        var allBars = _self.svg.selectAll("g").data(_self.targetData.slice(0, 21));
+        var allBars = _self.tsvg.selectAll("g").data(_self.targetData.slice(0, 21));
 
         allBars.exit().remove();
 
@@ -1000,7 +1012,7 @@ Bar.prototype.refreshThumbnail = function () {
             }))
             .rangeBands([0, _self.height]);
 
-        var allText = _self.svg.selectAll("text.name").data(_self.targetData.slice(0, 21));
+        var allText = _self.tsvg.selectAll("text.name").data(_self.targetData.slice(0, 21));
 
         allText.exit().remove();
 
@@ -1075,7 +1087,7 @@ Bar.prototype.postUpdate = function (cquery) {
         
         _self.targetData = JSON.parse(data);
         
-        d3.select("#"+_self.parentId).style("background-color", "white");
+        //d3.select("#"+_self.parentId).style("background-color", "white");
 
         if (device == "DESKTOP") {
             _self.refreshChart();

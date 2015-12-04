@@ -4,6 +4,8 @@ function Sync(options) {
 
     var queryRef = _self.queryRef = new
     Firebase('touchsurvey.firebaseIO.com');
+    
+    //queryRef.remove();
 
     queryRef.on('child_added',
         function (snapshot) {

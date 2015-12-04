@@ -1,12 +1,12 @@
-var sequence = ["Micro Viz", "Large Display", "Thumbnail"];
+var sequence = ["Micro Viz", "Thumbnail", "Large Display"];
 
-var participantID = "P2";
+var participantID = "P3";
 
-var NUMBER_OF_QUESTIONS = 6;
+var NUMBER_OF_QUESTIONS = 7;
 
 var questionsFile = "data/statements.csv";
 
-var distribution = [2, 2, 2];
+var distribution = [3, 2, 2];
 
 var id = "ID";
 var level = "level"
