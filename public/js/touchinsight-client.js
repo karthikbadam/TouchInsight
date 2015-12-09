@@ -72,7 +72,7 @@ function setGlobalQuery(query, propagate) {
 
     touchSync.push(currQuery);
     
-    d3.select(".extent").attr("width", 0).attr("x", 0);
+    d3.selectAll(".extent").attr("width", 0).attr("x", 0);
 
     historyQueryStack.push(query);
 

@@ -1,6 +1,6 @@
-var sequence = ["Micro Viz", "Large Display", "Thumbnail"];
+var sequence = ["Micro Viz", "Thumbnail", "Large Display"];
 
-var participantID = "P8";
+var participantID = "P9";
 
 var NUMBER_OF_QUESTIONS = 7;
 
